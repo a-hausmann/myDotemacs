@@ -1210,9 +1210,9 @@ OK, I forgot to add this until now...and setting up this configuration in git ma
   ;; 2018-12-16: Adding evil-magit
   (use-package evil-magit
     :ensure t
-    :config
-    (setq evil-magit-state 'normal)
-    (setq evil-magit-use-y-for-yank nil))
+    :demand)
+  (setq evil-magit-state 'normal)
+  (setq evil-magit-use-y-for-yank nil)
 #+END_SRC
 * Final Stuff
 ** Remap some keys
