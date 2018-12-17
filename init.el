@@ -73,6 +73,10 @@
  use-package-always-defer t
  use-package-always-ensure t)
 
+;; 2018-12-16: migrate code from dotemacs.org file to here as it deals with version controlled files.
+;; Follow symlinks for version controlled files
+(setq vc-follow-symlinks t)
+
 ;; Use latest Org
 (use-package org :ensure org-plus-contrib)
 
@@ -89,3 +93,4 @@
 ;;; init.el ends here
 
 (put 'narrow-to-region 'disabled nil)
+(put 'dired-find-alternate-file 'disabled nil)

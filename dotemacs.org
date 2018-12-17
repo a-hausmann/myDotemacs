@@ -245,12 +245,12 @@ Here is where I put languages configurations: Lisp, etc.
 *** Looks
 This will take care of startup messages, menus/scrollbars, encoding, "cursorline" highlighting, pretty symbols, and some Org mode settings.    
 
-**** Remove startup message, possibly replace later (see dashboard)
+- Remove startup message, possibly replace later (see dashboard)
  #+BEGIN_SRC emacs-lisp
  (setq inhibit-startup-message t)
  #+END_SRC
 
-**** Disable menus and scrollbars
+- Disable menus and scrollbars
  Can set any of these from -1 (FALSE as it is not 1) to 1 (TRUE) if they are desired.
  #+BEGIN_SRC emacs-lisp
  (tool-bar-mode -1)
@@ -258,13 +258,18 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
  (scroll-bar-mode -1)
  #+END_SRC
 
-**** Disable annoying bell
+- Disable annoying bell
  Comment this line for visual reminder of events.
  #+BEGIN_SRC emacs-lisp
  (setq ring-bell-function 'ignore)
  #+END_SRC
 
-**** Set UTF-8 encoding
+- Change "yes or no" questions to "y or n". This is great! *NEVER* change this one!
+ #+BEGIN_SRC emacs-lisp
+ (defalias 'yes-or-no-p 'y-or-n-p)
+ #+END_SRC
+
+- Set UTF-8 encoding
  #+BEGIN_SRC emacs-lisp
  (setq locale-coding-system 'utf-8)
  (set-terminal-coding-system 'utf-8)
@@ -273,13 +278,13 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
  (prefer-coding-system 'utf-8)
  #+END_SRC
 
-**** Highlight current line
+- Highlight current line
  While "hl-line" works well in GUI, it's not so hot in terminal, so use only in GUI.
  #+BEGIN_SRC emacs-lisp
  (when window-system (add-hook 'prog-mode-hook 'hl-line-mode))
  #+END_SRC
 
-**** Pretty symbols
+- Pretty symbols
  Changes =lambda= to an actual symbol, plus some others; works only in GUI mode.
  #+BEGIN_SRC emacs-lisp
  (when window-system
@@ -289,12 +294,12 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
        (global-pretty-mode t)))
  #+END_SRC
 
-**** Show parens
+- Show parens
  #+BEGIN_SRC emacs-lisp
  (show-paren-mode 1)
  #+END_SRC
 
-**** ORG MODE settings
+- ORG MODE settings
  Org mode is such an important part of Emacs it is now part of the "core" software. As such, there is no need for a "use-package" setup, but some common settings are good.
 
  These are from UncleDavesEmacs:
@@ -316,7 +321,7 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
   (global-set-key (kbd "C-c '") 'org-edit-src-code)
 #+END_SRC
 
-**** Org Bullets
+- Org Bullets
 This makes things look nicer; it replaces asterisks with nicer looking bullets.
 #+BEGIN_SRC emacs-lisp
 (use-package org-bullets
@@ -325,39 +330,33 @@ This makes things look nicer; it replaces asterisks with nicer looking bullets.
     (add-hook 'org-mode-hook 'org-bullets-mode))
 #+END_SRC
 
-**** Global mode settings
+- Global mode settings
 I really, *really* like visual-line-mode, so set globally.
 #+BEGIN_SRC emacs-lisp
   (global-visual-line-mode 1)
 #+END_SRC
 
 *** Functionality
- *Disable backups and auto-saves*
+ Disable backups and auto-saves
  Change "nil" to "t" to use either of these
  #+BEGIN_SRC emacs-lisp
  (setq make-backup-files nil)
  (setq auto-save-default nil)
  #+END_SRC
 
- *Change "yes or no" questions to "y or n"*
- This is great!  *NEVER* change this one!
- #+BEGIN_SRC emacs-lisp
- (defalias 'yes-or-no-p 'y-or-n-p)
- #+END_SRC
-
- *Default browser*
+ Default browser
  According to the [[https://www.emacswiki.org/emacs/BrowseUrl][BrowseUrl wiki]], there is already support for Opera, Firefox, and Chromium, even Edge, but not Internet Exploder. Looking at most of the documentation on the Wiki page, it seems that both must variables must be set, and there is no way out of that.  Oh well.
  #+BEGIN_SRC emacs-lisp
  (setq browse-url-browser-function 'browse-url-generic
        browse-url-generic-program "opera")
  #+END_SRC
  
-*Use electric-pair-mode globally*
+Use electric-pair-mode globally
 #+BEGIN_SRC emacs-lisp
 ;; (electric-pair-mode 1)
 #+END_SRC
 
-*Enable narrowing*
+Enable narrowing
 Narrowing displays "selected" text and blanks out all other text in the buffer, making it appear that nothing else exists. You can perform any editing necessary while narrowed, to be retained when full text is restored by "widening" back to the full buffer.
 
 Function "narrow-to-defun" is (I think) useful only in Lisp, and I'm not sure what "narrow-to-page" means, so I will only enable "narrow-to-region", which is selected text. Narrowing is enacted with "C-x n n" and reversed by "widening", enacted with "C-x n w".
@@ -1205,7 +1204,44 @@ This is pretty awesome.  In normal mode, "cx" plus motion keys will "select" the
   (evil-exchange-cx-install)
 #+END_SRC
 
+** Evil-magit
+OK, I forgot to add this until now...and setting up this configuration in git made me realize I had no Magit evil bindings. Whoops.  This should take care of it all, but will likely have to tweak the keybindings more later.
+#+BEGIN_SRC emacs-lisp
+  ;; 2018-12-16: Adding evil-magit
+  (use-package evil-magit
+    :ensure t
+    :config
+    (setq evil-magit-state 'normal)
+    (setq evil-magit-use-y-for-yank nil))
+#+END_SRC
 * Final Stuff
+** Remap some keys
+Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/blog/2014-08-03-a-vim-like-emacs-config.html][here]].
+#+BEGIN_SRC emacs-lisp
+  (evil-define-key 'normal dired-mode-map "h" 'dired-up-directory)
+  (evil-define-key 'normal dired-mode-map "l" 'dired-find-alternate-file)
+  (evil-define-key 'normal dired-mode-map "o" 'dired-sort-toggle-or-edit)
+  (evil-define-key 'normal dired-mode-map "v" 'dired-toggle-marks)
+  (evil-define-key 'normal dired-mode-map "m" 'dired-mark)
+  (evil-define-key 'normal dired-mode-map "u" 'dired-unmark)
+  (evil-define-key 'normal dired-mode-map "U" 'dired-unmark-all-marks)
+  (evil-define-key 'normal dired-mode-map "c" 'dired-create-directory)
+  (evil-define-key 'normal dired-mode-map "n" 'evil-search-next)
+  (evil-define-key 'normal dired-mode-map "N" 'evil-search-previous)
+  (evil-define-key 'normal dired-mode-map "q" 'kill-this-buffer)
+#+END_SRC
+Same kind of thing for ibuffer-mode as well, same link.
+#+BEGIN_SRC emacs-lisp
+  (evil-define-key 'normal ibuffer-mode-map
+    (kbd "m") 'ibuffer-mark-forward
+    (kbd "t") 'ibuffer-toggle-marks
+    (kbd "u") 'ibuffer-unmark-forward
+    (kbd "=") 'ibuffer-diff-with-file
+    (kbd "j") 'ibuffer-jump-to-buffer
+    (kbd "M-g") 'ibuffer-jump-to-buffer
+    (kbd "M-s a C-s") 'ibuffer-do-isearch
+    (kbd "M-s a M-C-s") 'ibuffer-do-isearch-regexp)
+#+END_SRC
 ** Diminish
 Diminish will remove or abbreviate minor mode names on the modeline. Although "use-package" does support the diminish function, the [[https://github.com/jwiegley/use-package][documentation]] states the package must be installed. (The same with "delight"; not sure what that does--yet.) Diminish wasn't diminishing at startup until after I moved it to the END of the packages listing--then it still wasn't diminishing Undo-tree (which seems to be a requirement of another package.) So, let's try it at the end of everything...yup, that did it!
 #+BEGIN_SRC emacs-lisp
