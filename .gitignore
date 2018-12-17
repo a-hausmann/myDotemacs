@@ -1,0 +1,21 @@
+# 2018-11-11: created, based off Bailey Ling's .gitignore file
+.cache
+elpa
+auto-save-list
+custom.el
+node_modules
+*.elc
+
+# 2018-11-11: Below are mine
+# Directories
+emms
+img
+# Files
+*.eshell-aliases
+*.package-refresh-date
+*.session
+recentf
+dotemacs.html
+dotemacs.el
+projectile.cache
+projectile-bookmarks.eld
