@@ -1,0 +1,1266 @@
+#+OPTIONS: ':nil *:t -:t ::t <:t H:4 \n:nil ^:t arch:headline
+#+OPTIONS: author:t broken-links:nil c:nil creator:nil
+#+OPTIONS: d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t num:nil
+#+OPTIONS: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
+#+OPTIONS: timestamp:t title:t toc:t todo:t |:t
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+CREATOR: Emacs 26.1 (Org mode 9.1.9)
+#+STARTUP: overview
+#+TITLE: Dotemacs
+#+AUTHOR: Arnold Hausmann
+#+LANGUAGE: en
+#+ATTR_HTML: :style margin-left: auto; margin-right: auto;
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+CREATOR: <a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.14)
+
+* Table of Contents
+* Introduction
+This is the main configuration file for a "minimal" configuration using Org mode.  I mean to combine several different configurations from others: Bailey Ling, Chen Bin, and "Uncle Dave".  I like different pieces of each; Uncle Dave uses the dotemacs.org as the base configuration but doesn't use Evil mode at all, while Bailey Ling's configuration loads superfast and has pretty nice Hydras defined (though I'll change several things) but Org Mode doesn't act correctly, and Chen Bin's configuration becomes "usable" fairly quickly, but continues to "load" for several seconds (though *much* faster than Spacemacs on Windows).
+
+Hopefully, this configuration will meld these concepts/configurations together, keeping the best of each, and losing the bad.  This will be a "work-in-progress" for some time to come I suspect...we'll see what the future holds.
+
+Here are some links:
+1. [[https://github.com/daedreth/UncleDavesEmacs][Uncle Dave's Emacs configuration page]]
+2. [[https://github.com/howardabrams/dot-files/blob/master/emacs-evil.org][Howard Abrams Evil configuration page]]
+3. [[https://github.com/aaronbieber/dotfiles/blob/master/configs/emacs.d/lisp/init-evil.el][Aaron Bieber's Evil configuration page]]
+
+Started: 9/29/2018.
+* Things still to do
+These are items I still need to create, or fix.
+- Figure out how to change foreground color in Spaceline "spaceline-highlight-face", as the buffer name is too light for orange.
+- Figure out how to "save sessions" like Vim.
+- Figure out if Emacs has an equivalent to Vim's "persistent undo" between sessions.
+- Find out if there is a "cursor locator" package/function to temporarily create cross-hair effect. Check out "crosshairs.el", crosshairs-mode.
+- Create Yasnippets for Oracle packages, procedures, functions, etc.
+- Create Yasnippets for HTML editing that I frequently do in Vim.
+- Explore the Git functionality in my setup.
+- Add new hydra for theme selection.
+* Stuff to do *before* Evil
+** Window system and more
+*** Set the size of the frame
+Reference: https://raw.githubusercontent.com/angrybacon/dotemacs/master/dotemacs.org
+
+Set the size of the frame. Some UI elements are best left unused.
+#+BEGIN_SRC emacs-lisp
+(when window-system
+  (add-to-list 'default-frame-alist '(height . 40))
+  (add-to-list 'default-frame-alist '(width . 150))
+  (blink-cursor-mode 0)
+  (scroll-bar-mode 0)
+  (tool-bar-mode 0)
+  (tooltip-mode 0))
+#+END_SRC
+
+*** Set the Customization file
+Tell Emacs to put all Customization into a special file, so as not to corrupt either init.el or this file.
+#+BEGIN_SRC emacs-lisp
+(setq-default custom-file (expand-file-name ".custom.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
+#+END_SRC
+
+*** Set garbage collection
+Garbage-collect on focus-out, Emacs should feel snappier.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'focus-out-hook #'garbage-collect)
+#+END_SRC
+
+*** Set regular package refreshes without killing restarts
+Have found out that the many, *many* times I have received a "package not found" even when I can absolutely find the package in Melpa is that I have an outdated package listing, easily fixed with the following:
+
+#+BEGIN_SRC emacs-lisp
+;; 2018-11-04: Set variable with name of file holding last-refreshed date
+(setq aeh-last-package-refresh-file (expand-file-name ".package-refresh-date" user-emacs-directory))
+;; Compound condition: if Sunday, if file exists, get last-refresh-date and compare to today, when not equal,
+;; refresh the packages and update file with today's date, but when equal, just write message. If NO FILE
+;; found, create file with today's date and refresh packages, write message.
+;; Added newline to date file, and must add newline when comparing strings as "buffer-string" returns all
+;; bytes, including the newline (nothing like perls "chomp" command).
+(defun aeh/package-refresh-contents (mess-txt)
+  (interactive)
+  (write-region (format-time-string "%Y%m%d\n") nil aeh-last-package-refresh-file)
+  (message (concat mess-txt (format-time-string "%m/%d/%Y %H:%M:%S")))
+  (package-refresh-contents))
+(if (equal (format-time-string "%a") "Sun")
+    (if (file-exists-p aeh-last-package-refresh-file)
+	(progn
+	  (with-temp-buffer
+	    (insert-file-contents aeh-last-package-refresh-file)
+	    (setq aeh-last-package-refresh-date (buffer-string)))
+	  (if (equal aeh-last-package-refresh-date (format-time-string "%Y%m%d\n"))
+	      (message "1: Found same date")
+	    (aeh/package-refresh-contents "2: Different date, refresh package contents on ")))
+	(aeh/package-refresh-contents "3: No Date file, refresh package contents on ")))
+#+END_SRC
+
+*** Set load-path for custom code
+I will have some subdirectories containing elisp code, so add these directories to the load-path variable.
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "~/.emacs.d/private/local")
+#+END_SRC
+
+** Languages
+
+Here is where I put languages configurations: Lisp, etc.
+
+*** Lisp
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs-lisp-mode
+  :ensure nil
+  :delight emacs-lisp-mode "Emacs Lisp"
+  :config (delight 'lisp-interaction-mode "Lisp Interaction"))
+
+(use-package ielm
+  :ensure nil
+  :hook (ielm-mode . (lambda () (setq-local scroll-margin 0))))
+
+(use-package lisp-mode
+  :ensure nil
+  :delight lisp-mode "Lisp")
+
+(add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
+#+END_SRC
+
+** Theme
+*** ZeroDark
+ One so far: ZeroDark--but I found one much better for me. So, use "disabled" to kill zerodark without losing the code.
+
+ I've been watching a number of "Uncle Dave's" [[http://www.youtube.com/channel/UCDEtZ7AKmwS0_GNJog01D2g][videos]], quite instructive, and rather like the theme he uses, "zerodark".  He uses the following to ensure the theme package and also customize it.
+
+ #+BEGIN_SRC emacs-lisp
+   (use-package zerodark-theme
+     :ensure t
+     :disabled
+     :init
+     (load-theme 'zerodark t)
+     (let ((class '((class color) (min-colors 89)))
+           (default (if (true-color-p) "#abb2bf" "#afafaf"))
+           (light (if (true-color-p) "#ccd4e3" "#d7d7d7"))
+           (background (if (true-color-p) "#282c34" "#333333"))
+           (background-dark (if (true-color-p) "#24282f" "#222222"))
+           (background-darker (if (true-color-p) "#22252c" "#222222"))
+           (mode-line-inactive (if "#1c2129" "#222222"))
+           (mode-line-active (if (true-color-p) "#6f337e" "#875f87"))
+           (background-lighter (if (true-color-p) "#3a3f4b" "#5f5f5f"))
+           (background-red (if (true-color-p) "#4c3840" "#5f5f5f"))
+           (bright-background-red (if (true-color-p) "#744a5b" "#744a5b"))
+           (background-purple (if (true-color-p) "#48384c" "#5f5f5f"))
+           (background-blue (if (true-color-p) "#38394c" "#444444"))
+           (bright-background-blue (if (true-color-p) "#4e5079" "#4e5079"))
+           (background-green (if (true-color-p) "#3d4a41" "#5f5f5f"))
+           (bright-background-green (if (true-color-p) "#3f6d54" "#3f6d54"))
+           (background-orange (if (true-color-p) "#4a473d" "#5f5f5f"))
+           (hl-line (if (true-color-p) "#2c323b" "#333333"))
+           (grey (if (true-color-p) "#cccccc" "#cccccc"))
+           (grey-dark (if (true-color-p) "#666666" "#666666"))
+           (highlight (if (true-color-p) "#3e4451" "#5f5f5f"))
+           (comment (if (true-color-p) "#687080" "#707070"))
+           (orange (if (true-color-p) "#da8548" "#d7875f"))
+           (orange-light (if (true-color-p) "#ddbd78" "#d7af87"))
+           (red (if (true-color-p) "#ff6c6b" "#ff5f5f"))
+           (purple (if (true-color-p) "#c678dd" "#d787d7"))
+           (purple-dark (if (true-color-p) "#64446d" "#5f5f5f"))
+           (blue (if (true-color-p) "#61afef" "#5fafff"))
+           (blue-dark (if (true-color-p) "#1f5582" "#005f87"))
+           (green (if (true-color-p) "#98be65" "#87af5f"))
+           (green-light (if (true-color-p) "#9eac8c" "#afaf87"))
+           (peach "PeachPuff3")
+           (diff-added-background (if (true-color-p) "#284437" "#284437"))
+           (diff-added-refined-background (if (true-color-p) "#1e8967" "#1e8967"))
+           (diff-removed-background (if (true-color-p) "#583333" "#580000"))
+           (diff-removed-refined-background (if (true-color-p) "#b33c49" "#b33c49"))
+           (diff-current-background (if (true-color-p) "#29457b" "#29457b"))
+           (diff-current-refined-background (if (true-color-p) "#4174ae" "#4174ae")))
+       (custom-theme-set-faces
+        'zerodark
+        `(fancy-battery-charging ((,class (:background ,background-blue :height 1.0 :bold t))))
+        `(fancy-battery-discharging ((,class (:background ,background-blue :height 1.0))))
+        `(fancy-battery-critical ((,class (:background ,background-blue :height 1.0))))
+        ;; mode line stuff
+        `(mode-line ((,class (:background ,background-blue :height 1.0 :foreground ,blue
+                                          :distant-foreground ,background-blue
+                                          :box ,(when zerodark-use-paddings-in-mode-line
+                                                  (list :line-width 6 :color background-blue))))))
+        `(mode-line-inactive ((,class (:background ,background-blue :height 1.0 :foreground ,default
+                                                   :distant-foreground ,background-blue
+                                                   :box ,(when zerodark-use-paddings-in-mode-line
+                                                           (list :line-width 6 :color background-blue))))))
+        `(header-line ((,class (:inherit mode-line-inactive))))
+        `(powerline-active0 ((,class (:height 1.0 :foreground ,blue :background ,background-blue
+                                              :distant-foreground ,background-blue))))
+        `(powerline-active1 ((,class (:height 1.0 :foreground ,blue :background ,background-blue
+                                              :distant-foreground ,background-blue))))
+        `(powerline-active2 ((,class (:height 1.0 :foreground ,blue :background ,background-blue
+                                              :distant-foreground ,background-blue))))
+        `(powerline-inactive0 ((,class (:height 1.0 :foreground ,blue :background ,background-blue
+                                                :distant-foreground ,background-blue))))
+        `(powerline-inactive1 ((,class (:height 1.0 :foreground ,blue :background ,background-blue
+                                                distant-foreground ,background-blue))))
+        `(powerline-inactive2 ((,class (:height 1.0 :foreground ,blue :background ,background-blue
+                                                :distant-foreground ,background-blue))))
+        `(dashboard-heading-face ((,class (:background ,background :foreground ,blue
+                                                       :bold t :height 1.2))))
+        `(dashboard-banner-logo-title-face ((,class (:background ,background :foreground ,blue
+                                                                 :bold t :height 1.2))))
+        `(widget-button ((,class (:background ,background :foreground ,default :bold nil
+                                              :underline t :height 0.9))))
+        ;; erc stuff
+        `(erc-nick-default-face ((,class :foreground ,blue :background ,background :weight bold)))
+        ;; org stuff
+        `(outline-1 ((,class (:foreground ,blue :weight bold :height 1.8 :bold nil))))
+        `(outline-2 ((,class (:foreground ,purple :weight bold :height 1.7 :bold nil))))
+        `(outline-3 ((,class (:foreground ,peach :weight bold :height 1.6 :bold nil))))
+        `(outline-4 ((,class (:foreground ,green-light :weight bold :height 1.5 :bold nil))))
+        `(outline-5 ((,class (:foreground ,blue :weight bold :height 1.4 :bold nil))))
+        `(outline-6 ((,class (:foreground ,purple :weight bold :height 1.3 :bold nil))))
+        `(outline-7 ((,class (:foreground ,peach :weight bold :height 1.2 :bold nil))))
+        `(outline-8 ((,class (:foreground ,green-light :weight bold :height 1.1 :bold nil))))
+        `(org-block-begin-line ((,class (:background ,background-blue :foreground ,blue
+                                                     :bold t :height 1.0))))
+        `(org-block-end-line ((,class (:background ,background-blue :foreground ,blue
+                                                   :bold t :height 1.0)))))))
+ #+END_SRC
+
+*** SanityInc-tomorrow-bright
+[[https://github.com/purcell/color-theme-sanityinc-tomorrow][SanityInc-Tomorrow]] is a collection of five variations: day, night, blue, *bright* (my favorite), and eighties.
+
+#+BEGIN_SRC emacs-lisp
+(use-package color-theme-sanityinc-tomorrow
+  :ensure t
+  :init)
+;; For whatever reason, the name for "load-theme" is "sanityinc-tomorrow-bright"
+;; I already loaded all versions, marked as "safe" to use, but the "nil" below 
+;; should do that on first load for new Emacs installation.
+(load-theme 'sanityinc-tomorrow-bright t nil)
+#+END_SRC
+
+** Interface
+*** Looks
+This will take care of startup messages, menus/scrollbars, encoding, "cursorline" highlighting, pretty symbols, and some Org mode settings.    
+
+**** Remove startup message, possibly replace later (see dashboard)
+ #+BEGIN_SRC emacs-lisp
+ (setq inhibit-startup-message t)
+ #+END_SRC
+
+**** Disable menus and scrollbars
+ Can set any of these from -1 (FALSE as it is not 1) to 1 (TRUE) if they are desired.
+ #+BEGIN_SRC emacs-lisp
+ (tool-bar-mode -1)
+ (menu-bar-mode -1)
+ (scroll-bar-mode -1)
+ #+END_SRC
+
+**** Disable annoying bell
+ Comment this line for visual reminder of events.
+ #+BEGIN_SRC emacs-lisp
+ (setq ring-bell-function 'ignore)
+ #+END_SRC
+
+**** Set UTF-8 encoding
+ #+BEGIN_SRC emacs-lisp
+ (setq locale-coding-system 'utf-8)
+ (set-terminal-coding-system 'utf-8)
+ (set-keyboard-coding-system 'utf-8)
+ (set-selection-coding-system 'utf-8)
+ (prefer-coding-system 'utf-8)
+ #+END_SRC
+
+**** Highlight current line
+ While "hl-line" works well in GUI, it's not so hot in terminal, so use only in GUI.
+ #+BEGIN_SRC emacs-lisp
+ (when window-system (add-hook 'prog-mode-hook 'hl-line-mode))
+ #+END_SRC
+
+**** Pretty symbols
+ Changes =lambda= to an actual symbol, plus some others; works only in GUI mode.
+ #+BEGIN_SRC emacs-lisp
+ (when window-system
+       (use-package pretty-mode
+       :ensure t
+       :config
+       (global-pretty-mode t)))
+ #+END_SRC
+
+**** Show parens
+ #+BEGIN_SRC emacs-lisp
+ (show-paren-mode 1)
+ #+END_SRC
+
+**** ORG MODE settings
+ Org mode is such an important part of Emacs it is now part of the "core" software. As such, there is no need for a "use-package" setup, but some common settings are good.
+
+ These are from UncleDavesEmacs:
+#+BEGIN_SRC emacs-lisp
+  (setq org-ellipsis " ")
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-export-with-smart-quotes t)
+  (setq org-src-window-setup 'current-window)                   ; Allows for "C-c '" to narrow to code being edited.
+  ;: 2018-10-22: Wow! Errors galore in Spacemacs UNTIL changing the simple "add-to-list" to an "eval-after-load" (see below).
+  (eval-after-load 'org
+    '(progn (add-to-list 'org-structure-template-alist
+               '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))))  ; Allows for "<el TAB" to automatically set source block in emacs-lisp
+  (add-hook 'org-mode-hook
+              '(lambda ()
+                 (visual-line-mode 1)
+                 (org-indent-mode 1)))
+  (global-set-key (kbd "C-c '") 'org-edit-src-code)
+#+END_SRC
+
+**** Org Bullets
+This makes things look nicer; it replaces asterisks with nicer looking bullets.
+#+BEGIN_SRC emacs-lisp
+(use-package org-bullets
+  :ensure t
+  :init
+    (add-hook 'org-mode-hook 'org-bullets-mode))
+#+END_SRC
+
+**** Global mode settings
+I really, *really* like visual-line-mode, so set globally.
+#+BEGIN_SRC emacs-lisp
+  (global-visual-line-mode 1)
+#+END_SRC
+
+*** Functionality
+ *Disable backups and auto-saves*
+ Change "nil" to "t" to use either of these
+ #+BEGIN_SRC emacs-lisp
+ (setq make-backup-files nil)
+ (setq auto-save-default nil)
+ #+END_SRC
+
+ *Change "yes or no" questions to "y or n"*
+ This is great!  *NEVER* change this one!
+ #+BEGIN_SRC emacs-lisp
+ (defalias 'yes-or-no-p 'y-or-n-p)
+ #+END_SRC
+
+ *Default browser*
+ According to the [[https://www.emacswiki.org/emacs/BrowseUrl][BrowseUrl wiki]], there is already support for Opera, Firefox, and Chromium, even Edge, but not Internet Exploder. Looking at most of the documentation on the Wiki page, it seems that both must variables must be set, and there is no way out of that.  Oh well.
+ #+BEGIN_SRC emacs-lisp
+ (setq browse-url-browser-function 'browse-url-generic
+       browse-url-generic-program "opera")
+ #+END_SRC
+ 
+*Use electric-pair-mode globally*
+#+BEGIN_SRC emacs-lisp
+;; (electric-pair-mode 1)
+#+END_SRC
+
+*Enable narrowing*
+Narrowing displays "selected" text and blanks out all other text in the buffer, making it appear that nothing else exists. You can perform any editing necessary while narrowed, to be retained when full text is restored by "widening" back to the full buffer.
+
+Function "narrow-to-defun" is (I think) useful only in Lisp, and I'm not sure what "narrow-to-page" means, so I will only enable "narrow-to-region", which is selected text. Narrowing is enacted with "C-x n n" and reversed by "widening", enacted with "C-x n w".
+#+BEGIN_SRC emacs-lisp
+(put 'narrow-to-region 'disabled nil)
+#+END_SRC
+
+*** Moving Around Emacs
+This entire section is all about the mechanics of moving around in Emacs, whether in a single buffer, or multiple buffers, a single window, or multiple windows.  See the Packages section for Avy and other movement conveniences.
+
+*Scrolling and why does the screen move*
+For some reason even Uncle Dave does not know, the following makes scrolling easier in emacs.
+#+BEGIN_SRC emacs-lisp
+(setq scroll-conservatively 100)
+#+END_SRC
+
+*Following window splits*
+After you split a window, the focus remains in the original window. Uncle Dave disliked this so much he wrote two functions to fix the problem.
+#+BEGIN_SRC emacs-lisp
+(defun split-and-follow-horizontally ()
+  (interactive)
+  (split-window-below)
+  (balance-windows)
+  (other-window 1))
+(global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+
+(defun split-and-follow-vertically ()
+  (interactive)
+  (split-window-right)
+  (balance-windows)
+  (other-window 1))
+(global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+#+END_SRC
+
+*Default kill-buffer to kill current buffer*
+By default =x k= is bound to =kill-buffer=; instead, we want to kill the current buffer.
+#+BEGIN_SRC emacs-lisp
+(defun kill-current-buffer ()
+  "Kills the current buffer."
+  (interactive)
+  (kill-buffer (current-buffer)))
+(global-set-key (kbd "C-x k") 'kill-current-buffer)
+#+END_SRC
+
+*Turn switch-to-buffer into counsel-ibuffer*
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x b") 'counsel-ibuffer)
+#+END_SRC
+
+*** Text Manipulation
+This is where we can put functions and packages to make text editing easier.
+
+*Using multiple-cursors*
+Magnar Sveen created package [[https://github.com/magnars/mark-multiple.el][mark-multiple]], which he himself superceded with [[https://github.com/magnars/multiple-cursors.el][multiple-cursors]]. This, to all appearances, is the better package (Magnar thinks so anyway). There should be more features, and the [[https://www.youtube.com/watch?time_continue=235&v=jNa3axo40qM][Youtube video on multiple-cursors]] is intriguing, and complex; take several times to watch that, and pay close attention to the keystrokes.
+
+So, the package allows you to mark a string, then additional instances (next or previous), and implement multiple cursors on all. Any text editing is performed at all cursors simultaneously. Known limitations of multiple-cursors are: isearch is not supported, =m-x= commands won't be repeated, any keybindings referring to lambdas are always run for all cursors, and redo might mess with the cursors, though undo works fine.
+
+The configuration below is an amalgamation of Uncle Dave's original mark-multiple and Magnar's documentation for multiple-cursors.
+#+BEGIN_SRC emacs-lisp
+(use-package multiple-cursors
+  :ensure t
+  :bind
+      ("C-S-c C-S-c" . 'mc/edit-lines)
+      ("C->" . 'mc/mark-next-like-this)
+      ("C-<" . 'mc/mark-previous-like-this)
+      ("C-c w n" . 'mc/mark-next-like-this-word)
+      ("C-c w p" . 'mc/mark-previous-like-this-word)
+      ("C-c s n" . 'mc/mark-next-symbol-like-this)
+      ("C-c s p" . 'mc/mark-previous-like-this-symbol)
+      ("C-M-m" . 'mc/mark-more-like-this-extended)
+      ("C-*" . 'mc/mark-all-like-this)
+      ("C-S-<mouse-1>" . 'mc/add-cursor-on-click))
+#+END_SRC
+** Packages
+*** General
+2018-11-10: Have decided to try [[https://github.com/noctuid/general.el][General.el]] as a replacement for Evil-leader. Evil-leader does not appear to be able to allow an "alias" for a command, instead displaying the entire command.  This, I'm sure, has to do with Which-key in combination with Evil-leader, but I'd like to see something more like the menu options that Bailey Ling displays in his config. 
+
+Thus far, this has worked well. The key here is that the function paired to the key binding *must* be a quoted list consisting of the command called, the ":which-key" property, ending with the text string to be displayed.  This is EXACTLY what I wanted to get from Evil-leader, but could not figure out. Note too that I can have multiple keymaps defined for keybindings; "b" is defined in normal, insert, and emacs modes to call the buffers hydra. Note yet again that I have defined a "leader" key of "SPC", and can also define a "local-leader" as another key, in this case, "C-M-;" (I would have loved to use "\" but that takes over the key completely and it cannot be used otherwise). Creating these variables, I can bind individual keys chords to these leaders by keymaps; General Rocks!
+#+BEGIN_SRC emacs-lisp
+  (use-package general
+  :ensure t)
+  ;; Prefix keybindings
+  (general-create-definer aeh-leader-def
+  :prefix "SPC")
+  (general-create-definer aeh-local-leader-def
+  :prefix "C-;")
+  ;; Global keybindings
+  (aeh-leader-def
+    :keymaps '(normal emacs)
+    "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
+    "b" '(aeh/hydra-buffers/body :which-key "buffers")
+    "f" '(aeh/hydra-files/body :which-key "files")
+    "r" '(aeh/hydra-rectangle/body :which-key "rectangle")
+    "t" '(aeh/hydra-toggles/body :which-key "toggles")
+    "y" '(aeh/hydra-yasnippet/body :which-key "snippets")
+    "z" '(aeh/hydra-zoom/body :which-key "zoom"))
+  (aeh-local-leader-def
+    :keymaps 'insert
+    "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
+    "d" '(aeh/hydra-insert-date-menu/body :which-key "dates"))
+#+END_SRC
+
+*** Ace-Window
+Yet another package from Oleh Krehel, [[https://github.com/abo-abo/ace-window/wiki][ace-window]] performs window movement with relatively few keystrokes.
+This is copied from the [[https://github.com/abo-abo/ace-window][github home]].
+#+BEGIN_SRC emacs-lisp
+  (use-package ace-window
+      :ensure t
+      :defer 1
+      :config
+      (set-face-attribute
+       'aw-leading-char-face nil
+       :foreground "deep sky blue"
+       :weight 'bold
+       :height 3.0)
+      (set-face-attribute
+       'aw-mode-line-face nil
+       :inherit 'mode-line-buffer-id
+       :foreground "lawn green")
+      (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l)
+            aw-dispatch-always t
+            aw-dispatch-alist
+            '((?x aw-delete-window "Ace - Delete Window")
+              (?c aw-swap-window "Ace - Swap Window")
+              (?n aw-flip-window)
+              (?v aw-split-window-vert "Ace - Split Vert Window")
+              (?h aw-split-window-horz "Ace - Split Horz Window")
+              (?m delete-other-windows "Ace - Maximize Window")
+              (?g delete-other-windows)
+              (?b balance-windows)
+              (?u (lambda ()
+                    (progn
+                      (winner-undo)
+                      (setq this-command 'winner-undo))))
+              (?r winner-redo)))
+
+      (when (package-installed-p 'hydra)
+        (defhydra aeh/hydra-window-size (:color red)
+          "Windows size"
+          ("h" shrink-window-horizontally "shrink horizontal")
+          ("j" shrink-window "shrink vertical")
+          ("k" enlarge-window "enlarge vertical")
+          ("l" enlarge-window-horizontally "enlarge horizontal"))
+        (defhydra aeh/hydra-window-frame (:color red)
+          "Frame"
+          ("f" make-frame "new frame")
+          ("x" delete-frame "delete frame"))
+        (defhydra aeh/hydra-window-scroll (:color red)
+          "Scroll other window"
+          ("n" joe-scroll-other-window "scroll")
+          ("p" joe-scroll-other-window-down "scroll down"))
+        (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
+        (add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
+        (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t))
+      (ace-window-display-mode t))
+(global-set-key (kbd "M-o") 'ace-window)
+#+END_SRC
+
+*** Avy
+When avy is invoked you are prompted for the character to jump to /in the visible portion of the buffer/. Then each instance of the character is overlaid with another letter; pressing /that/ letter will move the point to that location. This can be hard to get used to, but once you do, you can swiftly move about the visible buffer.
+
+NOTE: you can ONLY "search" for a SINGLE LETTER! This would work better for narrowed code, as in the case of this document, a single letter could be anywhere; almost better to use evil search, or Swiper. Uncle Dave likes to use =m-s= as the key binding, similar to =c-s= for Searching.
+
+Found a trick; instead of binding to "avy-goto-char", use "avy-goto-char-timer". This allows the typing of multiple characters, more like vim's search, and if only one match, will automatically take you there after a timeout period, set with "avy-timeout-seconds". The timeout kicks in *after* you stop typing, good, and Any will show how many matches there are for the characters typed so far in the minibuffer.
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :ensure t
+    :diminish
+    :bind
+    ("M-s" . avy-goto-char-timer))
+  (setq avy-timeout-seconds 1.0)
+#+END_SRC
+
+*** Aggressive-indent
+Found [[https://github.com/Malabarba/aggressive-indent-mode][here]], aggressive-indent-mode is a minor mode which deals with changing code better than the standard electric-indent-mode.
+#+BEGIN_SRC emacs-lisp
+  (use-package aggressive-indent
+    :ensure t)
+  (add-hook 'prog-mode-hook #'aggressive-indent-mode)
+  ;; (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
+#+END_SRC
+
+*** Async
+ This will allow asynchronous processing wherever possible...pretty nice.
+ #+BEGIN_SRC emacs-lisp
+ (use-package async
+   :ensure t
+   :init (dired-async-mode 1))
+ #+END_SRC
+*** Autopair
+[[https://github.com/joaotavora/autopair][Autopair]] is one of several alternatives to Vim's auto-pairs. There is also [[https://github.com/Fuco1/smartparens][Smartparens]], and Electric Pair, which appears to be built into Emacs at this point.
+
+NOTE: This acts/looks weird in that, typing a pairable character, *three* appear instead of the expected two. For example, typing a left paren, "(" will result in "())" appearing, with point between first and second characters. When done typing, a single ")" will move *past* the second character and the third disappears.  This looks strange at first, but is relatively easy to get used to. So now, I've changed from global autopair to adding individual hooks, and this now seems to work well. In Org, I have autopair; in prog-mode (SQL-ANSI), I have autopair, but in emacs-lisp I do NOT have autopair.  This is pretty OK. OTOH, in Org I don't get a right paren when I type "(" and I have to manually close off the parentheses.  OTOH, typing double-quote then "(" will result in "()", though I need to arrow past the closing ")"; weird.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package autopair
+    :ensure t
+    :diminish)
+  ;; (autopair-global-mode) ;; enable autopair in all buffers
+  (add-hook 'prog-mode-hook 'autopair-mode)
+  (add-hook 'emacs-lisp-mode-hook #'(lambda () (autopair-mode -1)))
+  (add-hook 'org-mode-hook 'autopair-mode)
+  ;; Got this block from here: https://github.com/joaotavora/autopair
+  ;; (add-hook 'emacs-lisp-mode-hook
+  ;;           #'(lambda ()
+  ;;               (push '(?` . ?')
+  ;;                     (getf autopair-extra-pairs :comment))
+  ;;               (push '(?` . ?')
+  ;;                     (getf autopair-extra-pairs :string))))
+#+END_SRC
+*** Command-log 
+Command-log-mode creates buffer "*command-log*" which displays commands executed.
+#+BEGIN_SRC emacs-lisp
+(use-package command-log-mode
+  :ensure t)
+#+END_SRC
+
+*** Company
+Company comes from "complete any" and is, naturally, a completion engine.  Unfortunately, one cannot use "j" and "k" as you can only really use Company when in *insert* mode, so will use the more "natural" "C-j" and "C-k".
+
+Company does seem to have a couple of goofy side-effects, such as somehow "turning off" the space key.  For example, if typing and word and Company pops up a listing, if as in the case of a short word ("short") I type through and hit SPC and the first letter of the next word, often the space "disappears" and I'm left with a run-on word. Of course, if I type any other character or Enter, either the drop-down changes or the default word selected, so this is literally only when I'm typing a word that is short but could be longer. An example would be, "short" which could be "shorter" or "shortcut", but if I want only "short" I would next type SPC, and nothing happens (no space is inserted).  This is goofy behavior.  I changed the minimum prefix length from 3 to 5, but this only helps a little; "the" is not a problem, but "space" is. LOL.
+
+#+BEGIN_SRC emacs-lisp
+(use-package company
+:ensure t
+:init
+:diminish
+:config
+(setq company-idle-delay 0)
+(setq company-minimum-prefix-length 5))
+(add-hook 'after-init-hook 'global-company-mode)
+
+(with-eval-after-load 'company
+(define-key company-active-map (kbd "M-n") nil)
+(define-key company-active-map (kbd "M-p") nil)
+(define-key company-active-map (kbd "C-j") #'company-select-next)
+(define-key company-active-map (kbd "C-k") #'company-select-previous))
+;; (define-key company-active-map (kbd "SPC") #'company-abort))
+
+;; emacs-lisp company additions, including slime
+(add-hook 'emacs-lisp-mode-hook 'company-mode)
+
+(use-package slime
+  :ensure t
+  :config
+  (setq inferior-lisp-program "/usr/bin/sbcl")
+  (setq slime-contribs '(slime-fancy)))
+
+(use-package slime-company
+  :ensure t
+  :init
+    (require 'company)
+    (slime-setup '(slime-fancy slime-company)))
+
+;; bash company additions
+(add-hook 'shell-mode-hook 'company-mode)
+
+(defun shell-mode-company-init ()
+  (setq-local company-backends '((company-shell
+                                  company-shell-env
+                                  company-etags
+                                  company-dabbrev-code))))
+
+(use-package company-shell
+  :ensure t
+  :config
+    (require 'company)
+    (add-hook 'shell-mode-hook 'shell-mode-company-init))
+#+END_SRC
+
+*** Dashboard
+ This is the *NEW* startup screen, and together with Projectile, can provide with a quick look into the latest used files and projects. The welcome message (logo-title) can be whatever you want, the startup-banner can be any image file (.png preferable?).
+ #+BEGIN_SRC emacs-lisp
+   (use-package dashboard
+     :ensure t
+     :diminish)
+   (dashboard-setup-startup-hook)
+   (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png")
+   (setq dashboard-items '((recents  . 9)
+                           (projects . 5)))
+   (setq dashboard-banner-logo-title "My Personal Startup Page - Get Hacking!")
+ #+END_SRC
+
+*** Expand region
+With this [[https://github.com/magnars/expand-region.el][simple package]] from Magnar Sveen of [[http://emacsrocks.com][Emacs Rocks]] fame, a quick key-chord can select an ever expanding region; use "C-=" to access this function.
+
+#+BEGIN_SRC emacs-lisp
+(use-package expand-region
+  :init)
+(global-set-key (kbd "C-=") 'er/expand-region)
+#+END_SRC
+
+*** Eyebrowse
+Look into [[https://github.com/wasamasa/eyebrowse][Eyebrowse]] mode; Mike Zamansky did a [[https://www.youtube.com/watch?v=s6IXj0bS7L8][demo]] of it, pretty good window manager, it tracks window/buffer splits well within one session, thought here seems no way to save over sessions. Though on the blog page, Vadim notes that searching for "persist" in the README shows how to save using "built-in desktop.el" package.
+#+BEGIN_SRC emacs-lisp
+  (use-package eyebrowse
+    :ensure t)
+#+END_SRC
+
+*** Flycheck
+Flycheck does syntax checking for multiple languages.
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :ensure t)
+
+;; bash hook
+(add-hook 'shell-mode-hook 'flycheck-mode)
+#+END_SRC
+
+*** Htmlize
+ *Ensure "htmlize" is available for Org mode*
+ This is a package not available when Emacs is compiled from source (mine), but is required by Org mode to export to HTML.
+#+BEGIN_SRC emacs-lisp
+ (use-package htmlize
+   :ensure t
+   :init)
+#+END_SRC
+*** Ivy, Counsel, Swiper
+Uncle Dave makes slight use of Ivy and other "abo-abo" packages, but from what I've seen in videos and blogs, the combo of Ivy/Swiper/Counsel beats everything else.
+
+Ref: [[https://github.com/jamiecollinson/dotfiles/blob/master/config.org/][Jamie Collinson Emacs config.org]]
+#+BEGIN_SRC emacs-lisp
+(use-package ivy
+  :ensure t
+  :diminish ivy-mode)
+(ivy-mode t)
+(setq ivy-initial-inputs-alist nil)
+#+END_SRC
+
+By default ivy starts filters with ^. I don’t normally want that and can easily type it manually when I do.
+#+BEGIN_SRC emacs-lisp
+(setq ivy-initial-inputs-alist nil)
+#+END_SRC
+
+Counsel is a collection of ivy enhanced versions of common Emacs commands. I haven’t bound much as ivy-mode takes care of most things. 
+#+BEGIN_SRC emacs-lisp
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)))
+#+END_SRC
+
+Swiper is an ivy enhanced version of isearch.
+#+BEGIN_SRC emacs-lisp
+(use-package swiper
+  :ensure t)
+#+END_SRC
+
+Hydra presents menus for ivy commands.
+#+BEGIN_SRC emacs-lisp
+(use-package ivy-hydra)
+#+END_SRC
+
+These are some key bindings for Ivy/Counsel/Swiper [[https://github.com/abo-abo/swiper#small-config-example][ref]]:
+#+BEGIN_SRC emacs-lisp
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
+(global-set-key "\C-s" 'swiper)
+;; (global-set-key (kbd "C-c C-r") 'ivy-resume)
+(global-set-key (kbd "<f6>") 'ivy-resume)
+(global-set-key (kbd "C-c g") 'counsel-git)
+(global-set-key (kbd "C-c j") 'counsel-git-grep)
+(global-set-key (kbd "C-c k") 'counsel-ag)
+(global-set-key (kbd "C-x l") 'counsel-locate)
+(define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+#+END_SRC
+
+*** Kill-ring setup
+Change the limit (max) from 60 (default) to 100.
+#+BEGIN_SRC emacs-lisp
+(setq kill-ring-max 100)
+#+END_SRC
+
+This is a package which is pretty simple, allowing you to browse the kill-ring like browsing autocompletion items; use C-n and C-p.
+#+BEGIN_SRC emacs-lisp
+(use-package popup-kill-ring
+  :ensure t
+  :bind ("M-y" . popup-kill-ring))
+#+END_SRC
+
+*** Lispy
+Lispy is [[https://github.com/abo-abo][Oleh Krehel]] (aka "abo-abo") version of Paredit, a parentheses-matching package for Lisp.  As Oleh is also an Evil user, he already had a number of key-mappings which are very vim-like.
+
+This setup is translated from or taken from [[https://github.com/abo-abo/lispy#configuration-instructions][Lispy's Github page]].
+#+BEGIN_SRC emacs-lisp
+  (use-package lispy
+    :ensure t
+    :init)
+  (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
+  ;; One can use "M-:" - eval-expression to use lispy in the mini-buffer during eval-expression
+  (defun conditionally-enable-lispy ()
+    (when (eq this-command 'eval-expression)
+      (lispy-mode 1)))
+  (add-hook 'minibuffer-setup-hook 'conditionally-enable-lispy)
+#+END_SRC
+
+*** Magit
+Obviously, no one using Emacs can live without having Magit, so here's where we will install and configure it.
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :ensure t
+  :bind
+  ("M-g" . magit-status))
+(setq magit-push-always-verify nil)
+(setq git-commit-summary-max-length 50)
+#+END_SRC
+
+*** Move-text
+[[https://www.emacswiki.org/emacs/move-text.el][MoveText]] allows you to move the current line using M-up / M-down. If a region is marked, it will move the region instead.
+#+BEGIN_SRC emacs-lisp
+(use-package move-text
+  :ensure t
+  :init
+    (move-text-default-bindings))
+#+END_SRC
+*** Projectile
+ Projectile is an excellent project manager because it automatically recognizes directories with a ".git" directory as *projects* and treats them as a "whole", so searching for/jumping to another file in the project is simple. It can be greatly enhanced by other packages as well.
+
+ *Enable Projectile globally*
+ #+BEGIN_SRC emacs-lisp
+   (use-package projectile
+     :ensure t
+     :diminish
+     :init
+       (projectile-mode 1))
+   ;; Let Projectile call "make"
+   ;; I do NOT need this right now, but someone might, someday.
+   (global-set-key (kbd "<f5>") 'projectile-compile-project)
+   ;; 2018-12-01: Add setting to use Ivy for completion instead of default Ido
+   (setq projectile-completion-system 'ivy)
+ #+END_SRC
+
+*** Relative line numbering
+I usually want *any* type of programming buffer to show line numbers, and I've become used to relative line numbering. This sets it up using a package and a hook for prog-mode.
+
+2018-12-02: Research into slowness in large SQL files in Origami kept leading back to use of "linum" with Origami, and of course Relative Linum uses linum. Initially, I removed all fold marker lines from the Rule Engine, had no problems with Origami then, but had no relative line numbers, which is *also* a bad thing. The Issues page for Origami said linum is a problem, testing the folded file *without* relative linum was also successful, so the issue is definitely linum.
+
+However, the documentation shows [[https://github.com/coldnew/linum-relative#backends][this]], which says with version 0.6 of linum-relative, I can set variable "linum-relative-backend" to "display-line-number-mode" which is implemented in C which gives *MUCH* better performance. However, this *ALSO* requires Emacs 26.1+, available for Linux/Mac/Windows since its release (5/28/2018); I may need to upgrade both Mac and work installations--Linux is already 26.1.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package linum-relative
+    :ensure t)
+  (setq linum-relative-current-symbol "")
+  (add-hook 'prog-mode-hook 'linum-relative-mode)
+  ;; 2018-12-02: added to use "display-line-number-mode" as backend
+  (setq linum-relative-backend 'display-line-numbers-mode)
+#+END_SRC
+
+*** Rainbow-mode
+Very useful if working web or game development--or theme development--when this minor mode is active, it will automatically display the appropriate color for each hexadecimal code which resembles a color code, i.e. "#CF6A4C".
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-mode
+    :ensure t
+    :diminish
+    :init
+    (add-hook 'prog-mode-hook 'rainbow-mode)
+    (add-hook 'org-mode-hook 'rainbow-mode))
+#+END_SRC
+
+*** Spaceline
+ Uncle Dave says, "The modeline is the heart of emacs, it offers information at all times, it’s persistent and verbose enough to gain a full understanding of modes and states you are in."
+
+ I tend to agree.  However, Uncle Dave uses Emacs as a "desktop environment replacement", which I never intend to do. So he wants to put in things like battery life and other system info...I do not. Also, he places setup of the "diminish" package at the bottom of the configuration, whereas I will intend to use the ":diminish" feature of "use-package" to set configuration for modeline text.
+
+ What we *both* agree on though, is that Spaceline as a modeline enhancer is the best!
+
+ *Spaceline!*
+ I again agree with Uncle Dave, Spacemacs is pretty bloated, particularly on Windows, but their themes and the spaceline utility is superb! This setup works well with the chosen theme.
+ #+BEGIN_SRC emacs-lisp
+   ;; (use-package spaceline
+   ;;   :ensure t
+   ;;   :init
+   ;;   (require 'spaceline-config)
+   ;;   (setq-default spaceline-buffer-encoding-abbrev-p nil)
+   ;;   (setq-default spaceline-line-column-p nil)
+   ;;   (setq-default spaceline-line-p nil)
+   ;;   (setq-default powerline-default-separator (quote arrow))
+   ;;   (spaceline-spacemacs-theme))
+   ;; ;; No separator
+   ;; (setq-default powerline-default-separator nil)
+   ;; ;; Cursor position
+   ;; (setq-default line-number-mode t)
+   ;; (setq-default column-number-mode t)
+   ;; ;; current line and column
+   ;; ;; (setq line-column t)
+   ;; ;; experiments
+   ;; (setq-default spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
+
+   (load "aeh-spaceline")
+    #+END_SRC
+
+*** Switch-window
+So often we split the frame into multiple windows, and using =c-c o= to cycle through them is a pain in the GM, and a lot of wasted keystrokes.  This package takes care of that issue, particularly good with more than 3+ windows open. Pressing =c-x o= will change the buffers a solid color, and each buffer is assigned a letter (configurable), and pressing the letter assigned to the window takes you to the window. (Note, when only two windows are open, =c-x o= automatically switches to the other window.)
+
+An alternative package is =ace-window=, but by default that package changes the behavior of =c-x o=, even in only two windows are open.
+#+BEGIN_SRC emacs-lisp
+(use-package switch-window
+  :ensure t
+  :init
+    (setq switch-window-input-style 'minibuffer)
+    (setq switch-window-increase 4)
+    (setq switch-window-threshold 2)
+    (setq switch-window-shortcut-style 'qwerty)
+    (setq switch-window-qwerty-shortcuts
+        '("a" "s" "d" "f" "j" "k" "l" "i" "o"))
+  :bind
+    ([remap other-window] . switch-window))
+#+END_SRC
+
+*** Treemacs file manager
+Uncle Dave has switched from Treemacs to Sunrise-Commander; I'm not sure why, as using his default configuration, I could not get it to work.  Not sure where he's going there. [9/2/2018] As of today, MELPA does not have sunrise-commander, so back to Treemacs. Note that must also include treemacs-evil, and treemacs-projectile to get full functionality. Will initially use configuration from [[https://github.com/Alexander-Miller/treemacs][Github site]].
+
+#+BEGIN_SRC emacs-lisp
+(use-package treemacs
+  :ensure t
+  :defer t
+  :commands (treemacs)
+  :bind (("C-c t" . treemacs))
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag))
+  :diminish " U"
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-collapse-dirs              (if (executable-find "python") 3 0)
+          treemacs-deferred-git-apply-delay   0.5
+          treemacs-display-in-side-window     t
+          treemacs-file-event-delay           5000
+          treemacs-file-follow-delay          0.2
+          treemacs-follow-after-init          t
+          treemacs-follow-recenter-distance   0.1
+          treemacs-goto-tag-strategy          'refetch-index
+          treemacs-indentation                2
+          treemacs-indentation-string         " "
+          treemacs-is-never-other-window      nil
+          treemacs-no-png-images              nil
+          treemacs-project-follow-cleanup     nil
+          treemacs-persist-file               (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-recenter-after-file-follow nil
+          treemacs-recenter-after-tag-follow  nil
+          treemacs-show-hidden-files          t
+          treemacs-silent-filewatch           nil
+          treemacs-silent-refresh             nil
+          treemacs-sorting                    'alphabetic-desc
+          treemacs-space-between-root-nodes   t
+          treemacs-tag-follow-cleanup         t
+          treemacs-tag-follow-delay           1.5
+          treemacs-width                      35)
+
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;;(treemacs-resize-icons 44)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode t)
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null (executable-find "python3"))))
+      (`(t . t)
+       (treemacs-git-mode 'extended))
+      (`(t . _)
+       (treemacs-git-mode 'simple))))
+  :bind
+)
+
+(use-package treemacs-evil
+  :after treemacs evil
+  :ensure t)
+
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t)
+#+END_SRC
+*** Which-key
+This is one of the best packages in Emacs, and takes advantage of the self-documenting nature of Emacs. After starting to input a command, which-key will open the mini-buffer at the bottom of the screen and show the next possible keys for completing the command, with notation of what the next key will do.  Fantastic package!
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :ensure t
+    :init
+    (which-key-mode))
+#+END_SRC
+
+*** Yasnippet
+This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] for Emacs, rather ubiquitous and easy to use. Snippet files should go into ~/.emacs.d/private/snippets. The configuration here is mostly from Uncle Dave. Check out the [[https://github.com/joaotavora/yasnippet][Github account]] for additional configuration tips. 
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :ensure t
+    :diminish 'yas-minor-mode)
+  (use-package yasnippet-snippets
+    :ensure t)
+  (setq yas-snippet-dirs '("~/.emacs.d/private/snippets"))
+  ;; (add-hook 'prog-mode-hook 'yas-minor-mode)
+  (yas-global-mode)
+#+END_SRC
+
+** Personal functions
+Here are a couple functions dealing with the configuration (org) file, to edit and reload.
+
+*** Configuration functions
+**** Config-edit
+To edit the current ~/.emacs.d/dotemacs.org:
+#+BEGIN_SRC emacs-lisp
+(defun aeh/config-edit ()
+"Edit (visit) file ~/.emacs.d/dotemacs.org"
+  (interactive)
+  (find-file "~/.emacs.d/dotemacs.org"))
+(global-set-key (kbd "C-c e") 'aeh/config-edit)
+#+END_SRC
+
+**** Config-reload
+To *reload* a newly edited ~/.emacs.d/dotemacs.org:
+#+BEGIN_SRC emacs-lisp
+(defun aeh/config-reload ()
+"Reloads file ~/.emacs.d/dotemacs.org"
+  (interactive)
+  (org-babel-load-file (expand-file-name "~/.emacs.d/dotemacs.org")))
+(global-set-key (kbd "C-c r") 'aeh/config-reload)
+#+END_SRC
+
+*** Miscellaneous functions
+**** Company Improvesents
+I think that Company is acting a bit better now, and on 10/30/2018, I added some code from Oleh Krehel's [[https://oremacs.com/2017/12/27/company-numbers/][blog]] to: show numbers on the popup, and be able to use them to select text. This works like a charm. Oleh's blog article is from December 2017, and he states his git log shows he's been using this setup for three years without any issues.  Grand!
+#+BEGIN_SRC emacs-lisp
+  ;; Basic setting
+  (setq company-show-numbers t)
+
+  ;; Add some bindings
+  (let ((map company-active-map))
+  (mapc
+      (lambda (x)
+      (define-key map (format "%d" x) 'ora-company-number))
+      (number-sequence 0 9))
+  (define-key map " " (lambda ()
+                          (interactive)
+                          (company-abort)
+                          (self-insert-command 1)))
+  (define-key map (kbd "<return>") nil))   ;; This line UNBINDS RET key from closing the popup
+
+  ;; Oleh's function:
+  (defun ora-company-number ()
+    "Forward to `company-complete-number'.
+
+  Unless the number is potentially part of the candidate.
+  In that case, insert the number."
+    (interactive)
+    (let* ((k (this-command-keys))
+           (re (concat "^" company-prefix k)))
+      (if (cl-find-if (lambda (s) (string-match re s))
+                      company-candidates)
+          (self-insert-command 1)
+        (company-complete-number (string-to-number k)))))
+#+END_SRC
+**** Previous Buffer
+This is a rather well-known trick to switch to the previous buffer, well-suited to keep switching back and forth between two buffers.
+#+BEGIN_SRC emacs-lisp
+(defun aeh/switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+#+END_SRC
+**** Delete current buffer file
+This is one of Bailey Ling's functions from "config-util.el".
+#+BEGIN_SRC emacs-lisp
+(defun aeh/delete-current-buffer-file ()
+  "Kill the current buffer and deletes the file it is visiting."
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (when filename
+      (if (vc-backend filename)
+          (vc-delete-file filename)
+        (when (y-or-n-p (format "Are you sure you want to delete %s? " filename))
+          (delete-file filename)
+          (message "Deleted file %s" filename)
+          (kill-buffer))))))
+#+END_SRC
+**** Rename current buffer file
+This is one of Bailey Ling's functions from "config-util.el".
+#+BEGIN_SRC emacs-lisp
+(defun aeh/rename-current-buffer-file ()
+  "Renames current buffer and file it is visiting."
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (message "Buffer is not visiting a file!")
+      (let ((new-name (read-file-name "New name: " filename)))
+        (cond
+         ((vc-backend filename) (vc-rename-file filename new-name))
+         (t
+          (rename-file filename new-name t)
+          (set-visited-file-name new-name t t)))))))
+#+END_SRC
+**** Copy file name to clipboard
+This is one of Bailey Ling's functions from "config-util.el".
+#+BEGIN_SRC emacs-lisp
+(defun aeh/copy-file-name-to-clipboard ()
+  "Copy the current buffer file name to the clipboard."
+  (interactive)
+  (let ((filename (if (equal major-mode 'dired-mode)
+                      default-directory
+                    (buffer-file-name))))
+    (when filename
+      (kill-new filename)
+      (message "Copied buffer file name '%s' to the clipboard." filename))))
+#+END_SRC
+**** Edit file as root
+This is one of Bailey Ling's functions from "config-util.el".
+#+BEGIN_SRC emacs-lisp
+(defun aeh/edit-file-as-root (file)
+  "Edits a file as root."
+  (interactive "f")
+  (find-file-other-window (concat "/sudo:root@localhost:" file)))
+#+END_SRC
+**** Convert buffer to DOS format
+This is one of Bailey Ling's functions from "config-util.el".
+#+BEGIN_SRC emacs-lisp
+(defun aeh/set-buffer-to-dos-format ()
+  "Converts the current buffer to DOS file format."
+  (interactive)
+  (set-buffer-file-coding-system 'undecided-dos nil))
+#+END_SRC
+**** Conver buffer to UNIX format
+This is one of Bailey Ling's functions from "config-util.el".
+#+BEGIN_SRC emacs-lisp
+(defun aeh/set-buffer-to-unix-format ()
+  "Converts the current buffer to UNIX file format."
+  (interactive)
+  (set-buffer-file-coding-system 'undecided-unix nil))
+#+END_SRC
+
+** Hydras
+NOTE: I am transferring *all* of the hydras to ~/.emacs.d/private/local/aeh-hydras.el.
+*** Load aeh-hydras
+Load the file "aeh-hydras.el"
+#+BEGIN_SRC emacs-lisp
+(load "aeh-hydras")
+#+END_SRC
+
+* Evil Mode
+Note that all Evil mode must come last in the configuration as other packages need to load first else their config could override that of Evil.
+
+Here is where all the Evil-mode configuration is kept.  A lot of this is taken from [[https://github.com/howardabrams/dot-files/blob/master/emacs-evil.org][Howard Abrams Evil configuration]].
+More is taken from [[https://github.com/aaronbieber/dotfiles/blob/master/configs/emacs.d/lisp/init-evil.el][Aaron Biebers Evil configuration]].
+
+Note that Evil Mode is a minor mode, and like all minor modes, minor modes loaded after others can override the settings of a previous one...ergo, load Evil and evil versions of plugins last.
+
+** Evil-mode
+*Start at the beginning*
+*MUST* use ":init" attribute to activate the package, synonymous with "package-initialize", see documentation for same.
+#+BEGIN_SRC emacs-lisp
+  (use-package evil
+    :ensure t
+    :config
+    :init
+    (evil-mode 1)
+
+    ;; Do NOT have to use evil in every mode, so let's make a list where evil is not used.
+    (dolist (mode '(ag-mode
+                    flycheck-error-list-mode
+                    git-rebase-mode))
+      (add-to-list 'evil-emacs-state-modes mode))
+
+    ;; Start in insert mode for small buffers
+    ;; 2018-10-16: This was Howard's idea (I think), and it is *BAD*. Better to start in normal mode for most files
+    ;; including org files.
+    (dolist (mode '(org-mode sql-mode lisp-mode))
+      (add-to-list 'evil-normal-state-modes mode))
+
+    ;; Well, this is not working, new text files still open in normal mode, but at least org opens in normal mode.
+    (dolist (mode '(text-mode))
+      (add-to-list 'evil-insert-state-modes mode))
+
+    (evil-add-hjkl-bindings eww-mode-map 'emacs
+      (kbd "/")       'evil-search-forward
+      (kbd "n")       'evil-search-next
+      (kbd "N")       'evil-search-previous
+      (kbd "C-f")     'evil-scroll-down
+      (kbd "C-b")     'evil-scroll-up
+      (kbd "C-w C-w") 'other-window)
+
+    :bind (:map evil-normal-state-map
+                ;; Don't need 'q' to start recording a macro...
+                ;; I'm more familiar with Emacs' way of doing things.
+                ("q" . nil)
+                ;; Why is 'f' line-bound?
+                ;; Wanna rebind f to avy?
+                ;; ("f" . iy-go-to-char)
+                ;; ("F" . iy-go-to-char-backward)
+                ;; How about avy to 't'?
+                ;; ("t" . avy-goto-char-timer)
+                ;; ("T" . avy-goto-word-timer)
+                ;; Shame that meta keys don't work, so let's
+                ;; use the 'z' prefix:
+                ;; ("z," . ha/xref-pop-marker-stack)
+                ("z." . find-tag)))
+#+END_SRC
+
+*Start adding packages*
+The emacswiki [[https://www.emacswiki.org/emacs/Evil][page]] for Evil lists a bunch of plugins for evil mode.
+
+** Evil-surround
+Evil-surround is a port of Tim Pope's Surround vim package. I cannot live without it! Note: use "init" rather than "config", which doesn't "launch" the minor mode. Research shows this is because "init" code executes before the package loads, and "config" is after, and if the package is "lazily loaded", the "config" will not execute until after the lazy load. What John doesn't mention is that the entire purpose of "use-package" is to lazy load packages to speed up Emacs startup. So, "config" only occurs when the minor mode is specifically called. See help for the package, and review: bind, config, demand, and init. I could use both demand and config, or merely ensure and after (after evil-mode), and set "global-evil-surround-mode 1" as a separate sexp.
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-surround
+    :ensure t
+    :diminish
+    :after evil)
+  (global-evil-surround-mode)
+#+END_SRC
+
+** Evil-commentary
+Evil-commentary is a [[https://github.com/linktohack/evil-commentary][port]] of Tim Pope's Commentary
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-commentary
+    :ensure t
+    :diminish
+    :after evil)
+  (evil-commentary-mode 1)
+#+END_SRC
+
+** Evil-matchit
+Evil-matchit is a [[https://github.com/redguardtoo/evil-matchit][port]] of Vim's (now native) matchit.
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-matchit
+    :ensure t
+    :diminish
+    :after evil)
+  (global-evil-matchit-mode 1)
+#+END_SRC
+
+** Evil-exchange
+Evil-exchange is a [[https://github.com/Dewdrops/evil-exchange][port]] of Tom McDonald's vim-exchange. I never used vim-exchange, but this looks promising.
+
+This is pretty awesome.  In normal mode, "cx" plus motion keys will "select" the text to exchange, then moving to the other block, pressing "." will do the exchange in a single atomic transaction (one 'u' to undo). You can also select a block of text, "cx", then select the alternate block, and "cx" again to do the exchange.
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-exchange
+    :ensure t
+    :diminish
+    :after evil)
+  (evil-exchange-cx-install)
+#+END_SRC
+
+* Final Stuff
+** Diminish
+Diminish will remove or abbreviate minor mode names on the modeline. Although "use-package" does support the diminish function, the [[https://github.com/jwiegley/use-package][documentation]] states the package must be installed. (The same with "delight"; not sure what that does--yet.) Diminish wasn't diminishing at startup until after I moved it to the END of the packages listing--then it still wasn't diminishing Undo-tree (which seems to be a requirement of another package.) So, let's try it at the end of everything...yup, that did it!
+#+BEGIN_SRC emacs-lisp
+  (use-package diminish
+    :ensure t
+    :demand
+    :config
+    (diminish 'which-key-mode)
+    (diminish 'linum-relative-mode)
+    (diminish 'page-break-lines-mode)
+    (diminish 'visual-line-mode)
+    (diminish 'projectile-mode)
+    (diminish 'ivy-mode)
+    (diminish 'company-mode)
+    (diminish 'org-indent-mode)
+    (diminish 'eldoc-mode)
+    (diminish 'undo-tree-mode)
+    (diminish 'auto-revert-mode))
+#+END_SRC
+** Origami
+It took a *lot* of reading to find out that Origami does, in fact, support a Vim-style "fold-method=marker", This [[https://github.com/gregsexton/origami.el#can-i-override-the-folding-parser-for-an-individual-file][section]] indicates an Emacs tag can be placed in a file to indicate fold style, but that is the only mention of the variable. A Reddit [[https://www.reddit.com/r/emacs/comments/5ei7wa/awesome_vimlike_folding_for_evilmode_with_markers/][article]] showed that the variable can be used in a different way, being set in a "prog-mode-hook" instead. Note: I'm putting everything together here, so if it needs to be commented out, all the configuration is together.  I've attempted to put this with the rest of the packages, but this setup uses "evil-define-key", and always gets an error as it's loaded before Evil.  So, forced to put it here.
+
+NOTE: As *usual*, others configuration is incorrect, as they use ":config" instead of ":init" and the code is not executed correctly. I also found I needed to add several more bindings, as by default "origami-close-all-nodes" is not bound to any keys.
+
+2018-12-01: Created aeh-origami.el to segregate anything to do with origami to debug the latest error which began 11/24/2018. Yeah, forget that. I think I've found the exact problem. I've been testing with files that Kavitha created, and they have unbalanced fold markers; I *know*, because I fixed her foulups in one package body, but I'm sure she fouled up the spec as well--and I've been playing with the spec.  A spec that *I* created is fine...dangit!!!  So now, use the Origami config below, and work on how to deal with large files, and that annoying preference of Projectile to use Ido instead of Swiper; there must be a way to fix that.
+
+2018-12-02: Created a fold-marker free version of the Rule Engine package, and it opens instantly and has no slowness whatsoever.  Ergo, the sole problem with large files is with Origami.
+
+#+BEGIN_SRC emacs-lisp
+  ;; Step 1, define a "wrapper" function.
+  (defun aeh/origami-toggle-node ()
+    (interactive)
+    (save-excursion ;; leave point where it is
+      (goto-char (point-at-eol))             ;; then go to the end of line
+      (origami-toggle-node (current-buffer) (point))))                 ;; and try to fold
+  ;; ;; Step 2, install Origami.
+  (use-package origami
+    :ensure t
+    :diminish)
+  (add-hook 'prog-mode-hook
+            (lambda ()
+              (setq-local origami-fold-style 'triple-braces)
+              ;; (setq origami-fold-style 'triple-braces)
+              (origami-mode)
+              (origami-close-all-nodes (current-buffer))))
+  ;; Step 3, choose the binding.
+  (evil-define-key 'normal prog-mode-map (kbd "TAB") 'aeh/origami-toggle-node)
+  (define-key evil-normal-state-map "za" 'origami-forward-toggle-node)
+  (define-key evil-normal-state-map "zR" 'origami-close-all-nodes)
+  (define-key evil-normal-state-map "zM" 'origami-open-all-nodes)
+  (define-key evil-normal-state-map "zr" 'origami-close-node-recursively)
+  (define-key evil-normal-state-map "zm" 'origami-open-node-recursively)
+  (define-key evil-normal-state-map "zo" 'origami-show-node)
+  (define-key evil-normal-state-map "zc" 'origami-close-node)
+  (define-key evil-normal-state-map "zj" 'origami-forward-fold)
+  (define-key evil-normal-state-map "zk" 'origami-previous-fold)
+#+END_SRC
+
