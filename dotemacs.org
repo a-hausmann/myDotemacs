@@ -567,11 +567,13 @@ NOTE: This acts/looks weird in that, typing a pairable character, *three* appear
   ;;               (push '(?` . ?')
   ;;                     (getf autopair-extra-pairs :string))))
 #+END_SRC
-*** Command-log 
-Command-log-mode creates buffer "*command-log*" which displays commands executed.
+*** Command-log-mode
+Command-log-mode creates buffer "*command-log*" which displays commands executed. Then, "C-c o" will toggle the command-line-mode buffer to make it visible. Also, all the command-log-mode functions begin "clm/" so you can "M-x" then "clm/" to see the full list of commands which can be used.  The extra settings below make clear the packages defaults.
 #+BEGIN_SRC emacs-lisp
-(use-package command-log-mode
-  :ensure t)
+  (use-package command-log-mode
+    :ensure t
+    :commands (command-log-mode)
+    :bind ("C-c o" . clm/toggle-command-log-buffer))
 #+END_SRC
 
 *** Company
@@ -753,13 +755,20 @@ This setup is translated from or taken from [[https://github.com/abo-abo/lispy#c
 
 *** Magit
 Obviously, no one using Emacs can live without having Magit, so here's where we will install and configure it.
+
+2018-12-21: Added magit-gitflow to the config, [[https://gitlab.com/buildfunthings/emacs-config/blob/master/loader.org][ref.]]
+2018-12-24: Added property "commands".
 #+BEGIN_SRC emacs-lisp
-(use-package magit
-  :ensure t
-  :bind
-  ("M-g" . magit-status))
-(setq magit-push-always-verify nil)
-(setq git-commit-summary-max-length 50)
+  (use-package magit
+    :ensure t
+    :commands (magit-status)
+    :bind ("M-g" . magit-status))
+  (setq magit-push-always-verify nil)
+  (setq git-commit-summary-max-length 50)
+  (use-package magit-gitflow
+    :ensure t
+    :config
+    (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
 #+END_SRC
 
 *** Move-text
@@ -1216,7 +1225,8 @@ OK, I forgot to add this until now...and setting up this configuration in git ma
 #+END_SRC
 * Final Stuff
 ** Remap some keys
-Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/blog/2014-08-03-a-vim-like-emacs-config.html][here]].
+Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/blog/2014-08-03-a-vim-like-emacs-config.html][here]]. 12/21/2018: fixed the problem of not having General's SPC giving me menu by defining SPC in dired-mode-map to nil. This then allows General to take over, the local private map not having a mapping for SPC.
+
 #+BEGIN_SRC emacs-lisp
   (evil-define-key 'normal dired-mode-map "h" 'dired-up-directory)
   (evil-define-key 'normal dired-mode-map "l" 'dired-find-alternate-file)
@@ -1229,6 +1239,7 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
   (evil-define-key 'normal dired-mode-map "n" 'evil-search-next)
   (evil-define-key 'normal dired-mode-map "N" 'evil-search-previous)
   (evil-define-key 'normal dired-mode-map "q" 'kill-this-buffer)
+  (define-key dired-mode-map (kbd "SPC") nil)
 #+END_SRC
 Same kind of thing for ibuffer-mode as well, same link.
 #+BEGIN_SRC emacs-lisp
