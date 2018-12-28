@@ -464,55 +464,56 @@ Yet another package from Oleh Krehel, [[https://github.com/abo-abo/ace-window/wi
 This is copied from the [[https://github.com/abo-abo/ace-window][github home]].
 #+BEGIN_SRC emacs-lisp
   (use-package ace-window
-      :ensure t
-      :defer 1
-      :config
-      (set-face-attribute
-       'aw-leading-char-face nil
-       :foreground "deep sky blue"
-       :weight 'bold
-       :height 3.0)
-      (set-face-attribute
-       'aw-mode-line-face nil
-       :inherit 'mode-line-buffer-id
-       :foreground "lawn green")
-      (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l)
-            aw-dispatch-always t
-            aw-dispatch-alist
-            '((?x aw-delete-window "Ace - Delete Window")
-              (?c aw-swap-window "Ace - Swap Window")
-              (?n aw-flip-window)
-              (?v aw-split-window-vert "Ace - Split Vert Window")
-              (?h aw-split-window-horz "Ace - Split Horz Window")
-              (?m delete-other-windows "Ace - Maximize Window")
-              (?g delete-other-windows)
-              (?b balance-windows)
-              (?u (lambda ()
-                    (progn
-                      (winner-undo)
-                      (setq this-command 'winner-undo))))
-              (?r winner-redo)))
+    :ensure t
+    :defer 1
+    :config
+    (set-face-attribute
+     'aw-leading-char-face nil
+     :foreground "deep sky blue"
+     :weight 'bold
+     :height 3.0)
+    (set-face-attribute
+     'aw-mode-line-face nil
+     :inherit 'mode-line-buffer-id
+     :foreground "lawn green")
+    (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l)
+          aw-dispatch-always t
+          aw-dispatch-alist
+          '((?x aw-delete-window "Ace - Delete Window")
+            (?c aw-swap-window "Ace - Swap Window")
+            (?n aw-flip-window)
+            (?v aw-split-window-vert "Ace - Split Vert Window")
+            (?h aw-split-window-horz "Ace - Split Horz Window")
+            (?m delete-other-windows "Ace - Maximize Window")
+            (?g delete-other-windows)
+            (?b balance-windows)
+            (?u (lambda ()
+                  (progn
+                    (winner-undo)
+                    (setq this-command 'winner-undo))))
+            (?r winner-redo)))
 
-      (when (package-installed-p 'hydra)
-        (defhydra aeh/hydra-window-size (:color red)
-          "Windows size"
-          ("h" shrink-window-horizontally "shrink horizontal")
-          ("j" shrink-window "shrink vertical")
-          ("k" enlarge-window "enlarge vertical")
-          ("l" enlarge-window-horizontally "enlarge horizontal"))
-        (defhydra aeh/hydra-window-frame (:color red)
-          "Frame"
-          ("f" make-frame "new frame")
-          ("x" delete-frame "delete frame"))
-        (defhydra aeh/hydra-window-scroll (:color red)
-          "Scroll other window"
-          ("n" joe-scroll-other-window "scroll")
-          ("p" joe-scroll-other-window-down "scroll down"))
-        (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
-        (add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
-        (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t))
-      (ace-window-display-mode t))
-(global-set-key (kbd "M-o") 'ace-window)
+    (when (package-installed-p 'hydra)
+      (defhydra aeh/hydra-window-size (:color red)
+        "Windows size"
+        ("h" shrink-window-horizontally "shrink horizontal")
+        ("j" shrink-window "shrink vertical")
+        ("k" enlarge-window "enlarge vertical")
+        ("l" enlarge-window-horizontally "enlarge horizontal"))
+      (defhydra aeh/hydra-window-frame (:color red)
+        "Frame"
+        ("f" make-frame "new frame")
+        ("x" delete-frame "delete frame"))
+      (defhydra aeh/hydra-window-scroll (:color red)
+        "Scroll other window"
+        ("n" joe-scroll-other-window "scroll")
+        ("p" joe-scroll-other-window-down "scroll down"))
+      (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
+      (add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
+      (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t))
+    (ace-window-display-mode t))
+  (global-set-key (kbd "M-o") 'ace-window)
+  (global-set-key (kbd "C-c w") 'ace-window)
 #+END_SRC
 
 *** Avy
@@ -638,6 +639,8 @@ Company does seem to have a couple of goofy side-effects, such as somehow "turni
    (dashboard-setup-startup-hook)
    (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png")
    (setq dashboard-items '((recents  . 9)
+                           (bookmarks . 5)
+                           (registers . 5)
                            (projects . 5)))
    (setq dashboard-banner-logo-title "My Personal Startup Page - Get Hacking!")
  #+END_SRC
@@ -668,6 +671,25 @@ Flycheck does syntax checking for multiple languages.
 (add-hook 'shell-mode-hook 'flycheck-mode)
 #+END_SRC
 
+*** Git-gutter-fringe
+This is a version of git-gutter which works better with linum-mode, see [[https://github.com/syohex/emacs-git-gutter-fringe][here]]. I only thought I had not been able to get this to work, but, I was missing a logical point; git-gutter cannot be enabled unless the file-buffer is in a Git repository (duh!). Even if in a Git repository, any changes in a buffer *must be saved to the file* before git-gutter can detect any changes; changes to the buffer alone cannot be compared to the Git HEAD commit.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package git-gutter-fringe
+    :ensure t
+    :config
+    (set-face-foreground 'git-gutter-fr:modified "yellow")
+    (set-face-foreground 'git-gutter-fr:added    "blue")
+    (set-face-foreground 'git-gutter-fr:deleted  "red")
+    ;; If you would like to use git-gutter.el and linum-mode
+    (git-gutter:linum-setup)
+    (add-hook 'prog-mode-hook 'git-gutter-mode)
+    (global-set-key (kbd "C-x C-g") 'git-gutter)
+    (global-set-key (kbd "C-x v =") 'git-gutter:popup-hunk)
+    ;; Jump to next/previous hunk
+    (global-set-key (kbd "C-x p") 'git-gutter:previous-hunk)
+    (global-set-key (kbd "C-x n") 'git-gutter:next-hunk))
+#+END_SRC
 *** Htmlize
  *Ensure "htmlize" is available for Org mode*
  This is a package not available when Emacs is compiled from source (mine), but is required by Org mode to export to HTML.
@@ -991,7 +1013,7 @@ To *reload* a newly edited ~/.emacs.d/dotemacs.org:
 #+END_SRC
 
 *** Miscellaneous functions
-**** Company Improvesents
+**** Company Improvements
 I think that Company is acting a bit better now, and on 10/30/2018, I added some code from Oleh Krehel's [[https://oremacs.com/2017/12/27/company-numbers/][blog]] to: show numbers on the popup, and be able to use them to select text. This works like a charm. Oleh's blog article is from December 2017, and he states his git log shows he's been using this setup for three years without any issues.  Grand!
 #+BEGIN_SRC emacs-lisp
   ;; Basic setting
@@ -1149,7 +1171,8 @@ Note that Evil Mode is a minor mode, and like all minor modes, minor modes loade
       (kbd "N")       'evil-search-previous
       (kbd "C-f")     'evil-scroll-down
       (kbd "C-b")     'evil-scroll-up
-      (kbd "C-w C-w") 'other-window)
+      ;; (kbd "C-w C-w") 'other-window
+      (kbd "C-w C-w") 'ace-window)
 
     :bind (:map evil-normal-state-map
                 ;; Don't need 'q' to start recording a macro...
@@ -1253,6 +1276,7 @@ Same kind of thing for ibuffer-mode as well, same link.
     (kbd "M-s a C-s") 'ibuffer-do-isearch
     (kbd "M-s a M-C-s") 'ibuffer-do-isearch-regexp)
 #+END_SRC
+
 ** Diminish
 Diminish will remove or abbreviate minor mode names on the modeline. Although "use-package" does support the diminish function, the [[https://github.com/jwiegley/use-package][documentation]] states the package must be installed. (The same with "delight"; not sure what that does--yet.) Diminish wasn't diminishing at startup until after I moved it to the END of the packages listing--then it still wasn't diminishing Undo-tree (which seems to be a requirement of another package.) So, let's try it at the end of everything...yup, that did it!
 #+BEGIN_SRC emacs-lisp
