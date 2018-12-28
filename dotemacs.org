@@ -351,9 +351,9 @@ I really, *really* like visual-line-mode, so set globally.
        browse-url-generic-program "opera")
  #+END_SRC
  
-Use electric-pair-mode globally
+Use electric-pair-mode globally. 2018-12-27: turned off Autopair, turned on Electric-pair.
 #+BEGIN_SRC emacs-lisp
-;; (electric-pair-mode 1)
+  (electric-pair-mode 1)
 #+END_SRC
 
 Enable narrowing
@@ -551,10 +551,12 @@ Found [[https://github.com/Malabarba/aggressive-indent-mode][here]], aggressive-
 [[https://github.com/joaotavora/autopair][Autopair]] is one of several alternatives to Vim's auto-pairs. There is also [[https://github.com/Fuco1/smartparens][Smartparens]], and Electric Pair, which appears to be built into Emacs at this point.
 
 NOTE: This acts/looks weird in that, typing a pairable character, *three* appear instead of the expected two. For example, typing a left paren, "(" will result in "())" appearing, with point between first and second characters. When done typing, a single ")" will move *past* the second character and the third disappears.  This looks strange at first, but is relatively easy to get used to. So now, I've changed from global autopair to adding individual hooks, and this now seems to work well. In Org, I have autopair; in prog-mode (SQL-ANSI), I have autopair, but in emacs-lisp I do NOT have autopair.  This is pretty OK. OTOH, in Org I don't get a right paren when I type "(" and I have to manually close off the parentheses.  OTOH, typing double-quote then "(" will result in "()", though I need to arrow past the closing ")"; weird.
+2018-12-27: Turned off Autopair in favor of Electric-pair.
 
 #+BEGIN_SRC emacs-lisp
   (use-package autopair
     :ensure t
+    :disabled
     :diminish)
   ;; (autopair-global-mode) ;; enable autopair in all buffers
   (add-hook 'prog-mode-hook 'autopair-mode)
