@@ -532,11 +532,11 @@ Found a trick; instead of binding to "avy-goto-char", use "avy-goto-char-timer".
 #+END_SRC
 
 *** Aggressive-indent
-Found [[https://github.com/Malabarba/aggressive-indent-mode][here]], aggressive-indent-mode is a minor mode which deals with changing code better than the standard electric-indent-mode.
+Found [[https://github.com/Malabarba/aggressive-indent-mode][here]], aggressive-indent-mode is a minor mode which deals with changing code better than the standard electric-indent-mode. This does *not* work well with SQL or PL/SQL, and the documentation states the "aggressive-indent-excluded-modes" list will *only* be used in aggressive-indent is turned on globally.  This means, I cannot use the "prog-mode-hook" as that would include SQL. Set now for ONLY Emacs-lisp.
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
     :ensure t)
-  (add-hook 'prog-mode-hook #'aggressive-indent-mode)
+  (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
   ;; (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
 #+END_SRC
 
