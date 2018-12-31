@@ -676,22 +676,35 @@ Flycheck does syntax checking for multiple languages.
 *** Git-gutter-fringe
 This is a version of git-gutter which works better with linum-mode, see [[https://github.com/syohex/emacs-git-gutter-fringe][here]]. I only thought I had not been able to get this to work, but, I was missing a logical point; git-gutter cannot be enabled unless the file-buffer is in a Git repository (duh!). Even if in a Git repository, any changes in a buffer *must be saved to the file* before git-gutter can detect any changes; changes to the buffer alone cannot be compared to the Git HEAD commit.
 
+2018-12-30: Wow! I *finally* got this darn thing working the way I want; GG-fringe will supposedly work best for me, linum or no linum, and this seems correct. I have set the gutter width to 2 columns, customized the Add/Mod/Delete markings, set an "update-interval" to 2 seconds, so after making *any* changes to a file, *WITHOUT* saving, the gutter will show the affect of my edits.  Plus, I can use the C-x commands to move to changes, stage or revert hunks. I need to find out what "mark hunk" does though.  BUT, I think this is now good to go.
 #+BEGIN_SRC emacs-lisp
   (use-package git-gutter-fringe
-    :ensure t
-    :config
-    (set-face-foreground 'git-gutter-fr:modified "yellow")
-    (set-face-foreground 'git-gutter-fr:added    "blue")
-    (set-face-foreground 'git-gutter-fr:deleted  "red")
-    ;; If you would like to use git-gutter.el and linum-mode
-    (git-gutter:linum-setup)
-    (add-hook 'prog-mode-hook 'git-gutter-mode)
-    (global-set-key (kbd "C-x C-g") 'git-gutter)
-    (global-set-key (kbd "C-x v =") 'git-gutter:popup-hunk)
-    ;; Jump to next/previous hunk
-    (global-set-key (kbd "C-x p") 'git-gutter:previous-hunk)
-    (global-set-key (kbd "C-x n") 'git-gutter:next-hunk))
+    :ensure t)
+  ;; Jump to next/previous hunk
+  (global-set-key (kbd "C-x p") 'git-gutter:previous-hunk)
+  (global-set-key (kbd "C-x n") 'git-gutter:next-hunk)
+  ;; Stage current hunk
+  (global-set-key (kbd "C-x v s") 'git-gutter:stage-hunk)
+  ;; Revert current hunk
+  (global-set-key (kbd "C-x v r") 'git-gutter:revert-hunk)
+  ;; Mark current hunk
+  (global-set-key (kbd "C-x v SPC") #'git-gutter:mark-hunk)
+  (global-git-gutter-mode +1)
+  ;; Suggested in StackOverflow, ref: https://stackoverflow.com/questions/23344540/emacs-update-git-gutter-annotations-when-staging-or-unstaging-changes-in-magit
+  (add-hook 'magit-post-refresh-hook #'git-gutter:update-all-windows)
+  (custom-set-variables
+   '(git-gutter:update-interval 2)
+   '(git-gutter:window-width 2)
+   '(git-gutter:lighter "GG")
+   '(git-gutter:modified-sign "<>") ;; two space
+   '(git-gutter:added-sign "++")    ;; multiple character is OK
+   '(git-gutter:deleted-sign "--")
+   )
+  (set-face-foreground 'git-gutter:modified "yellow")
+  (set-face-foreground 'git-gutter:added    "green")
+  (set-face-foreground 'git-gutter:deleted  "red")
 #+END_SRC
+
 *** Htmlize
  *Ensure "htmlize" is available for Org mode*
  This is a package not available when Emacs is compiled from source (mine), but is required by Org mode to export to HTML.
