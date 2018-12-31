@@ -406,30 +406,6 @@ By default =x k= is bound to =kill-buffer=; instead, we want to kill the current
 (global-set-key (kbd "C-x b") 'counsel-ibuffer)
 #+END_SRC
 
-*** Text Manipulation
-This is where we can put functions and packages to make text editing easier.
-
-*Using multiple-cursors*
-Magnar Sveen created package [[https://github.com/magnars/mark-multiple.el][mark-multiple]], which he himself superceded with [[https://github.com/magnars/multiple-cursors.el][multiple-cursors]]. This, to all appearances, is the better package (Magnar thinks so anyway). There should be more features, and the [[https://www.youtube.com/watch?time_continue=235&v=jNa3axo40qM][Youtube video on multiple-cursors]] is intriguing, and complex; take several times to watch that, and pay close attention to the keystrokes.
-
-So, the package allows you to mark a string, then additional instances (next or previous), and implement multiple cursors on all. Any text editing is performed at all cursors simultaneously. Known limitations of multiple-cursors are: isearch is not supported, =m-x= commands won't be repeated, any keybindings referring to lambdas are always run for all cursors, and redo might mess with the cursors, though undo works fine.
-
-The configuration below is an amalgamation of Uncle Dave's original mark-multiple and Magnar's documentation for multiple-cursors.
-#+BEGIN_SRC emacs-lisp
-(use-package multiple-cursors
-  :ensure t
-  :bind
-      ("C-S-c C-S-c" . 'mc/edit-lines)
-      ("C->" . 'mc/mark-next-like-this)
-      ("C-<" . 'mc/mark-previous-like-this)
-      ("C-c w n" . 'mc/mark-next-like-this-word)
-      ("C-c w p" . 'mc/mark-previous-like-this-word)
-      ("C-c s n" . 'mc/mark-next-symbol-like-this)
-      ("C-c s p" . 'mc/mark-previous-like-this-symbol)
-      ("C-M-m" . 'mc/mark-more-like-this-extended)
-      ("C-*" . 'mc/mark-all-like-this)
-      ("C-S-<mouse-1>" . 'mc/add-cursor-on-click))
-#+END_SRC
 ** Packages
 *** General
 2018-11-10: Have decided to try [[https://github.com/noctuid/general.el][General.el]] as a replacement for Evil-leader. Evil-leader does not appear to be able to allow an "alias" for a command, instead displaying the entire command.  This, I'm sure, has to do with Which-key in combination with Evil-leader, but I'd like to see something more like the menu options that Bailey Ling displays in his config. 
@@ -816,16 +792,67 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
   :init
     (move-text-default-bindings))
 #+END_SRC
+*** Multiple-cursors
+Magnar Sveen created package [[https://github.com/magnars/mark-multiple.el][mark-multiple]], which he himself superceded with [[https://github.com/magnars/multiple-cursors.el][multiple-cursors]]. This, to all appearances, is the better package (Magnar thinks so anyway). There should be more features, and the [[https://www.youtube.com/watch?time_continue=235&v=jNa3axo40qM][Youtube video on multiple-cursors]] is intriguing, and complex; take several times to watch that, and pay close attention to the keystrokes.
+
+So, the package allows you to mark a string, then additional instances (next or previous), and implement multiple cursors on all. Any text editing is performed at all cursors simultaneously. Known limitations of multiple-cursors are: isearch is not supported, =m-x= commands won't be repeated, any keybindings referring to lambdas are always run for all cursors, and redo might mess with the cursors, though undo works fine.
+
+The configuration below is an amalgamation of Uncle Dave's original mark-multiple and Magnar's documentation for multiple-cursors.
+#+BEGIN_SRC emacs-lisp
+  (use-package multiple-cursors
+    :ensure t
+    :disabled
+    :bind
+    ("C-S-c C-S-c" . 'mc/edit-lines)
+    ("C->" . 'mc/mark-next-like-this)
+    ("C-<" . 'mc/mark-previous-like-this)
+    ("C-c w n" . 'mc/mark-next-like-this-word)
+    ("C-c w p" . 'mc/mark-previous-like-this-word)
+    ("C-c s n" . 'mc/mark-next-symbol-like-this)
+    ("C-c s p" . 'mc/mark-previous-like-this-symbol)
+    ("C-M-m" . 'mc/mark-more-like-this-extended)
+    ("C-*" . 'mc/mark-all-like-this)
+    ("C-S-<mouse-1>" . 'mc/add-cursor-on-click))
+#+END_SRC
 *** Projectile
  Projectile is an excellent project manager because it automatically recognizes directories with a ".git" directory as *projects* and treats them as a "whole", so searching for/jumping to another file in the project is simple. It can be greatly enhanced by other packages as well.
+ Some basic Projectile commands:
+ - "s-p D" Opens the root of the project in dired
+ - "s-p C-h" Display help of Projectile's key bindings
+ - "s-p b" Display list of all project buffers currently open
+ - "s-p 4 b" Display list of open project buffers and jump to selected buffer in another window
+ - "s-p 5 b" Display list of open project buffers and jump to selected buffer in another frame
+ - "s-p left" Switch to the previous project buffer
+ - "s-p right" Switch to the next project buffer
+ - "s-p ESC" Switch to the most recently selected project buffer
+ - "s-p k" Kills *all* project buffers
+ - "s-p f" Display list of files in current project; use "F" instead for all files in all projects
+ - "s-p 4 f" Display list of files in current project and jump to selected file in another window
+ - "s-p 5 f" Display list of files in current project and jump to selected file in another frame
+ - "s-p g" Display list of all files at point in current project (useful in C, C++, Java, etc.
+ - "s-p d" Display a list of all directories in the current project; use "D" instead for all directories in all projects
+ - "s-p D" Opens the root of the project in dired
+ - "s-p 4 D" Opens the root of the project in dired in another window
+ - "s-p 5 D" Opens the root of the project in dired in another frame
+ - "s-p p" Display list of known projects to switch project
+ - "s-p s g" Run grep on the files in the project
+ - "s-p S" Save *all* project buffers
+ - "s-p r" Run interactive query-replace on all files in project
+ - "s-p m" Invoke a command via the Projectile Commander
 
  *Enable Projectile globally*
  #+BEGIN_SRC emacs-lisp
    (use-package projectile
      :ensure t
      :diminish
-     :init
-       (projectile-mode 1))
+     ;; To pin to melpa-stable, need to edit init.el to add the stable repository
+     :pin melpa-stable
+     :config
+     (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+     (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+     (projectile-mode +1)
+     )
+   (projectile-mode 1)
    ;; Let Projectile call "make"
    ;; I do NOT need this right now, but someone might, someday.
    (global-set-key (kbd "<f5>") 'projectile-compile-project)
