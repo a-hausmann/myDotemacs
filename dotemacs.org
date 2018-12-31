@@ -424,6 +424,7 @@ Thus far, this has worked well. The key here is that the function paired to the 
     :keymaps '(normal emacs)
     "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
     "b" '(aeh/hydra-buffers/body :which-key "buffers")
+    "c" '(aeh/hydra-counsel/body :which-key "counsel")
     "f" '(aeh/hydra-files/body :which-key "files")
     "r" '(aeh/hydra-rectangle/body :which-key "rectangle")
     "t" '(aeh/hydra-toggles/body :which-key "toggles")
@@ -432,6 +433,7 @@ Thus far, this has worked well. The key here is that the function paired to the 
   (aeh-local-leader-def
     :keymaps 'insert
     "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
+    "c" '(aeh/hydra-counsel/body :which-key "counsel")
     "d" '(aeh/hydra-insert-date-menu/body :which-key "dates"))
 #+END_SRC
 
@@ -633,7 +635,7 @@ With this [[https://github.com/magnars/expand-region.el][simple package]] from M
 #+END_SRC
 
 *** Eyebrowse
-Look into [[https://github.com/wasamasa/eyebrowse][Eyebrowse]] mode; Mike Zamansky did a [[https://www.youtube.com/watch?v=s6IXj0bS7L8][demo]] of it, pretty good window manager, it tracks window/buffer splits well within one session, thought here seems no way to save over sessions. Though on the blog page, Vadim notes that searching for "persist" in the README shows how to save using "built-in desktop.el" package.
+Look into [[https://github.com/wasamasa/eyebrowse][Eyebrowse]] mode; Mike Zamansky did a [[https://www.youtube.com/watch?v=s6IXj0bS7L8][demo]] of it, pretty good window manager, it tracks window/buffer splits well within one session, though there seems no way to save over sessions. Though on the blog page, Vadim notes that searching for "persist" in the README shows how to save using "built-in desktop.el" package.
 #+BEGIN_SRC emacs-lisp
   (use-package eyebrowse
     :ensure t)
