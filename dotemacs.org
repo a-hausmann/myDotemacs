@@ -924,18 +924,20 @@ Very useful if working web or game development--or theme development--when this 
 *** Switch-window
 So often we split the frame into multiple windows, and using =c-c o= to cycle through them is a pain in the GM, and a lot of wasted keystrokes.  This package takes care of that issue, particularly good with more than 3+ windows open. Pressing =c-x o= will change the buffers a solid color, and each buffer is assigned a letter (configurable), and pressing the letter assigned to the window takes you to the window. (Note, when only two windows are open, =c-x o= automatically switches to the other window.)
 
-An alternative package is =ace-window=, but by default that package changes the behavior of =c-x o=, even in only two windows are open.
+An alternative package is =ace-window=, but by default that package changes the behavior of =c-x o=, even if only two windows are open.
+OTOH, I have gotten used to Ace-window, so disabling this package.
 #+BEGIN_SRC emacs-lisp
-(use-package switch-window
-  :ensure t
-  :init
+  (use-package switch-window
+    :ensure t
+    :disabled
+    :init
     (setq switch-window-input-style 'minibuffer)
     (setq switch-window-increase 4)
     (setq switch-window-threshold 2)
     (setq switch-window-shortcut-style 'qwerty)
     (setq switch-window-qwerty-shortcuts
-        '("a" "s" "d" "f" "j" "k" "l" "i" "o"))
-  :bind
+          '("a" "s" "d" "f" "j" "k" "l" "i" "o"))
+    :bind
     ([remap other-window] . switch-window))
 #+END_SRC
 
