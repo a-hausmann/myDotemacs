@@ -7,6 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
+#+DATE: <2019-01-05 14:06:36>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -48,7 +49,7 @@ Reference: https://raw.githubusercontent.com/angrybacon/dotemacs/master/dotemacs
 Set the size of the frame. Some UI elements are best left unused.
 #+BEGIN_SRC emacs-lisp
 (when window-system
-  (add-to-list 'default-frame-alist '(height . 40))
+  (add-to-list 'default-frame-alist '(height . 45))
   (add-to-list 'default-frame-alist '(width . 150))
   (blink-cursor-mode 0)
   (scroll-bar-mode 0)
@@ -102,7 +103,13 @@ Have found out that the many, *many* times I have received a "package not found"
 *** Set load-path for custom code
 I will have some subdirectories containing elisp code, so add these directories to the load-path variable.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "~/.emacs.d/private/local")
+  ;; 2019-01-02: Check OS type first.
+  (cond
+   ((string-equal system-type "windows-nt")
+    (progn
+      (add-to-list 'load-path "c:/Users/frst6889/.emacs.d/private/local")
+      ))
+   (add-to-list 'load-path "~/.emacs.d/private/local"))
 #+END_SRC
 
 ** Languages
@@ -301,9 +308,12 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
 
 - ORG MODE settings
  Org mode is such an important part of Emacs it is now part of the "core" software. As such, there is no need for a "use-package" setup, but some common settings are good.
+ 2019-01-07: Org templates are NOT working in Windows version. This is due to Org version 9.2, see "org-plus-contrib-20181230/org-version.el".
+                         ;; '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC")
 
- These are from UncleDavesEmacs:
+ These are from UncleDavesEmacs: 
 #+BEGIN_SRC emacs-lisp
+  (require 'org-tempo)
   (setq org-ellipsis " ")
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
@@ -311,9 +321,7 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
   (setq org-export-with-smart-quotes t)
   (setq org-src-window-setup 'current-window)                   ; Allows for "C-c '" to narrow to code being edited.
   ;: 2018-10-22: Wow! Errors galore in Spacemacs UNTIL changing the simple "add-to-list" to an "eval-after-load" (see below).
-  (eval-after-load 'org
-    '(progn (add-to-list 'org-structure-template-alist
-               '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))))  ; Allows for "<el TAB" to automatically set source block in emacs-lisp
+  ;; 2019-01-07: Updated to Org 9.2, this method now invalid, using yas-snippet instead.
   (add-hook 'org-mode-hook
               '(lambda ()
                  (visual-line-mode 1)
@@ -321,13 +329,14 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
   (global-set-key (kbd "C-c '") 'org-edit-src-code)
 #+END_SRC
 
-- Org Bullets
-This makes things look nicer; it replaces asterisks with nicer looking bullets.
+
+
+- This makes things look nicer; it replaces asterisks with nicer looking bullets.
 #+BEGIN_SRC emacs-lisp
-(use-package org-bullets
-  :ensure t
-  :init
-    (add-hook 'org-mode-hook 'org-bullets-mode))
+  (use-package org-bullets
+    :ensure t
+    :init
+      (add-hook 'org-mode-hook 'org-bullets-mode))
 #+END_SRC
 
 - Global mode settings
@@ -353,7 +362,7 @@ I really, *really* like visual-line-mode, so set globally.
  
 Use electric-pair-mode globally. 2018-12-27: turned off Autopair, turned on Electric-pair.
 #+BEGIN_SRC emacs-lisp
-  (electric-pair-mode 1)
+  ;; (electric-pair-mode 1)
 #+END_SRC
 
 Enable narrowing
@@ -362,6 +371,15 @@ Narrowing displays "selected" text and blanks out all other text in the buffer, 
 Function "narrow-to-defun" is (I think) useful only in Lisp, and I'm not sure what "narrow-to-page" means, so I will only enable "narrow-to-region", which is selected text. Narrowing is enacted with "C-x n n" and reversed by "widening", enacted with "C-x n w".
 #+BEGIN_SRC emacs-lisp
 (put 'narrow-to-region 'disabled nil)
+#+END_SRC
+
+Last Modified Dates
+At the top of my programming files I like to put a "Last modified: " tag which I want updated every time I save the file. This can be done using time-stamp.el with function "time-stamp". The trick is to set a variable to know what to look for, then a hook to actually *do it*.
+#+BEGIN_SRC emacs-lisp
+  ;; (if (string-equal major-mode "org-mode")
+  ;;     (setq time-stamp-pattern "10/#+DATE:[ \t]+\\\\?[\"<]+%:y-%02m-%02d %02H:%02M:%02S\\\\?[\">]")
+  ;;   (setq time-stamp-pattern "10/Last modified:[ \t]+\\\\?[\"<]+%:y-%02m-%02d %02H:%02M:%02S\\\\?[\">]"))
+  ;; (add-hook 'before-save-hook 'time-stamp)
 #+END_SRC
 
 *** Moving Around Emacs
@@ -491,7 +509,7 @@ This is copied from the [[https://github.com/abo-abo/ace-window][github home]].
       (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t))
     (ace-window-display-mode t))
   (global-set-key (kbd "M-o") 'ace-window)
-  (global-set-key (kbd "C-c w") 'ace-window)
+  ;; (global-set-key (kbd "C-c w") 'ace-window)      ;;; use ONLY M-o for this as multiple-cursors wants to use "C-c w" too.
 #+END_SRC
 
 *** Avy
@@ -563,51 +581,51 @@ Company comes from "complete any" and is, naturally, a completion engine.  Unfor
 Company does seem to have a couple of goofy side-effects, such as somehow "turning off" the space key.  For example, if typing and word and Company pops up a listing, if as in the case of a short word ("short") I type through and hit SPC and the first letter of the next word, often the space "disappears" and I'm left with a run-on word. Of course, if I type any other character or Enter, either the drop-down changes or the default word selected, so this is literally only when I'm typing a word that is short but could be longer. An example would be, "short" which could be "shorter" or "shortcut", but if I want only "short" I would next type SPC, and nothing happens (no space is inserted).  This is goofy behavior.  I changed the minimum prefix length from 3 to 5, but this only helps a little; "the" is not a problem, but "space" is. LOL.
 
 #+BEGIN_SRC emacs-lisp
-(use-package company
-:ensure t
-:init
-:diminish
-:config
-(setq company-idle-delay 0)
-(setq company-minimum-prefix-length 5))
-(add-hook 'after-init-hook 'global-company-mode)
-
-(with-eval-after-load 'company
-(define-key company-active-map (kbd "M-n") nil)
-(define-key company-active-map (kbd "M-p") nil)
-(define-key company-active-map (kbd "C-j") #'company-select-next)
-(define-key company-active-map (kbd "C-k") #'company-select-previous))
-;; (define-key company-active-map (kbd "SPC") #'company-abort))
-
-;; emacs-lisp company additions, including slime
-(add-hook 'emacs-lisp-mode-hook 'company-mode)
-
-(use-package slime
-  :ensure t
-  :config
-  (setq inferior-lisp-program "/usr/bin/sbcl")
-  (setq slime-contribs '(slime-fancy)))
-
-(use-package slime-company
+  (use-package company
   :ensure t
   :init
-    (require 'company)
-    (slime-setup '(slime-fancy slime-company)))
-
-;; bash company additions
-(add-hook 'shell-mode-hook 'company-mode)
-
-(defun shell-mode-company-init ()
-  (setq-local company-backends '((company-shell
-                                  company-shell-env
-                                  company-etags
-                                  company-dabbrev-code))))
-
-(use-package company-shell
-  :ensure t
+  :diminish
   :config
-    (require 'company)
-    (add-hook 'shell-mode-hook 'shell-mode-company-init))
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 5))
+  (add-hook 'after-init-hook 'global-company-mode)
+
+  (with-eval-after-load 'company
+  (define-key company-active-map (kbd "M-n") nil)
+  (define-key company-active-map (kbd "M-p") nil)
+  (define-key company-active-map (kbd "C-j") #'company-select-next)
+  (define-key company-active-map (kbd "C-k") #'company-select-previous))
+  ;; (define-key company-active-map (kbd "SPC") #'company-abort))
+
+  ;; emacs-lisp company additions, including slime
+  (add-hook 'emacs-lisp-mode-hook 'company-mode)
+
+  (use-package slime
+    :ensure t
+    :config
+    (setq inferior-lisp-program "/usr/bin/sbcl")
+    (setq slime-contribs '(slime-fancy)))
+
+  (use-package slime-company
+    :ensure t
+    :init
+      (require 'company)
+      (slime-setup '(slime-fancy slime-company)))
+
+  ;; bash company additions
+  (add-hook 'shell-mode-hook 'company-mode)
+
+  (defun shell-mode-company-init ()
+    (setq-local company-backends '((company-shell
+				    company-shell-env
+				    company-etags
+				    company-dabbrev-code))))
+
+  (use-package company-shell
+    :ensure t
+    :config
+      (require 'company)
+      (add-hook 'shell-mode-hook 'shell-mode-company-init))
 #+END_SRC
 
 *** Dashboard
@@ -618,10 +636,9 @@ Company does seem to have a couple of goofy side-effects, such as somehow "turni
      :diminish)
    (dashboard-setup-startup-hook)
    (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png")
-   (setq dashboard-items '((recents  . 9)
-                           (bookmarks . 5)
-                           (registers . 5)
-                           (projects . 5)))
+   (setq dashboard-items '((recents  . 5)
+                           (projects . 5)
+                           (bookmarks . 5)))
    (setq dashboard-banner-logo-title "My Personal Startup Page - Get Hacking!")
  #+END_SRC
 
@@ -655,32 +672,39 @@ Flycheck does syntax checking for multiple languages.
 This is a version of git-gutter which works better with linum-mode, see [[https://github.com/syohex/emacs-git-gutter-fringe][here]]. I only thought I had not been able to get this to work, but, I was missing a logical point; git-gutter cannot be enabled unless the file-buffer is in a Git repository (duh!). Even if in a Git repository, any changes in a buffer *must be saved to the file* before git-gutter can detect any changes; changes to the buffer alone cannot be compared to the Git HEAD commit.
 
 2018-12-30: Wow! I *finally* got this darn thing working the way I want; GG-fringe will supposedly work best for me, linum or no linum, and this seems correct. I have set the gutter width to 2 columns, customized the Add/Mod/Delete markings, set an "update-interval" to 2 seconds, so after making *any* changes to a file, *WITHOUT* saving, the gutter will show the affect of my edits.  Plus, I can use the C-x commands to move to changes, stage or revert hunks. I need to find out what "mark hunk" does though.  BUT, I think this is now good to go.
+
+2019-01-09: git-gutter depends on "diff" as external command, not available in Winders. Make this conditional; bypass loading on Winders.
 #+BEGIN_SRC emacs-lisp
-  (use-package git-gutter-fringe
-    :ensure t)
-  ;; Jump to next/previous hunk
-  (global-set-key (kbd "C-x p") 'git-gutter:previous-hunk)
-  (global-set-key (kbd "C-x n") 'git-gutter:next-hunk)
-  ;; Stage current hunk
-  (global-set-key (kbd "C-x v s") 'git-gutter:stage-hunk)
-  ;; Revert current hunk
-  (global-set-key (kbd "C-x v r") 'git-gutter:revert-hunk)
-  ;; Mark current hunk
-  (global-set-key (kbd "C-x v SPC") #'git-gutter:mark-hunk)
-  (global-git-gutter-mode +1)
-  ;; Suggested in StackOverflow, ref: https://stackoverflow.com/questions/23344540/emacs-update-git-gutter-annotations-when-staging-or-unstaging-changes-in-magit
-  (add-hook 'magit-post-refresh-hook #'git-gutter:update-all-windows)
-  (custom-set-variables
-   '(git-gutter:update-interval 2)
-   '(git-gutter:window-width 2)
-   '(git-gutter:lighter "GG")
-   '(git-gutter:modified-sign "<>") ;; two space
-   '(git-gutter:added-sign "++")    ;; multiple character is OK
-   '(git-gutter:deleted-sign "--")
-   )
-  (set-face-foreground 'git-gutter:modified "yellow")
-  (set-face-foreground 'git-gutter:added    "green")
-  (set-face-foreground 'git-gutter:deleted  "red")
+  ;; 2019-01-07: git-gutter depends on *nix "find" command, not found in Windows; dang it!
+  (cond
+   ((not (string-equal system-type "windows-nt"))
+    (progn
+      (use-package git-gutter-fringe
+        :ensure t)
+      ;; Jump to next/previous hunk
+
+      (global-set-key (kbd "C-x p") 'git-gutter:previous-hunk)
+      (global-set-key (kbd "C-x n") 'git-gutter:next-hunk)
+      ;; Stage current hunk
+      (global-set-key (kbd "C-x v s") 'git-gutter:stage-hunk)
+      ;; Revert current hunk
+      (global-set-key (kbd "C-x v r") 'git-gutter:revert-hunk)
+      ;; Mark current hunk
+      (global-set-key (kbd "C-x v SPC") #'git-gutter:mark-hunk)
+      (global-git-gutter-mode +1)
+      ;; Suggested in StackOverflow, ref: https://stackoverflow.com/questions/23344540/emacs-update-git-gutter-annotations-when-staging-or-unstaging-changes-in-magit
+      (add-hook 'magit-post-refresh-hook #'git-gutter:update-all-windows)
+      (custom-set-variables
+       '(git-gutter:update-interval 2)
+       '(git-gutter:window-width 2)
+       '(git-gutter:lighter "GG")
+       '(git-gutter:modified-sign "<>") ;; two space
+       '(git-gutter:added-sign "++")    ;; multiple character is OK
+       '(git-gutter:deleted-sign "--")
+       )
+      (set-face-foreground 'git-gutter:modified "yellow")
+      (set-face-foreground 'git-gutter:added    "green")
+      (set-face-foreground 'git-gutter:deleted  "red"))))
 #+END_SRC
 
 *** Htmlize
@@ -799,21 +823,21 @@ Magnar Sveen created package [[https://github.com/magnars/mark-multiple.el][mark
 
 So, the package allows you to mark a string, then additional instances (next or previous), and implement multiple cursors on all. Any text editing is performed at all cursors simultaneously. Known limitations of multiple-cursors are: isearch is not supported, =m-x= commands won't be repeated, any keybindings referring to lambdas are always run for all cursors, and redo might mess with the cursors, though undo works fine.
 
-The configuration below is an amalgamation of Uncle Dave's original mark-multiple and Magnar's documentation for multiple-cursors.
+The configuration below is an amalgamation of Uncle Dave's original mark-multiple and Magnar's documentation for multiple-cursors. Note that Magnar says that his functions don't work well as interactive commands but are best mapped--but several of his bindings conflict with others.
 #+BEGIN_SRC emacs-lisp
   (use-package multiple-cursors
     :ensure t
-    :disabled
+    ;; :disabled
     :bind
-    ("C-S-c C-S-c" . 'mc/edit-lines)
+    ("C-c m c" . 'mc/edit-lines)
     ("C->" . 'mc/mark-next-like-this)
     ("C-<" . 'mc/mark-previous-like-this)
+    ("C-M-m" . 'mc/mark-more-like-this-extended)
+    ("C-*" . 'mc/mark-all-like-this)
     ("C-c w n" . 'mc/mark-next-like-this-word)
     ("C-c w p" . 'mc/mark-previous-like-this-word)
     ("C-c s n" . 'mc/mark-next-symbol-like-this)
     ("C-c s p" . 'mc/mark-previous-like-this-symbol)
-    ("C-M-m" . 'mc/mark-more-like-this-extended)
-    ("C-*" . 'mc/mark-all-like-this)
     ("C-S-<mouse-1>" . 'mc/add-cursor-on-click))
 #+END_SRC
 *** Projectile
@@ -918,7 +942,13 @@ Very useful if working web or game development--or theme development--when this 
    ;; ;; experiments
    ;; (setq-default spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
 
-   (load "aeh-spaceline")
+   ;; (load "aeh-myownmodeline")
+   ;;; experiment went OK, though had to exit Emacs first. I see line:column, <Evil mode>, and minor modes. Would be nice to have file type.
+  (if (string-equal system-type "windows-nt")
+       (load "aeh-spaceline-windows")
+    (load "aeh-myownmodeline"))
+
+   ;; (load "new-spaceline-test")
     #+END_SRC
 
 *** Switch-window
