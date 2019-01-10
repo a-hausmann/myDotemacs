@@ -48,13 +48,10 @@ Reference: https://raw.githubusercontent.com/angrybacon/dotemacs/master/dotemacs
 
 Set the size of the frame. Some UI elements are best left unused.
 #+BEGIN_SRC emacs-lisp
-(when window-system
-  (add-to-list 'default-frame-alist '(height . 45))
-  (add-to-list 'default-frame-alist '(width . 150))
-  (blink-cursor-mode 0)
-  (scroll-bar-mode 0)
-  (tool-bar-mode 0)
-  (tooltip-mode 0))
+  (when window-system
+    (add-to-list 'default-frame-alist '(height . 45))
+    (add-to-list 'default-frame-alist '(width . 150))
+    (blink-cursor-mode 0))
 #+END_SRC
 
 *** Set the Customization file
@@ -259,10 +256,14 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
 
 - Disable menus and scrollbars
  Can set any of these from -1 (FALSE as it is not 1) to 1 (TRUE) if they are desired.
+2019-01-10: I think for a time, if Windows, use menu-bar-mode...
  #+BEGIN_SRC emacs-lisp
- (tool-bar-mode -1)
- (menu-bar-mode -1)
- (scroll-bar-mode -1)
+   (if (string-equal system-type "windows-nt")
+       (menu-bar-mode 1)
+     (menu-bar-mode -1)
+     )
+   (tool-bar-mode -1)
+   (scroll-bar-mode -1)
  #+END_SRC
 
 - Disable annoying bell
