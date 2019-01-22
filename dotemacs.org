@@ -350,15 +350,22 @@ I really, *really* like visual-line-mode, so set globally.
  Disable backups and auto-saves
  Change "nil" to "t" to use either of these
  #+BEGIN_SRC emacs-lisp
- (setq make-backup-files nil)
- (setq auto-save-default nil)
+   (setq make-backup-files nil)
+   (setq auto-save-default nil)
  #+END_SRC
 
  Default browser
  According to the [[https://www.emacswiki.org/emacs/BrowseUrl][BrowseUrl wiki]], there is already support for Opera, Firefox, and Chromium, even Edge, but not Internet Exploder. Looking at most of the documentation on the Wiki page, it seems that both must variables must be set, and there is no way out of that.  Oh well.
+ 2019-01-11: change code to Chrome on Windows, else Opera. Code appears fine and evaluates, but doesn't work in Winders.  Shoot!
  #+BEGIN_SRC emacs-lisp
- (setq browse-url-browser-function 'browse-url-generic
-       browse-url-generic-program "opera")
+   (defun aeh/browse-url-chrome (url &optional new-window)
+     (shell-command (concat "C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe" url)))
+
+   (if (string-equal system-type "windows-nt")
+       (setq browse-url-browser-function 'browse-url-generic
+             browse-url-generic-program 'aeh/browse-url-chrome)
+     (setq browse-url-browser-function 'browse-url-generic
+           browse-url-generic-program "opera"))
  #+END_SRC
  
 Use electric-pair-mode globally. 2018-12-27: turned off Autopair, turned on Electric-pair.
@@ -440,7 +447,7 @@ Thus far, this has worked well. The key here is that the function paired to the 
   :prefix "C-;")
   ;; Global keybindings
   (aeh-leader-def
-    :keymaps '(normal emacs)
+    :keymaps '(normal visual emacs)
     "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
     "b" '(aeh/hydra-buffers/body :which-key "buffers")
     "c" '(aeh/hydra-counsel/body :which-key "counsel")
@@ -1061,6 +1068,7 @@ This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] fo
   (use-package yasnippet-snippets
     :ensure t)
   (setq yas-snippet-dirs '("~/.emacs.d/private/snippets"))
+  (setq yas-indent-line 'fixed)
   ;; (add-hook 'prog-mode-hook 'yas-minor-mode)
   (yas-global-mode)
 #+END_SRC
@@ -1353,6 +1361,34 @@ Same kind of thing for ibuffer-mode as well, same link.
     (kbd "M-s a C-s") 'ibuffer-do-isearch
     (kbd "M-s a M-C-s") 'ibuffer-do-isearch-regexp)
 #+END_SRC
+** Sane tabs-or-spaces
+Nice little guide [[https://dougie.io/emacs/indentation/#using-tabs-or-spaces-in-different-files][here]]. These settings should get me to where I want (crossed fingers).
+#+BEGIN_SRC emacs-lisp
+  ;; Set the defaults, NO tabs
+  (setq-default indent-tabs-mode nil)
+
+  ;; Create a variable for our preferred tab width
+  (setq custom-tab-width 2)
+
+  ;; Two callable functions for enabling/disabling tabs in Emacs
+  (defun aeh/disable-tabs ()
+    "Custom function to disable tabs"
+    (interactive)
+    (setq indent-tabs-mode nil))
+  (defun aeh/enable-tabs  ()
+    "Custom function to enable tabs"
+    (interactive)
+    (local-set-key (kbd "TAB") 'tab-to-tab-stop)
+    (setq indent-tabs-mode t)
+    (setq tab-width custom-tab-width))
+
+  ;; Hooks to Disable Tabs
+  (add-hook 'lisp-mode-hook 'aeh/disable-tabs)
+  (add-hook 'emacs-lisp-mode-hook 'aeh/disable-tabs)
+  (add-hook 'emacs-lisp-mode-hook 'aeh/disable-tabs)
+  (add-hook 'sql-mode-hook 'aeh/disable-tabs)
+#+END_SRC
+
 
 ** Diminish
 Diminish will remove or abbreviate minor mode names on the modeline. Although "use-package" does support the diminish function, the [[https://github.com/jwiegley/use-package][documentation]] states the package must be installed. (The same with "delight"; not sure what that does--yet.) Diminish wasn't diminishing at startup until after I moved it to the END of the packages listing--then it still wasn't diminishing Undo-tree (which seems to be a requirement of another package.) So, let's try it at the end of everything...yup, that did it!
