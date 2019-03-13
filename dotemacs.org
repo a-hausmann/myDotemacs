@@ -109,6 +109,12 @@ I will have some subdirectories containing elisp code, so add these directories 
    (add-to-list 'load-path "~/.emacs.d/private/local"))
 #+END_SRC
 
+*** Set dired settings for "Midnight Commander" style use.
+#+begin_src emacs-lisp
+  ;; Setting the dired-dwim-target to True will allow dired to guess the target of an operation like Copy or Move.
+  (setq dired-dwim-target t)
+#+end_src
+
 ** Languages
 
 Here is where I put languages configurations: Lisp, etc.
@@ -359,7 +365,8 @@ I really, *really* like visual-line-mode, so set globally.
  2019-01-11: change code to Chrome on Windows, else Opera. Code appears fine and evaluates, but doesn't work in Winders.  Shoot!
  #+BEGIN_SRC emacs-lisp
    (defun aeh/browse-url-chrome (url &optional new-window)
-     (shell-command (concat "C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe" url)))
+     ;; (shell-command (concat "C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe" url)))
+     (shell-command (concat "C:\\\\Users\\\\frst6889\\\\AppData\\\\Local\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe" url)))
 
    (if (string-equal system-type "windows-nt")
        (setq browse-url-browser-function 'browse-url-generic
@@ -556,6 +563,7 @@ Found [[https://github.com/Malabarba/aggressive-indent-mode][here]], aggressive-
 
 NOTE: This acts/looks weird in that, typing a pairable character, *three* appear instead of the expected two. For example, typing a left paren, "(" will result in "())" appearing, with point between first and second characters. When done typing, a single ")" will move *past* the second character and the third disappears.  This looks strange at first, but is relatively easy to get used to. So now, I've changed from global autopair to adding individual hooks, and this now seems to work well. In Org, I have autopair; in prog-mode (SQL-ANSI), I have autopair, but in emacs-lisp I do NOT have autopair.  This is pretty OK. OTOH, in Org I don't get a right paren when I type "(" and I have to manually close off the parentheses.  OTOH, typing double-quote then "(" will result in "()", though I need to arrow past the closing ")"; weird.
 2018-12-27: Turned off Autopair in favor of Electric-pair.
+2019-03-06: Had to temporarily comment the ":disabled" tag to load package from MELPA; didn't notice the hooks were not commented out and they used "autopair-mode."
 
 #+BEGIN_SRC emacs-lisp
   (use-package autopair
@@ -563,9 +571,9 @@ NOTE: This acts/looks weird in that, typing a pairable character, *three* appear
     :disabled
     :diminish)
   ;; (autopair-global-mode) ;; enable autopair in all buffers
-  (add-hook 'prog-mode-hook 'autopair-mode)
-  (add-hook 'emacs-lisp-mode-hook #'(lambda () (autopair-mode -1)))
-  (add-hook 'org-mode-hook 'autopair-mode)
+  ;; (add-hook 'prog-mode-hook 'autopair-mode)
+  ;; (add-hook 'emacs-lisp-mode-hook #'(lambda () (autopair-mode -1)))
+  ;; (add-hook 'org-mode-hook 'autopair-mode)
   ;; Got this block from here: https://github.com/joaotavora/autopair
   ;; (add-hook 'emacs-lisp-mode-hook
   ;;           #'(lambda ()
@@ -588,10 +596,12 @@ Company comes from "complete any" and is, naturally, a completion engine.  Unfor
 
 Company does seem to have a couple of goofy side-effects, such as somehow "turning off" the space key.  For example, if typing and word and Company pops up a listing, if as in the case of a short word ("short") I type through and hit SPC and the first letter of the next word, often the space "disappears" and I'm left with a run-on word. Of course, if I type any other character or Enter, either the drop-down changes or the default word selected, so this is literally only when I'm typing a word that is short but could be longer. An example would be, "short" which could be "shorter" or "shortcut", but if I want only "short" I would next type SPC, and nothing happens (no space is inserted).  This is goofy behavior.  I changed the minimum prefix length from 3 to 5, but this only helps a little; "the" is not a problem, but "space" is. LOL.
 
+2019-03-10: After loading Emacs on new laptop, and getting updated Company, the miscellaneous code for Company improvements from Oleh Krehel's blog started getting errors, void-variable on "company-active-map". Found no code bug, moving code location in dotemacs.el did nothing, and crazily, the same code generated no errors in *scratch* buffer. Figured out this was a *timing error*, fixable by setting ":demand" option in =use-package=.
+
 #+BEGIN_SRC emacs-lisp
   (use-package company
   :ensure t
-  :init
+  :demand
   :diminish
   :config
   (setq company-idle-delay 0)
@@ -602,20 +612,22 @@ Company does seem to have a couple of goofy side-effects, such as somehow "turni
   (define-key company-active-map (kbd "M-n") nil)
   (define-key company-active-map (kbd "M-p") nil)
   (define-key company-active-map (kbd "C-j") #'company-select-next)
-  (define-key company-active-map (kbd "C-k") #'company-select-previous))
-  ;; (define-key company-active-map (kbd "SPC") #'company-abort))
+  (define-key company-active-map (kbd "C-k") #'company-select-previous)
+  (define-key company-active-map (kbd "SPC") #'company-abort))
 
   ;; emacs-lisp company additions, including slime
   (add-hook 'emacs-lisp-mode-hook 'company-mode)
 
   (use-package slime
     :ensure t
+    :disabled
     :config
     (setq inferior-lisp-program "/usr/bin/sbcl")
     (setq slime-contribs '(slime-fancy)))
 
   (use-package slime-company
     :ensure t
+    :disabled
     :init
       (require 'company)
       (slime-setup '(slime-fancy slime-company)))
@@ -634,6 +646,41 @@ Company does seem to have a couple of goofy side-effects, such as somehow "turni
     :config
       (require 'company)
       (add-hook 'shell-mode-hook 'shell-mode-company-init))
+#+END_SRC
+
+*Company Improvements*
+I think that Company is acting a bit better now, and on 10/30/2018, I added some code from Oleh Krehel's [[https://oremacs.com/2017/12/27/company-numbers/][blog]] to: show numbers on the popup, and be able to use them to select text. This works like a charm. Oleh's blog article is from December 2017, and he states his git log shows he's been using this setup for three years without any issues.  Grand!
+
+#+BEGIN_SRC emacs-lisp
+  ;; Basic setting
+  (setq company-show-numbers t)
+
+  ;; Oleh's function:
+  (defun ora-company-number ()
+    "Forward to `company-complete-number'.
+
+  Unless the number is potentially part of the candidate.
+  In that case, insert the number."
+    (interactive)
+    (let* ((k (this-command-keys))
+           (re (concat "^" company-prefix k)))
+      (if (cl-find-if (lambda (s) (string-match re s))
+                      company-candidates)
+          (self-insert-command 1)
+        (company-complete-number (string-to-number k)))))
+
+  ;; Add some bindings
+  (let ((map company-active-map))
+    (mapc
+     (lambda (x)
+       (define-key map (format "%d" x) 'ora-company-number))
+     (number-sequence 0 9))
+    (define-key map " " (lambda ()
+                          (interactive)
+                          (company-abort)
+                          (self-insert-command 1)))
+    ;; This line UNBINDS RET key from closing the popup
+    (define-key map (kbd "<return>") nil))
 #+END_SRC
 
 *** Dashboard
@@ -735,12 +782,12 @@ Ref: [[https://github.com/jamiecollinson/dotfiles/blob/master/config.org/][Jamie
 (setq ivy-initial-inputs-alist nil)
 #+END_SRC
 
-By default ivy starts filters with ^. I don’t normally want that and can easily type it manually when I do.
+By default ivy starts filters with ^. I don't normally want that and can easily type it manually when I do.
 #+BEGIN_SRC emacs-lisp
 (setq ivy-initial-inputs-alist nil)
 #+END_SRC
 
-Counsel is a collection of ivy enhanced versions of common Emacs commands. I haven’t bound much as ivy-mode takes care of most things. 
+Counsel is a collection of ivy enhanced versions of common Emacs commands. I haven't bound much as ivy-mode takes care of most things. 
 #+BEGIN_SRC emacs-lisp
 (use-package counsel
   :bind (("M-x" . counsel-M-x)))
@@ -1073,141 +1120,6 @@ This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] fo
   (yas-global-mode)
 #+END_SRC
 
-** Personal functions
-Here are a couple functions dealing with the configuration (org) file, to edit and reload.
-
-*** Configuration functions
-**** Config-edit
-To edit the current ~/.emacs.d/dotemacs.org:
-#+BEGIN_SRC emacs-lisp
-(defun aeh/config-edit ()
-"Edit (visit) file ~/.emacs.d/dotemacs.org"
-  (interactive)
-  (find-file "~/.emacs.d/dotemacs.org"))
-(global-set-key (kbd "C-c e") 'aeh/config-edit)
-#+END_SRC
-
-**** Config-reload
-To *reload* a newly edited ~/.emacs.d/dotemacs.org:
-#+BEGIN_SRC emacs-lisp
-(defun aeh/config-reload ()
-"Reloads file ~/.emacs.d/dotemacs.org"
-  (interactive)
-  (org-babel-load-file (expand-file-name "~/.emacs.d/dotemacs.org")))
-(global-set-key (kbd "C-c r") 'aeh/config-reload)
-#+END_SRC
-
-*** Miscellaneous functions
-**** Company Improvements
-I think that Company is acting a bit better now, and on 10/30/2018, I added some code from Oleh Krehel's [[https://oremacs.com/2017/12/27/company-numbers/][blog]] to: show numbers on the popup, and be able to use them to select text. This works like a charm. Oleh's blog article is from December 2017, and he states his git log shows he's been using this setup for three years without any issues.  Grand!
-#+BEGIN_SRC emacs-lisp
-  ;; Basic setting
-  (setq company-show-numbers t)
-
-  ;; Add some bindings
-  (let ((map company-active-map))
-  (mapc
-      (lambda (x)
-      (define-key map (format "%d" x) 'ora-company-number))
-      (number-sequence 0 9))
-  (define-key map " " (lambda ()
-                          (interactive)
-                          (company-abort)
-                          (self-insert-command 1)))
-  (define-key map (kbd "<return>") nil))   ;; This line UNBINDS RET key from closing the popup
-
-  ;; Oleh's function:
-  (defun ora-company-number ()
-    "Forward to `company-complete-number'.
-
-  Unless the number is potentially part of the candidate.
-  In that case, insert the number."
-    (interactive)
-    (let* ((k (this-command-keys))
-           (re (concat "^" company-prefix k)))
-      (if (cl-find-if (lambda (s) (string-match re s))
-                      company-candidates)
-          (self-insert-command 1)
-        (company-complete-number (string-to-number k)))))
-#+END_SRC
-**** Previous Buffer
-This is a rather well-known trick to switch to the previous buffer, well-suited to keep switching back and forth between two buffers.
-#+BEGIN_SRC emacs-lisp
-(defun aeh/switch-to-previous-buffer ()
-  "Switch to previously open buffer.
-Repeated invocations toggle between the two most recently open buffers."
-  (interactive)
-  (switch-to-buffer (other-buffer (current-buffer) 1)))
-#+END_SRC
-**** Delete current buffer file
-This is one of Bailey Ling's functions from "config-util.el".
-#+BEGIN_SRC emacs-lisp
-(defun aeh/delete-current-buffer-file ()
-  "Kill the current buffer and deletes the file it is visiting."
-  (interactive)
-  (let ((filename (buffer-file-name)))
-    (when filename
-      (if (vc-backend filename)
-          (vc-delete-file filename)
-        (when (y-or-n-p (format "Are you sure you want to delete %s? " filename))
-          (delete-file filename)
-          (message "Deleted file %s" filename)
-          (kill-buffer))))))
-#+END_SRC
-**** Rename current buffer file
-This is one of Bailey Ling's functions from "config-util.el".
-#+BEGIN_SRC emacs-lisp
-(defun aeh/rename-current-buffer-file ()
-  "Renames current buffer and file it is visiting."
-  (interactive)
-  (let ((filename (buffer-file-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (message "Buffer is not visiting a file!")
-      (let ((new-name (read-file-name "New name: " filename)))
-        (cond
-         ((vc-backend filename) (vc-rename-file filename new-name))
-         (t
-          (rename-file filename new-name t)
-          (set-visited-file-name new-name t t)))))))
-#+END_SRC
-**** Copy file name to clipboard
-This is one of Bailey Ling's functions from "config-util.el".
-#+BEGIN_SRC emacs-lisp
-(defun aeh/copy-file-name-to-clipboard ()
-  "Copy the current buffer file name to the clipboard."
-  (interactive)
-  (let ((filename (if (equal major-mode 'dired-mode)
-                      default-directory
-                    (buffer-file-name))))
-    (when filename
-      (kill-new filename)
-      (message "Copied buffer file name '%s' to the clipboard." filename))))
-#+END_SRC
-**** Edit file as root
-This is one of Bailey Ling's functions from "config-util.el".
-#+BEGIN_SRC emacs-lisp
-(defun aeh/edit-file-as-root (file)
-  "Edits a file as root."
-  (interactive "f")
-  (find-file-other-window (concat "/sudo:root@localhost:" file)))
-#+END_SRC
-**** Convert buffer to DOS format
-This is one of Bailey Ling's functions from "config-util.el".
-#+BEGIN_SRC emacs-lisp
-(defun aeh/set-buffer-to-dos-format ()
-  "Converts the current buffer to DOS file format."
-  (interactive)
-  (set-buffer-file-coding-system 'undecided-dos nil))
-#+END_SRC
-**** Conver buffer to UNIX format
-This is one of Bailey Ling's functions from "config-util.el".
-#+BEGIN_SRC emacs-lisp
-(defun aeh/set-buffer-to-unix-format ()
-  "Converts the current buffer to UNIX file format."
-  (interactive)
-  (set-buffer-file-coding-system 'undecided-unix nil))
-#+END_SRC
-
 ** Hydras
 NOTE: I am transferring *all* of the hydras to ~/.emacs.d/private/local/aeh-hydras.el.
 *** Load aeh-hydras
@@ -1389,6 +1301,125 @@ Nice little guide [[https://dougie.io/emacs/indentation/#using-tabs-or-spaces-in
   (add-hook 'sql-mode-hook 'aeh/disable-tabs)
 #+END_SRC
 
+** Personal functions
+Here are a couple functions dealing with the configuration (org) file, to edit and reload.
+
+*** Configuration functions
+**** Config-edit
+To edit the current ~/.emacs.d/dotemacs.org:
+#+BEGIN_SRC emacs-lisp
+(defun aeh/config-edit ()
+"Edit (visit) file ~/.emacs.d/dotemacs.org"
+  (interactive)
+  (find-file "~/.emacs.d/dotemacs.org"))
+(global-set-key (kbd "C-c e") 'aeh/config-edit)
+#+END_SRC
+
+**** Config-reload
+To *reload* a newly edited ~/.emacs.d/dotemacs.org:
+#+BEGIN_SRC emacs-lisp
+(defun aeh/config-reload ()
+"Reloads file ~/.emacs.d/dotemacs.org"
+  (interactive)
+  (org-babel-load-file (expand-file-name "~/.emacs.d/dotemacs.org")))
+(global-set-key (kbd "C-c r") 'aeh/config-reload)
+#+END_SRC
+
+*** Miscellaneous functions
+**** Previous Buffer
+This is a rather well-known trick to switch to the previous buffer, well-suited to keep switching back and forth between two buffers.
+#+BEGIN_SRC emacs-lisp
+(defun aeh/switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+#+END_SRC
+**** Delete current buffer file
+This is one of Bailey Ling's functions from "config-util.el".
+#+BEGIN_SRC emacs-lisp
+(defun aeh/delete-current-buffer-file ()
+  "Kill the current buffer and deletes the file it is visiting."
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (when filename
+      (if (vc-backend filename)
+          (vc-delete-file filename)
+        (when (y-or-n-p (format "Are you sure you want to delete %s? " filename))
+          (delete-file filename)
+          (message "Deleted file %s" filename)
+          (kill-buffer))))))
+#+END_SRC
+**** Rename current buffer file
+This is one of Bailey Ling's functions from "config-util.el".
+#+BEGIN_SRC emacs-lisp
+(defun aeh/rename-current-buffer-file ()
+  "Renames current buffer and file it is visiting."
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (message "Buffer is not visiting a file!")
+      (let ((new-name (read-file-name "New name: " filename)))
+        (cond
+         ((vc-backend filename) (vc-rename-file filename new-name))
+         (t
+          (rename-file filename new-name t)
+          (set-visited-file-name new-name t t)))))))
+#+END_SRC
+**** Insert buffer/file directory at point
+This inserts the directory (full path) of the current file at point.
+#+BEGIN_SRC emacs-lisp
+  (defun aeh/insert-default-directory ()
+    "Insert the value of default-directory at point"
+    (interactive)
+    (insert default-directory))
+#+END_SRC
+
+Also, we can insert the file name (full path) of the current file at point.
+#+BEGIN_SRC emacs-lisp
+  (defun aeh/insert-current-file-name ()
+    "Insert the value of current file name at point"
+    (interactive)
+    (insert buffer-file-name))
+#+END_SRC
+
+**** Copy file name to clipboard
+This is one of Bailey Ling's functions from "config-util.el".
+#+BEGIN_SRC emacs-lisp
+(defun aeh/copy-file-name-to-clipboard ()
+  "Copy the current buffer file name to the clipboard."
+  (interactive)
+  (let ((filename (if (equal major-mode 'dired-mode)
+                      default-directory
+                    (buffer-file-name))))
+    (when filename
+      (kill-new filename)
+      (message "Copied buffer file name '%s' to the clipboard." filename))))
+#+END_SRC
+**** Edit file as root
+This is one of Bailey Ling's functions from "config-util.el".
+#+BEGIN_SRC emacs-lisp
+(defun aeh/edit-file-as-root (file)
+  "Edits a file as root."
+  (interactive "f")
+  (find-file-other-window (concat "/sudo:root@localhost:" file)))
+#+END_SRC
+**** Convert buffer to DOS format
+This is one of Bailey Ling's functions from "config-util.el".
+#+BEGIN_SRC emacs-lisp
+(defun aeh/set-buffer-to-dos-format ()
+  "Converts the current buffer to DOS file format."
+  (interactive)
+  (set-buffer-file-coding-system 'undecided-dos nil))
+#+END_SRC
+**** Conver buffer to UNIX format
+This is one of Bailey Ling's functions from "config-util.el".
+#+BEGIN_SRC emacs-lisp
+(defun aeh/set-buffer-to-unix-format ()
+  "Converts the current buffer to UNIX file format."
+  (interactive)
+  (set-buffer-file-coding-system 'undecided-unix nil))
+#+END_SRC
 
 ** Diminish
 Diminish will remove or abbreviate minor mode names on the modeline. Although "use-package" does support the diminish function, the [[https://github.com/jwiegley/use-package][documentation]] states the package must be installed. (The same with "delight"; not sure what that does--yet.) Diminish wasn't diminishing at startup until after I moved it to the END of the packages listing--then it still wasn't diminishing Undo-tree (which seems to be a requirement of another package.) So, let's try it at the end of everything...yup, that did it!
