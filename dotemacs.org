@@ -101,26 +101,23 @@ Have found out that the many, *many* times I have received a "package not found"
 I will have some subdirectories containing elisp code, so add these directories to the load-path variable.
 #+BEGIN_SRC emacs-lisp
   ;; 2019-01-02: Check OS type first.
-<<<<<<< HEAD
-  (cond
-   ((string-equal system-type "windows-nt")
-    (progn
-      (add-to-list 'load-path "c:/Users/frst6889/.emacs.d/private/local")
-      ))
-   (add-to-list 'load-path "~/.emacs.d/private/local"))
-=======
   ;; 2019-02-10: Made simpler IF statement.
 
   (if (string-equal system-type "windows-nt")
       (add-to-list 'load-path "c:/Users/frst6889/.emacs.d/private/local")
     (add-to-list 'load-path "~/.emacs.d/private/local"))
->>>>>>> Multiple changes.
 #+END_SRC
 
 *** Set dired settings for "Midnight Commander" style use.
 #+begin_src emacs-lisp
   ;; Setting the dired-dwim-target to True will allow dired to guess the target of an operation like Copy or Move.
   (setq dired-dwim-target t)
+
+*** Transparency
+This section allows for transparency of Emacs frame.
+#+begin_src emacs-lisp
+  ;; (add-to-list 'default-frame-alist '(alpha . (80 . 75)))
+  ;; (set-frame-parameter nil 'alpha '(80 . 75))
 #+end_src
 
 ** Languages
@@ -373,12 +370,8 @@ I really, *really* like visual-line-mode, so set globally.
  2019-01-11: change code to Chrome on Windows, else Opera. Code appears fine and evaluates, but doesn't work in Winders.  Shoot!
  #+BEGIN_SRC emacs-lisp
    (defun aeh/browse-url-chrome (url &optional new-window)
-<<<<<<< HEAD
      ;; (shell-command (concat "C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe" url)))
      (shell-command (concat "C:\\\\Users\\\\frst6889\\\\AppData\\\\Local\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe" url)))
-=======
-     (shell-command (concat "C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe" url)))
->>>>>>> Multiple changes.
 
    (if (string-equal system-type "windows-nt")
        (setq browse-url-browser-function 'browse-url-generic
@@ -613,11 +606,8 @@ Company does seem to have a couple of goofy side-effects, such as somehow "turni
 #+BEGIN_SRC emacs-lisp
   (use-package company
   :ensure t
-<<<<<<< HEAD
   :demand
-=======
   :init
->>>>>>> Multiple changes.
   :diminish
   :config
   (setq company-idle-delay 0)
@@ -628,33 +618,22 @@ Company does seem to have a couple of goofy side-effects, such as somehow "turni
   (define-key company-active-map (kbd "M-n") nil)
   (define-key company-active-map (kbd "M-p") nil)
   (define-key company-active-map (kbd "C-j") #'company-select-next)
-<<<<<<< HEAD
-  (define-key company-active-map (kbd "C-k") #'company-select-previous)
-  (define-key company-active-map (kbd "SPC") #'company-abort))
-=======
   (define-key company-active-map (kbd "C-k") #'company-select-previous))
   ;; (define-key company-active-map (kbd "SPC") #'company-abort))
->>>>>>> Multiple changes.
 
   ;; emacs-lisp company additions, including slime
   (add-hook 'emacs-lisp-mode-hook 'company-mode)
 
   (use-package slime
     :ensure t
-<<<<<<< HEAD
     :disabled
-=======
->>>>>>> Multiple changes.
     :config
     (setq inferior-lisp-program "/usr/bin/sbcl")
     (setq slime-contribs '(slime-fancy)))
 
   (use-package slime-company
     :ensure t
-<<<<<<< HEAD
     :disabled
-=======
->>>>>>> Multiple changes.
     :init
       (require 'company)
       (slime-setup '(slime-fancy slime-company)))
@@ -673,7 +652,6 @@ Company does seem to have a couple of goofy side-effects, such as somehow "turni
     :config
       (require 'company)
       (add-hook 'shell-mode-hook 'shell-mode-company-init))
-<<<<<<< HEAD
 #+END_SRC
 
 *Company Improvements*
@@ -709,8 +687,6 @@ I think that Company is acting a bit better now, and on 10/30/2018, I added some
                           (self-insert-command 1)))
     ;; This line UNBINDS RET key from closing the popup
     (define-key map (kbd "<return>") nil))
-=======
->>>>>>> Multiple changes.
 #+END_SRC
 
 *** Dashboard
@@ -925,31 +901,54 @@ The configuration below is an amalgamation of Uncle Dave's original mark-multipl
     ("C-c s p" . 'mc/mark-previous-like-this-symbol)
     ("C-S-<mouse-1>" . 'mc/add-cursor-on-click))
 #+END_SRC
+*** Neotree
+I have tried Neotree and found it fairly useful, so will try out an install.
+#+begin_src emacs-lisp
+  (use-package neotree
+    :ensure t
+    :after evil
+    :demand
+    :config
+    (progn
+      (global-set-key [f8] 'neotree-toggle)
+      ;; The wiki ("https://www.emacswiki.org/emacs/NeoTree#toc12") notes that keybindings
+      ;; are not naturally compatible, so add some bindings for Newtree under evil.
+      (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
+      (evil-define-key 'normal neotree-mode-map (kbd "SPC") 'neotree-quick-look)
+      (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
+      (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
+      (evil-define-key 'normal neotree-mode-map (kbd "g") 'neotree-refresh)
+      (evil-define-key 'normal neotree-mode-map (kbd "n") 'neotree-next-line)
+      (evil-define-key 'normal neotree-mode-map (kbd "p") 'neotree-previous-line)
+      (evil-define-key 'normal neotree-mode-map (kbd "A") 'neotree-stretch-toggle)
+      (evil-define-key 'normal neotree-mode-map (kbd "H") 'neotree-hidden-file-toggle)))
+#+end_src
+#
 *** Projectile
  Projectile is an excellent project manager because it automatically recognizes directories with a ".git" directory as *projects* and treats them as a "whole", so searching for/jumping to another file in the project is simple. It can be greatly enhanced by other packages as well.
  Some basic Projectile commands:
- - "s-p D" Opens the root of the project in dired
- - "s-p C-h" Display help of Projectile's key bindings
- - "s-p b" Display list of all project buffers currently open
- - "s-p 4 b" Display list of open project buffers and jump to selected buffer in another window
- - "s-p 5 b" Display list of open project buffers and jump to selected buffer in another frame
- - "s-p left" Switch to the previous project buffer
- - "s-p right" Switch to the next project buffer
- - "s-p ESC" Switch to the most recently selected project buffer
- - "s-p k" Kills *all* project buffers
- - "s-p f" Display list of files in current project; use "F" instead for all files in all projects
- - "s-p 4 f" Display list of files in current project and jump to selected file in another window
- - "s-p 5 f" Display list of files in current project and jump to selected file in another frame
- - "s-p g" Display list of all files at point in current project (useful in C, C++, Java, etc.
- - "s-p d" Display a list of all directories in the current project; use "D" instead for all directories in all projects
- - "s-p D" Opens the root of the project in dired
- - "s-p 4 D" Opens the root of the project in dired in another window
- - "s-p 5 D" Opens the root of the project in dired in another frame
- - "s-p p" Display list of known projects to switch project
- - "s-p s g" Run grep on the files in the project
- - "s-p S" Save *all* project buffers
- - "s-p r" Run interactive query-replace on all files in project
- - "s-p m" Invoke a command via the Projectile Commander
+ - "C-p D" Opens the root of the project in dired
+ - "C-p C-h" Display help of Projectile's key bindings
+ - "C-p b" Display list of all project buffers currently open
+ - "C-p 4 b" Display list of open project buffers and jump to selected buffer in another window
+ - "C-p 5 b" Display list of open project buffers and jump to selected buffer in another frame
+ - "C-p left" Switch to the previous project buffer
+ - "C-p right" Switch to the next project buffer
+ - "C-p ESC" Switch to the most recently selected project buffer
+ - "C-p k" Kills *all* project buffers
+ - "C-p f" Display list of files in current project; use "F" instead for all files in all projects
+ - "C-p 4 f" Display list of files in current project and jump to selected file in another window
+ - "C-p 5 f" Display list of files in current project and jump to selected file in another frame
+ - "C-p g" Display list of all files at point in current project (useful in C, C++, Java, etc.
+ - "C-p d" Display a list of all directories in the current project; use "D" instead for all directories in all projects
+ - "C-p D" Opens the root of the project in dired
+ - "C-p 4 D" Opens the root of the project in dired in another window
+ - "C-p 5 D" Opens the root of the project in dired in another frame
+ - "C-p p" Display list of known projects to switch project
+ - "C-p s g" Run grep on the files in the project
+ - "C-p S" Save *all* project buffers
+ - "C-p r" Run interactive query-replace on all files in project
+ - "C-p m" Invoke a command via the Projectile Commander
 
  *Enable Projectile globally*
  #+BEGIN_SRC emacs-lisp
@@ -1029,18 +1028,11 @@ Very useful if working web or game development--or theme development--when this 
 
    ;; (load "aeh-myownmodeline")
    ;;; experiment went OK, though had to exit Emacs first. I see line:column, <Evil mode>, and minor modes. Would be nice to have file type.
-<<<<<<< HEAD
-  (if (string-equal system-type "windows-nt")
-       (load "aeh-spaceline-windows")
-    (load "aeh-myownmodeline"))
-
-=======
    ;; (if (string-equal system-type "windows-nt")
    ;;      (load "aeh-spaceline-windows")
    ;;   (load "aeh-myownmodeline"))
 
    (load "aeh-spaceline")
->>>>>>> Multiple changes.
    ;; (load "new-spaceline-test")
     #+END_SRC
 
@@ -1348,7 +1340,6 @@ Nice little guide [[https://dougie.io/emacs/indentation/#using-tabs-or-spaces-in
   (add-hook 'sql-mode-hook 'aeh/disable-tabs)
 #+END_SRC
 
-<<<<<<< HEAD
 ** Personal functions
 Here are a couple functions dealing with the configuration (org) file, to edit and reload.
 
@@ -1468,8 +1459,6 @@ This is one of Bailey Ling's functions from "config-util.el".
   (interactive)
   (set-buffer-file-coding-system 'undecided-unix nil))
 #+END_SRC
-=======
->>>>>>> Multiple changes.
 
 ** Diminish
 Diminish will remove or abbreviate minor mode names on the modeline. Although "use-package" does support the diminish function, the [[https://github.com/jwiegley/use-package][documentation]] states the package must be installed. (The same with "delight"; not sure what that does--yet.) Diminish wasn't diminishing at startup until after I moved it to the END of the packages listing--then it still wasn't diminishing Undo-tree (which seems to be a requirement of another package.) So, let's try it at the end of everything...yup, that did it!
