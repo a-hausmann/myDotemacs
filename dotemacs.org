@@ -382,7 +382,8 @@ I really, *really* like visual-line-mode, so set globally.
  
 Use electric-pair-mode globally. 2018-12-27: turned off Autopair, turned on Electric-pair.
 #+BEGIN_SRC emacs-lisp
-  ;; (electric-pair-mode 1)
+  ;; 2019-04-08: Tried turning off in lisp-mode, Lispy still does weird stuff when not running.
+  (electric-pair-mode 1)
 #+END_SRC
 
 Enable narrowing
@@ -643,9 +644,9 @@ Company does seem to have a couple of goofy side-effects, such as somehow "turni
 
   (defun shell-mode-company-init ()
     (setq-local company-backends '((company-shell
-				    company-shell-env
-				    company-etags
-				    company-dabbrev-code))))
+                                    company-shell-env
+                                    company-etags
+                                    company-dabbrev-code))))
 
   (use-package company-shell
     :ensure t
@@ -696,11 +697,14 @@ I think that Company is acting a bit better now, and on 10/30/2018, I added some
      :ensure t
      :diminish)
    (dashboard-setup-startup-hook)
+   ;; Disable shortcut "jump" indicators for each section, set
+   (setq dashboard-show-shortcuts nil)
    (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png")
-   (setq dashboard-items '((recents  . 5)
+   (setq dashboard-banner-logo-title "My Startup Page - Get Hacking!")
+   (setq dashboard-items '((recents  . 10)
                            (projects . 5)
-                           (bookmarks . 5)))
-   (setq dashboard-banner-logo-title "My Personal Startup Page - Get Hacking!")
+                           ;; (bookmarks . 5)
+                           ))
  #+END_SRC
 
 *** Expand region
@@ -903,6 +907,19 @@ The configuration below is an amalgamation of Uncle Dave's original mark-multipl
 #+END_SRC
 *** Neotree
 I have tried Neotree and found it fairly useful, so will try out an install.
+
+Here is some documentation for the package:
+-	F8 - toggle Neotree on/off 
+-	H - toggle showing hidden files/directories 
+-	RET/TAB/SPC - Fold/Unfold if directory, open if file. 
+-	g - refresh view 
+-	A - Maximize/minimize Neotree window. 
+-	C-c C-n - Create file or directory if name ends "/" 
+-	C-c C-d - Delete a file/directory 
+-	C-c C-r - Rename a file/directory 
+-	C-c C-p - Copy a file or directory 
+-	C-c C-c - Change the "root" directory to that of point. (If root is "/home/arnold" and point on "..", C-c C-c will change "root" to "/home"
+
 #+begin_src emacs-lisp
   (use-package neotree
     :ensure t
@@ -1031,9 +1048,10 @@ Very useful if working web or game development--or theme development--when this 
    ;; (if (string-equal system-type "windows-nt")
    ;;      (load "aeh-spaceline-windows")
    ;;   (load "aeh-myownmodeline"))
+   ;; 2019-04-09: Yes, the NEW aeh-spaceline.el works FINE in Windows (work), so USE it.
+   ;; (load "aeh-spaceline-windows")
 
    (load "aeh-spaceline")
-   ;; (load "new-spaceline-test")
     #+END_SRC
 
 *** Switch-window
@@ -1312,6 +1330,49 @@ Same kind of thing for ibuffer-mode as well, same link.
     (kbd "M-s a C-s") 'ibuffer-do-isearch
     (kbd "M-s a M-C-s") 'ibuffer-do-isearch-regexp)
 #+END_SRC
+
+#+RESULTS:
+
+Viewed a Xah Lee (see [[http://ergoemacs.org/emacs/emacs.html][Ergoemacs.org]] )video on efficiently opening files, and several good methods are just function calls I can tie to key bindings. Plus, I found a better way to bind keys than using "global-key-binding" with "kbd" functions--use "bind-key" instead; this comes along with the "use-package" function, so is already available.
+
+The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow, and jump to the one selected. The "dired-jump" function uses the currently opened file as a starting point, opens a buffer to dired in the file's directory and places point on the current file.
+#+begin_src emacs-lisp
+  (bind-key "C-c m b" 'bookmark-jump)
+  (bind-key "C-c d" 'dired-jump)
+  ;; Set "recentf-mode" to turn on the mode, then map "recentf-open-files" to present list.
+  ;; NOTE: Ivy will NOT work in this listing, but can use number or RET to open any file in list.
+  (recentf-mode 1)
+  (bind-key "C-c f r" 'recentf-open-files)
+#+end_src
+
+** Org mode stuff
+Some global key bindings for Org mode, as shown in the [[https://orgmode.org/orgguide.pdf][compact Org Guide]].
+#+begin_src emacs-lisp
+  ;; The following lines are always needed. Choose your own keys.
+  (global-set-key "\C-cl" 'org-store-link)
+  (global-set-key "\C-ca" 'org-agenda)
+  (global-set-key "\C-cc" 'org-capture)
+  (global-set-key "\C-cb" 'org-switchb)
+#+end_src
+
+For TODO tasks and states, reference: [[http://doc.norang.ca/org-mode.html#TasksAndStates][Org Mode - Oraganize Your Life In Plain Text]]
+#+BEGIN_SRC emacs-lisp
+  (setq org-todo-keywords
+        (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+
+  (setq org-todo-keyword-faces
+        (quote (("TODO" :foreground "red" :weight bold)
+                ("NEXT" :foreground "blue" :weight bold)
+                ("DONE" :foreground "forest green" :weight bold)
+                ("WAITING" :foreground "orange" :weight bold)
+                ("HOLD" :foreground "magenta" :weight bold)
+                ("CANCELLED" :foreground "forest green" :weight bold)
+                ("MEETING" :foreground "forest green" :weight bold)
+                ("PHONE" :foreground "forest green" :weight bold))))
+
+#+END_SRC
+
 ** Sane tabs-or-spaces
 Nice little guide [[https://dougie.io/emacs/indentation/#using-tabs-or-spaces-in-different-files][here]]. These settings should get me to where I want (crossed fingers).
 #+BEGIN_SRC emacs-lisp
