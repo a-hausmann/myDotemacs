@@ -80,7 +80,7 @@ _E_: Day, Month Day, Year HH:MI:SS PM
   bookmarks:    _b_ → jump to bookmark _l_ → list bookmarks    _s_ → set bookmark
                 _D_ → delete bookmark
   "
-  ("b" #'bookmark-set)
+  ("b" #'bookmark-jump)
   ("l" #'bookmark-bmenu-list)
   ("s" #'bookmark-set)
   ("D" #'bookmark-delete)
@@ -147,7 +147,7 @@ _E_: Day, Month Day, Year HH:MI:SS PM
                                          :post (deactivate-mark))
   "
   ^_k_^       _w_ copy      _o_pen       _N_umber-lines            |\\     -,,,--,,_
-  _h_   _l_     _y_ank        _t_ype       _e_xchange-point          /,`.-'`'   ..  \- ;;,_
+  _h_   _l_   _y_ank        _t_ype       _e_xchange-point          /,`.-'`'   ..  \- ;;,_
   ^_j_^       _d_ kill      _c_lear      _r_eset-region-mark      |,4-  ) )_   .;.(  `'-'
 ^^^^          _u_ndo        _g_ quit     ^ ^                     '---''(./..)-'(_\_)
 "
