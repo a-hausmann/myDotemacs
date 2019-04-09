@@ -50,16 +50,17 @@ _E_: Day, Month Day, Year HH:MI:SS PM
 ;; Rockin' the buffers menu!
 (defhydra aeh/hydra-buffers (:hint nil :exit t)
   "
-   buffers:   _b_ → buffers          _i_ → ibuffer                 _k_ → kill buffer
-              _p_ → prev buffer      _m_ → goto messages           _e_ → erase buffer
-              _E_ → erase buffer (force)
-              _s_ → goto scratch     _S_ → goto scratch (force)    _z_ → zoom
+   buffers:   _b_ → buffers              _i_ → ibuffer                 _k_ → kill buffer
+              _p_ → prev buffer          _m_ → goto messages           _e_ → erase buffer
+              _E_ → erase buffer (force) _n_ → new buffer (untitled)
+              _s_ → goto scratch         _S_ → goto scratch (force)    _z_ → zoom
 "
   ("b" #'counsel-ibuffer)
   ("k" #'kill-this-buffer)
   ("i" #'ibuffer)
   ("p" #'aeh/switch-to-previous-buffer)
   ("m" (switch-to-buffer "*Messages*"))
+  ("n" (switch-to-buffer (generate-new-buffer "untitled")))
   ("e" #'erase-buffer)
   ("E" (let ((inhibit-read-only t)) (erase-buffer)))
   ("s" (switch-to-buffer "*scratch*"))
@@ -77,14 +78,13 @@ _E_: Day, Month Day, Year HH:MI:SS PM
 ;; Hydra for bookmarks
 (defhydra aeh/hydra-bookmarks (:hint nil :exit t)
   "
-  bookmarks:    _b_ → jump to bookmark _l_ → list bookmarks    _s_ → set bookmark
+  bookmarks:    _j_ → jump to bookmark _l_ → list bookmarks    _s_ → set bookmark
                 _D_ → delete bookmark
   "
-  ("b" #'bookmark-set)
+  ("j" #'bookmark-jump)
   ("l" #'bookmark-bmenu-list)
   ("s" #'bookmark-set)
-  ("D" #'bookmark-delete)
-  )
+  ("D" #'bookmark-delete))
 
 ;; Hydra for files
 (defhydra aeh/hydra-files (:hint nil :exit t)
@@ -110,16 +110,18 @@ _E_: Day, Month Day, Year HH:MI:SS PM
 (defvar aeh/hydras/toggles/vdiff nil)
 (defhydra aeh/hydra-toggles (:hint nil :exit t)
   "
-   toggle:  _a_ → aggressive indent   _s_ → flycheck   _r_ → read only      _t_ → truncate lines   _e_ → debug on error
-            _f_ → auto-fill           _S_ → flyspell   _c_ → completion     _W_ → word wrap        _g_ → debug on quit
-            _w_ → whitespace          ^ ^              ^ ^                    _b_ → page break       _d_ → ediff/vdiff
+   toggle:  _a_ → aggressive indent   _s_ → flycheck       _r_ → read only      _t_ → truncate lines   _e_ → debug on error
+            _f_ → auto-fill           _S_ → flyspell       _c_ → completion     _W_ → word wrap        _g_ → debug on quit
+            _w_ → whitespace          _E_ → electric-pairs _l_ → linum-relative _b_ → page break       _d_ → ediff/vdiff
 "
   ("a" aggressive-indent-mode)
+  ("b" page-break-lines-mode)
   ("c" company-mode)
   ("t" toggle-truncate-lines)
   ("e" toggle-debug-on-error)
+  ("E" electric-pair-mode)
+  ("l" linum-relative-mode)
   ("g" toggle-debug-on-quit)
-  ("b" page-break-lines-mode)
   ("s" flycheck-mode)
   ("S" flyspell-mode)
   ("w" whitespace-mode)
@@ -147,9 +149,9 @@ _E_: Day, Month Day, Year HH:MI:SS PM
                                          :post (deactivate-mark))
   "
   ^_k_^       _w_ copy      _o_pen       _N_umber-lines            |\\     -,,,--,,_
-  _h_   _l_     _y_ank        _t_ype       _e_xchange-point          /,`.-'`'   ..  \- ;;,_
+  _h_   _l_   _y_ank        _t_ype       _e_xchange-point          /,`.-'`'   ..  \- ;;,_
   ^_j_^       _d_ kill      _c_lear      _r_eset-region-mark      |,4-  ) )_   .;.(  `'-'
-^^^^          _u_ndo        _g_ quit     ^ ^                     '---''(./..)-'(_\_)
+^^^^          _u_ndo        _q_ quit     ^ ^                     '---''(./..)-'(_\_)
 "
   ("k" rectangle-previous-line)
   ("j" rectangle-next-line)
@@ -167,7 +169,7 @@ _E_: Day, Month Day, Year HH:MI:SS PM
            (deactivate-mark)
          (rectangle-mark-mode 1)))
   ("u" undo nil)
-  ("g" nil))      ;; ok
+  ("q" nil))      ;; ok
 
 (defhydra aeh/hydra-org (:color red :hint nil)
 "
