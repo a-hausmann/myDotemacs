@@ -332,7 +332,7 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
 - ORG MODE settings
  Org mode is such an important part of Emacs it is now part of the "core" software. As such, there is no need for a "use-package" setup, but some common settings are good.
  2019-01-07: Org templates are NOT working in Windows version. This is due to Org version 9.2, see "org-plus-contrib-20181230/org-version.el".
-                         ;; '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC")
+;; '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC")
 
  These are from UncleDavesEmacs: 
 #+BEGIN_SRC emacs-lisp
