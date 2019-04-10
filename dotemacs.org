@@ -112,6 +112,17 @@ I will have some subdirectories containing elisp code, so add these directories 
 #+begin_src emacs-lisp
   ;; Setting the dired-dwim-target to True will allow dired to guess the target of an operation like Copy or Move.
   (setq dired-dwim-target t)
+#+end_src
+
+*** Personalization: set user variables for Name and Email Address.
+2019-04-10: Set this up for automatic "import" into Org mode templates.
+#+begin_src emacs-lisp
+  (setq user-full-name "Arnold Hausmann")
+  (if (string-equal system-type "windows-nt")
+      (setq user-mail-address "Arnold.Hausmann@trinity-health.org")
+    (setq user-mail-address "ArnoldH@comcast.net"))
+#+end_src
+
 
 *** Transparency
 This section allows for transparency of Emacs frame.
@@ -1330,8 +1341,6 @@ Same kind of thing for ibuffer-mode as well, same link.
     (kbd "M-s a C-s") 'ibuffer-do-isearch
     (kbd "M-s a M-C-s") 'ibuffer-do-isearch-regexp)
 #+END_SRC
-
-#+RESULTS:
 
 Viewed a Xah Lee (see [[http://ergoemacs.org/emacs/emacs.html][Ergoemacs.org]] )video on efficiently opening files, and several good methods are just function calls I can tie to key bindings. Plus, I found a better way to bind keys than using "global-key-binding" with "kbd" functions--use "bind-key" instead; this comes along with the "use-package" function, so is already available.
 
