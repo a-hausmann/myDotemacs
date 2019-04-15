@@ -123,7 +123,6 @@ I will have some subdirectories containing elisp code, so add these directories 
     (setq user-mail-address "ArnoldH@comcast.net"))
 #+end_src
 
-
 *** Transparency
 This section allows for transparency of Emacs frame.
 #+begin_src emacs-lisp
@@ -279,10 +278,12 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
 - Disable menus and scrollbars
  Can set any of these from -1 (FALSE as it is not 1) to 1 (TRUE) if they are desired.
 2019-01-10: I think for a time, if Windows, use menu-bar-mode...
+2019-04-14: changing back, let's see the menu bar for a while.
  #+BEGIN_SRC emacs-lisp
    (if (string-equal system-type "windows-nt")
        (menu-bar-mode 1)
-     (menu-bar-mode -1)
+     ;; (menu-bar-mode -1)
+     (menu-bar-mode 1)
      )
    (tool-bar-mode -1)
    (scroll-bar-mode -1)
@@ -394,7 +395,8 @@ I really, *really* like visual-line-mode, so set globally.
 Use electric-pair-mode globally. 2018-12-27: turned off Autopair, turned on Electric-pair.
 #+BEGIN_SRC emacs-lisp
   ;; 2019-04-08: Tried turning off in lisp-mode, Lispy still does weird stuff when not running.
-  (electric-pair-mode 1)
+  ;; 2019-04-14: Turning off to try Smartparens.
+  ;; (electric-pair-mode 1)
 #+END_SRC
 
 Enable narrowing
@@ -1024,6 +1026,14 @@ Very useful if working web or game development--or theme development--when this 
     (add-hook 'prog-mode-hook 'rainbow-mode)
     (add-hook 'org-mode-hook 'rainbow-mode))
 #+END_SRC
+
+*** Smartparens
+Will try out Smartparens for a while, from 2019-04-14.
+#+begin_src emacs-lisp
+(use-package smartparens
+  :ensure t)
+(smartparens-global-mode 1)
+#+end_src
 
 *** Spaceline
  Uncle Dave says, "The modeline is the heart of emacs, it offers information at all times, it’s persistent and verbose enough to gain a full understanding of modes and states you are in."
