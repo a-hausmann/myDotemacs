@@ -617,22 +617,34 @@ Company does seem to have a couple of goofy side-effects, such as somehow "turni
 
 2019-03-10: After loading Emacs on new laptop, and getting updated Company, the miscellaneous code for Company improvements from Oleh Krehel's blog started getting errors, void-variable on "company-active-map". Found no code bug, moving code location in dotemacs.el did nothing, and crazily, the same code generated no errors in *scratch* buffer. Figured out this was a *timing error*, fixable by setting ":demand" option in =use-package=.
 
+2019-04-16: getting error messages ("match data clobbered by buffer modification hooks") when attempting "C-p" Vim-style completion, then wondered why Company wasn't attempting to auto-complete anyway (in Rule package code.) The answer appears two-fold; all that MBD code is in upper-case and I naturally type in lower. Vim can auto-complete to prev buffer upper case, but Company is not doing that.
+
+Aha, found the keys to much of this: variables "company-dabbrev-code-ignore-case" and "company-dabbrev-ignore-case". Am not entirely sure both are required as I found the "code" one last and that fixed typing in lower case and finding upper-case text for completion. I set the latter globally and the former for SQL mode only.  Should probably play around with this some more to find out for sure.
+
+Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the docs on the variables showed other variables possibly involved.
+
 #+BEGIN_SRC emacs-lisp
   (use-package company
-  :ensure t
-  :demand
-  :init
-  :diminish
-  :config
-  (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 5))
+    :ensure t
+    :demand
+    :init
+    :diminish
+    :config
+    (setq company-idle-delay 0)
+    (setq company-minimum-prefix-length 5)
+    (setq company-dabbrev-ignore-case t))
   (add-hook 'after-init-hook 'global-company-mode)
+  (add-hook 'sql-mode-hook
+            #'(lambda ()
+                (setq-default company-minimum-prefix-length 2)
+                (setq-default company-dabbrev-code-ignore-case t)
+                (setq-default completion-ignore-case t)))
 
   (with-eval-after-load 'company
-  (define-key company-active-map (kbd "M-n") nil)
-  (define-key company-active-map (kbd "M-p") nil)
-  (define-key company-active-map (kbd "C-j") #'company-select-next)
-  (define-key company-active-map (kbd "C-k") #'company-select-previous))
+    (define-key company-active-map (kbd "M-n") nil)
+    (define-key company-active-map (kbd "M-p") nil)
+    (define-key company-active-map (kbd "C-j") #'company-select-next)
+    (define-key company-active-map (kbd "C-k") #'company-select-previous))
   ;; (define-key company-active-map (kbd "SPC") #'company-abort))
 
   ;; emacs-lisp company additions, including slime
