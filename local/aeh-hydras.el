@@ -52,7 +52,7 @@ _E_: Day, Month Day, Year HH:MI:SS PM
   "
    buffers:   _b_ → buffers              _i_ → ibuffer                 _k_ → kill buffer
               _p_ → prev buffer          _m_ → goto messages           _e_ → erase buffer
-              _E_ → erase buffer (force) _n_ → new buffer (untitled)
+              _E_ → erase buffer (force) _n_ → new buffer (untitled)   _A_ → save buffer AS file
               _s_ → goto scratch         _S_ → goto scratch (force)    _z_ → zoom
 "
   ("b" #'counsel-ibuffer)
@@ -61,6 +61,7 @@ _E_: Day, Month Day, Year HH:MI:SS PM
   ("p" #'aeh/switch-to-previous-buffer)
   ("m" (switch-to-buffer "*Messages*"))
   ("n" (switch-to-buffer (generate-new-buffer "untitled")))
+  ("A" #'write-file)
   ("e" #'erase-buffer)
   ("E" (let ((inhibit-read-only t)) (erase-buffer)))
   ("s" (switch-to-buffer "*scratch*"))
