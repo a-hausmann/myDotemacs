@@ -611,6 +611,14 @@ NOTE: This acts/looks weird in that, typing a pairable character, *three* appear
   ;;               (push '(?` . ?')
   ;;                     (getf autopair-extra-pairs :string))))
 #+END_SRC
+*** Column-enforce-mode
+I found this while putzing around on the web and it works something like Vims columnline setting; text beyond a limit is highlighted so you know when the limit is exceeded. Can set to any column or use standard 80 columns.
+#+begin_src emacs-lisp
+  (use-package column-enforce-mode
+    :ensure t)
+  (add-hook 'prog-mode-hook 'column-enforce-mode)
+  (setq column-enforce-comments nil)
+#+end_src
 *** Command-log-mode
 Command-log-mode creates buffer "*command-log*" which displays commands executed. Then, "C-c o" will toggle the command-line-mode buffer to make it visible. Also, all the command-log-mode functions begin "clm/" so you can "M-x" then "clm/" to see the full list of commands which can be used.  The extra settings below make clear the packages defaults.
 #+BEGIN_SRC emacs-lisp
@@ -912,6 +920,9 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
 
 *** Move-text
 [[https://www.emacswiki.org/emacs/move-text.el][MoveText]] allows you to move the current line using M-up / M-down. If a region is marked, it will move the region instead.
+
+=2019-05-23: NOTE: Evil selection will NOT work, you *MUST* set Emacs mark (C-<SPC>) and move point to end of region to move.=
+
 #+BEGIN_SRC emacs-lisp
 (use-package move-text
   :ensure t
@@ -976,6 +987,36 @@ Here is some documentation for the package:
       (evil-define-key 'normal neotree-mode-map (kbd "H") 'neotree-hidden-file-toggle)))
 #+end_src
 #
+*** Origami
+It took a *lot* of reading to find out that Origami does, in fact, support a Vim-style "fold-method=marker", This [[https://github.com/gregsexton/origami.el#can-i-override-the-folding-parser-for-an-individual-file][section]] indicates an Emacs tag can be placed in a file to indicate fold style, but that is the only mention of the variable. A Reddit [[https://www.reddit.com/r/emacs/comments/5ei7wa/awesome_vimlike_folding_for_evilmode_with_markers/][article]] showed that the variable can be used in a different way, being set in a "prog-mode-hook" instead. Note: I'm putting everything together here, so if it needs to be commented out, all the configuration is together.  I've attempted to put this with the rest of the packages, but this setup uses "evil-define-key", and always gets an error as it's loaded before Evil.  So, forced to put it here.
+
+NOTE: As *usual*, others configuration is incorrect, as they use ":config" instead of ":init" and the code is not executed correctly. I also found I needed to add several more bindings, as by default "origami-close-all-nodes" is not bound to any keys.
+
+2018-12-01: Created aeh-origami.el to segregate anything to do with origami to debug the latest error which began 11/24/2018. Yeah, forget that. I think I've found the exact problem. I've been testing with files that Kavitha created, and they have unbalanced fold markers; I *know*, because I fixed her foulups in one package body, but I'm sure she fouled up the spec as well--and I've been playing with the spec.  A spec that *I* created is fine...dangit!!!  So now, use the Origami config below, and work on how to deal with large files, and that annoying preference of Projectile to use Ido instead of Swiper; there must be a way to fix that.
+
+2018-12-02: Created a fold-marker free version of the Rule Engine package, and it opens instantly and has no slowness whatsoever.  Ergo, the sole problem with large files is with Origami.
+
+2019-05-22: Chased down an issue with Origami fold markers affecting Emacs 'query-replace' function (which Evil substitution translates into). If a file is opened in prog-mode (and I have a prog-mode-hook for origami-mode) and there are fold markers, substitution fails. I have fold markers in TXT files, which do NOT open in prog-mode, and no errors--unless I set prog-mode before the substitution.  Weirdly, I found that if I toggle off origami-mode, and toggle it back on again, no errors.  Naturally, if I get the error, I can toggle off and redo the substitution (which then works), and I can toggle back on.  So, I move the Origami config up to the packages section; tried to get rid of the defun but cannot at this time--it seems 'orgiami-toggle-node' requires the two arguments to work.
+
+#+BEGIN_SRC emacs-lisp
+  ;; Step 1, define a "wrapper" function.
+  (defun aeh/origami-toggle-node ()
+    (interactive)
+    (save-excursion ;; leave point where it is
+      (goto-char (point-at-eol))             ;; then go to the end of line
+      (origami-toggle-node (current-buffer) (point))))                 ;; and try to fold
+  ;; ;; Step 2, install Origami.
+  (use-package origami
+    :ensure t
+    :diminish)
+  (add-hook 'prog-mode-hook
+            (lambda ()
+              (setq-local origami-fold-style 'triple-braces)
+              ;; (setq origami-fold-style 'triple-braces)
+              (origami-mode)
+              (origami-close-all-nodes (current-buffer))))
+#+END_SRC
+
 *** Projectile
  Projectile is an excellent project manager because it automatically recognizes directories with a ".git" directory as *projects* and treats them as a "whole", so searching for/jumping to another file in the project is simple. It can be greatly enhanced by other packages as well.
  Some basic Projectile commands:
@@ -1359,20 +1400,27 @@ OK, I forgot to add this until now...and setting up this configuration in git ma
 ** Remap some keys
 Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/blog/2014-08-03-a-vim-like-emacs-config.html][here]]. 12/21/2018: fixed the problem of not having General's SPC giving me menu by defining SPC in dired-mode-map to nil. This then allows General to take over, the local private map not having a mapping for SPC.
 
+2019-05-24: Finally, figured out how to do the dang mapping for evil keys in dired--still in same reference doc, but making it look like the code for ibuffer-mode.  This now works well, though I'm not sure about the "n" and "N" mappings as I would be more likely to do a Swiper search than Evil search, hence these are wasted; comment out for now, as I'm still undecided.
 #+BEGIN_SRC emacs-lisp
-  (evil-define-key 'normal dired-mode-map "h" 'dired-up-directory)
-  (evil-define-key 'normal dired-mode-map "l" 'dired-find-alternate-file)
-  (evil-define-key 'normal dired-mode-map "o" 'dired-sort-toggle-or-edit)
-  (evil-define-key 'normal dired-mode-map "v" 'dired-toggle-marks)
-  (evil-define-key 'normal dired-mode-map "m" 'dired-mark)
-  (evil-define-key 'normal dired-mode-map "u" 'dired-unmark)
-  (evil-define-key 'normal dired-mode-map "U" 'dired-unmark-all-marks)
-  (evil-define-key 'normal dired-mode-map "c" 'dired-create-directory)
-  (evil-define-key 'normal dired-mode-map "n" 'evil-search-next)
-  (evil-define-key 'normal dired-mode-map "N" 'evil-search-previous)
-  (evil-define-key 'normal dired-mode-map "q" 'kill-this-buffer)
+  (eval-after-load 'dired
+    '(progn
+       (evil-set-initial-state 'dired-mode 'normal)
+       (evil-define-key 'normal dired-mode-map
+         (kbd "h") 'dired-up-directory
+         (kbd "l") 'dired-find-alternate-file
+         (kbd "o") 'dired-sort-toggle-or-edit
+         (kbd "v") 'dired-toggle-marks
+         (kbd "m") 'dired-mark
+         (kbd "u") 'dired-unmark
+         (kbd "U") 'dired-unmark-all-marks
+         (kbd "c") 'dired-create-directory
+         ;; (kbd "n") 'evil-search-next
+         ;; (kbd "N") 'evil-search-previous
+         (kbd "q") 'kill-this-buffer
+         (kbd "g") 'revert-buffer)))
   (define-key dired-mode-map (kbd "SPC") nil)
 #+END_SRC
+
 Same kind of thing for ibuffer-mode as well, same link.
 #+BEGIN_SRC emacs-lisp
   (evil-define-key 'normal ibuffer-mode-map
@@ -1385,6 +1433,20 @@ Same kind of thing for ibuffer-mode as well, same link.
     (kbd "M-s a C-s") 'ibuffer-do-isearch
     (kbd "M-s a M-C-s") 'ibuffer-do-isearch-regexp)
 #+END_SRC
+
+Now do Origami keys.
+#+begin_src emacs-lisp
+  (evil-define-key 'normal prog-mode-map (kbd "TAB") 'aeh/origami-toggle-node)
+  (define-key evil-normal-state-map "za" 'origami-forward-toggle-node)
+  (define-key evil-normal-state-map "zR" 'origami-close-all-nodes)
+  (define-key evil-normal-state-map "zM" 'origami-open-all-nodes)
+  (define-key evil-normal-state-map "zr" 'origami-close-node-recursively)
+  (define-key evil-normal-state-map "zm" 'origami-open-node-recursively)
+  (define-key evil-normal-state-map "zo" 'origami-show-node)
+  (define-key evil-normal-state-map "zc" 'origami-close-node)
+  (define-key evil-normal-state-map "zj" 'origami-forward-fold)
+  (define-key evil-normal-state-map "zk" 'origami-previous-fold)
+#+end_src
 
 Viewed a Xah Lee (see [[http://ergoemacs.org/emacs/emacs.html][Ergoemacs.org]] )video on efficiently opening files, and several good methods are just function calls I can tie to key bindings. Plus, I found a better way to bind keys than using "global-key-binding" with "kbd" functions--use "bind-key" instead; this comes along with the "use-package" function, so is already available.
 
@@ -1593,42 +1655,3 @@ Diminish will remove or abbreviate minor mode names on the modeline. Although "u
     (diminish 'undo-tree-mode)
     (diminish 'auto-revert-mode))
 #+END_SRC
-** Origami
-It took a *lot* of reading to find out that Origami does, in fact, support a Vim-style "fold-method=marker", This [[https://github.com/gregsexton/origami.el#can-i-override-the-folding-parser-for-an-individual-file][section]] indicates an Emacs tag can be placed in a file to indicate fold style, but that is the only mention of the variable. A Reddit [[https://www.reddit.com/r/emacs/comments/5ei7wa/awesome_vimlike_folding_for_evilmode_with_markers/][article]] showed that the variable can be used in a different way, being set in a "prog-mode-hook" instead. Note: I'm putting everything together here, so if it needs to be commented out, all the configuration is together.  I've attempted to put this with the rest of the packages, but this setup uses "evil-define-key", and always gets an error as it's loaded before Evil.  So, forced to put it here.
-
-NOTE: As *usual*, others configuration is incorrect, as they use ":config" instead of ":init" and the code is not executed correctly. I also found I needed to add several more bindings, as by default "origami-close-all-nodes" is not bound to any keys.
-
-2018-12-01: Created aeh-origami.el to segregate anything to do with origami to debug the latest error which began 11/24/2018. Yeah, forget that. I think I've found the exact problem. I've been testing with files that Kavitha created, and they have unbalanced fold markers; I *know*, because I fixed her foulups in one package body, but I'm sure she fouled up the spec as well--and I've been playing with the spec.  A spec that *I* created is fine...dangit!!!  So now, use the Origami config below, and work on how to deal with large files, and that annoying preference of Projectile to use Ido instead of Swiper; there must be a way to fix that.
-
-2018-12-02: Created a fold-marker free version of the Rule Engine package, and it opens instantly and has no slowness whatsoever.  Ergo, the sole problem with large files is with Origami.
-
-#+BEGIN_SRC emacs-lisp
-  ;; Step 1, define a "wrapper" function.
-  (defun aeh/origami-toggle-node ()
-    (interactive)
-    (save-excursion ;; leave point where it is
-      (goto-char (point-at-eol))             ;; then go to the end of line
-      (origami-toggle-node (current-buffer) (point))))                 ;; and try to fold
-  ;; ;; Step 2, install Origami.
-  (use-package origami
-    :ensure t
-    :diminish)
-  (add-hook 'prog-mode-hook
-            (lambda ()
-              (setq-local origami-fold-style 'triple-braces)
-              ;; (setq origami-fold-style 'triple-braces)
-              (origami-mode)
-              (origami-close-all-nodes (current-buffer))))
-  ;; Step 3, choose the binding.
-  (evil-define-key 'normal prog-mode-map (kbd "TAB") 'aeh/origami-toggle-node)
-  (define-key evil-normal-state-map "za" 'origami-forward-toggle-node)
-  (define-key evil-normal-state-map "zR" 'origami-close-all-nodes)
-  (define-key evil-normal-state-map "zM" 'origami-open-all-nodes)
-  (define-key evil-normal-state-map "zr" 'origami-close-node-recursively)
-  (define-key evil-normal-state-map "zm" 'origami-open-node-recursively)
-  (define-key evil-normal-state-map "zo" 'origami-show-node)
-  (define-key evil-normal-state-map "zc" 'origami-close-node)
-  (define-key evil-normal-state-map "zj" 'origami-forward-fold)
-  (define-key evil-normal-state-map "zk" 'origami-previous-fold)
-#+END_SRC
-

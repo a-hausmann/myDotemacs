@@ -111,10 +111,13 @@ _E_: Day, Month Day, Year HH:MI:SS PM
 (defvar aeh/hydras/toggles/vdiff nil)
 (defhydra aeh/hydra-toggles (:hint nil :exit t)
   "
-   toggle:  _a_ → aggressive indent   _s_ → flycheck       _r_ → read only      _t_ → truncate lines   _e_ → debug on error
+   toggle:  _z_ → origami-mode        _C_ → column-enforce
+            _a_ → aggressive indent   _s_ → flycheck       _r_ → read only      _t_ → truncate lines   _e_ → debug on error
             _f_ → auto-fill           _S_ → flyspell       _c_ → completion     _W_ → word wrap        _g_ → debug on quit
             _w_ → whitespace          _E_ → electric-pairs _l_ → linum-relative _b_ → page break       _d_ → ediff/vdiff
 "
+  ("z" origami-mode)
+  ("C" column-enforce-mode)
   ("a" aggressive-indent-mode)
   ("b" page-break-lines-mode)
   ("c" company-mode)
