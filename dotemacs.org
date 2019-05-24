@@ -112,6 +112,8 @@ I will have some subdirectories containing elisp code, so add these directories 
 #+begin_src emacs-lisp
   ;; Setting the dired-dwim-target to True will allow dired to guess the target of an operation like Copy or Move.
   (setq dired-dwim-target t)
+  ;; 2019-05-20: Ref: http://pragmaticemacs.com/emacs/automatically-revert-buffers/
+  (add-hook 'dired-mode-hook 'auto-revert-mode)
 #+end_src
 
 *** Personalization: set user variables for Name and Email Address.
