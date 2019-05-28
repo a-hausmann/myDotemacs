@@ -40,7 +40,6 @@ These are items I still need to create, or fix.
 - Create Yasnippets for Oracle packages, procedures, functions, etc.
 - Create Yasnippets for HTML editing that I frequently do in Vim.
 - Explore the Git functionality in my setup.
-- Add new hydra for theme selection.
 * Stuff to do *before* Evil
 ** Window system and more
 *** Set the size of the frame
