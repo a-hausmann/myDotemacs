@@ -1309,13 +1309,14 @@ Note that Evil Mode is a minor mode, and like all minor modes, minor modes loade
 
     ;; Start in insert mode for small buffers
     ;; 2018-10-16: This was Howard's idea (I think), and it is *BAD*. Better to start in normal mode for most files
-    ;; including org files.
-    (dolist (mode '(org-mode sql-mode lisp-mode))
+    ;; including org files...and text files (added 2019-05-28).
+    (dolist (mode '(org-mode sql-mode lisp-mode text-mode))
       (add-to-list 'evil-normal-state-modes mode))
 
     ;; Well, this is not working, new text files still open in normal mode, but at least org opens in normal mode.
-    (dolist (mode '(text-mode))
-      (add-to-list 'evil-insert-state-modes mode))
+    ;; 2019-05-28: Removing as I do NOT want text files opened in Insert mode after all.
+    ;; (dolist (mode '(text-mode))
+    ;;   (add-to-list 'evil-insert-state-modes mode))
 
     (evil-add-hjkl-bindings eww-mode-map 'emacs
       (kbd "/")       'evil-search-forward
