@@ -73,28 +73,31 @@ Garbage-collect on focus-out, Emacs should feel snappier.
 Have found out that the many, *many* times I have received a "package not found" even when I can absolutely find the package in Melpa is that I have an outdated package listing, easily fixed with the following:
 
 #+BEGIN_SRC emacs-lisp
-;; 2018-11-04: Set variable with name of file holding last-refreshed date
-(setq aeh-last-package-refresh-file (expand-file-name ".package-refresh-date" user-emacs-directory))
-;; Compound condition: if Sunday, if file exists, get last-refresh-date and compare to today, when not equal,
-;; refresh the packages and update file with today's date, but when equal, just write message. If NO FILE
-;; found, create file with today's date and refresh packages, write message.
-;; Added newline to date file, and must add newline when comparing strings as "buffer-string" returns all
-;; bytes, including the newline (nothing like perls "chomp" command).
-(defun aeh/package-refresh-contents (mess-txt)
-  (interactive)
-  (write-region (format-time-string "%Y%m%d\n") nil aeh-last-package-refresh-file)
-  (message (concat mess-txt (format-time-string "%m/%d/%Y %H:%M:%S")))
-  (package-refresh-contents))
-(if (equal (format-time-string "%a") "Sun")
-    (if (file-exists-p aeh-last-package-refresh-file)
-	(progn
-	  (with-temp-buffer
-	    (insert-file-contents aeh-last-package-refresh-file)
-	    (setq aeh-last-package-refresh-date (buffer-string)))
-	  (if (equal aeh-last-package-refresh-date (format-time-string "%Y%m%d\n"))
-	      (message "1: Found same date")
-	    (aeh/package-refresh-contents "2: Different date, refresh package contents on ")))
-	(aeh/package-refresh-contents "3: No Date file, refresh package contents on ")))
+  ;; 2018-11-04: Set variable with name of file holding last-refreshed date
+  (setq aeh-last-package-refresh-file (expand-file-name ".package-refresh-date" user-emacs-directory))
+  ;; Compound condition: if Sunday, if file exists, get last-refresh-date and compare to today, when not equal,
+  ;; refresh the packages and update file with today's date, but when equal, just write message. If NO FILE
+  ;; found, create file with today's date and refresh packages, write message.
+  ;; Added newline to date file, and must add newline when comparing strings as "buffer-string" returns all
+  ;; bytes, including the newline (nothing like perls "chomp" command).
+  (defun aeh/package-refresh-contents (mess-txt)
+    (interactive)
+    (write-region (format-time-string "%Y%m%d\n") nil aeh-last-package-refresh-file)
+    (message (concat mess-txt (format-time-string "%m/%d/%Y %H:%M:%S")))
+    (package-refresh-contents))
+  (if (equal (format-time-string "%a")
+             (if (not (string-equal system-type "windows-nt"))
+                 "Sun"
+               "Mon"))
+      (if (file-exists-p aeh-last-package-refresh-file)
+          (progn
+            (with-temp-buffer
+              (insert-file-contents aeh-last-package-refresh-file)
+              (setq aeh-last-package-refresh-date (buffer-string)))
+            (if (equal aeh-last-package-refresh-date (format-time-string "%Y%m%d\n"))
+                (message "1: Found same date")
+              (aeh/package-refresh-contents "2: Different date, refresh package contents on ")))
+        (aeh/package-refresh-contents "3: No Date file, refresh package contents on ")))
 #+END_SRC
 
 *** Set load-path for custom code
@@ -112,8 +115,6 @@ I will have some subdirectories containing elisp code, so add these directories 
 #+begin_src emacs-lisp
   ;; Setting the dired-dwim-target to True will allow dired to guess the target of an operation like Copy or Move.
   (setq dired-dwim-target t)
-  ;; 2019-05-20: Ref: http://pragmaticemacs.com/emacs/automatically-revert-buffers/
-  (add-hook 'dired-mode-hook 'auto-revert-mode)
 #+end_src
 
 *** Personalization: set user variables for Name and Email Address.
