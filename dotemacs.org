@@ -483,7 +483,7 @@ Thus far, this has worked well. The key here is that the function paired to the 
     "r" '(aeh/hydra-rectangle/body :which-key "rectangle")
     "t" '(aeh/hydra-toggles/body :which-key "toggles")
     "y" '(aeh/hydra-yasnippet/body :which-key "snippets")
-    "z" '(aeh/hydra-zoom/body :which-key "zoom"))
+    "z" '(aeh/hydra-newzoom/body :which-key "zoom"))
   (aeh-local-leader-def
     :keymaps 'insert
     "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
