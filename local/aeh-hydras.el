@@ -56,6 +56,17 @@ _E_: Day, Month Day, Year HH:MI:SS PM
   ("0" (text-scale-set 0) "reset" :color blue)
   ("q" nil "quit"))
 
+;; 2019-05-28: This new zoom uses latest version of Hydra, "20190525.817".
+;; This brings some new capabilities, not all working yet. I would LOVE to
+;; get the "posframe" working so the menus display in a floating child frame.
+;; Changing General setup to "newzoom."
+(defhydra aeh/hydra-newzoom (:exit nil)
+  ("+" text-scale-increase "Zoom in")
+  ("-" text-scale-decrease "Zoom out")
+  ("0" (text-scale-set 0) "Reset" :color blue)
+  ("q" nil "Quit"))
+
+
 ;; Rockin' the buffers menu!
 (defhydra aeh/hydra-buffers (:hint nil :exit t)
   "
