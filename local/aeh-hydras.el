@@ -1,8 +1,9 @@
-;; Name:    aeh-hydras.el
-;; Dated:   2018-11-06
-;; Purpose: This will contain my personal hydra definitions.  Much of this is 
-;;          based on Bailey Ling's hydras, so some changing of names, and deleting
-;;          stuff he has that I do not (I favor ivy over helm, he uses both.
+;; File name:     aeh-hydras.el
+;; Created:       2018-11-06
+;; Last modified: Thu Jun 06, 2019 9:56:40
+;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
+;;                based on Bailey Ling's hydras, so some changing of names, and deleting
+;;                stuff he has that I do not (I favor ivy over helm, he uses both.
 
 (require 'hydra)
 (autoload 'hydra-default-pre "hydra")
@@ -15,6 +16,14 @@
 (defconst aeh/day-time-format "%a %b %d, %Y %-H:%M:%S" "English Date Time as: Day Mon Date, Year HH24:MI:SS")
 (defconst aeh/full-day-format "%A, %B %d, %Y" "English date as: Day, Month Date, Year")
 (defconst aeh/full-day-time-format "%A, %B %d, %Y %-H:%M:%S %p" "English Date Time as: Day, Month Date, Year HH:MI:SS PM")
+
+;; 2019-06-06: NEW! This is the place to add Inserts of whatever I dream up.
+(defhydra aeh/hydra-insert-stuff-menu (:color blue)
+  "This hydra inserts so-called random stuff."
+  ("f" (insert (file-name-nondirectory (buffer-file-name))) "base filename")
+  ("F" (insert (expand-file-name (buffer-file-name))) "full filename")
+  ("p" (insert (file-name-directory (buffer-file-name))) "path")
+  )
 
 (defhydra aeh/hydra-insert-date-menu (:color blue)
   "

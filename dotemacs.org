@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-01-05 14:06:36>
+#+DATE: <2019-06-06 Thu 15:33>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -410,7 +410,7 @@ Function "narrow-to-defun" is (I think) useful only in Lisp, and I'm not sure wh
 #+END_SRC
 
 Last Modified Dates
-At the top of my programming files I like to put a "Last modified: " tag which I want updated every time I save the file. This can be done using time-stamp.el with function "time-stamp". The trick is to set a variable to know what to look for, then a hook to actually *do it*.
+At the top of my programming files I like to put a "Last modified: Thu Jun 06, 2019 8:13:42
 #+BEGIN_SRC emacs-lisp
   ;; (if (string-equal major-mode "org-mode")
   ;;     (setq time-stamp-pattern "10/#+DATE:[ \t]+\\\\?[\"<]+%:y-%02m-%02d %02H:%02M:%02S\\\\?[\">]")
@@ -488,7 +488,8 @@ Thus far, this has worked well. The key here is that the function paired to the 
     :keymaps 'insert
     "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
     "c" '(aeh/hydra-counsel/body :which-key "counsel")
-    "d" '(aeh/hydra-insert-date-menu/body :which-key "dates"))
+    "d" '(aeh/hydra-insert-date-menu/body :which-key "dates")
+    "i" '(aeh/hydra-insert-stuff-menu/body :which-key "insert stuff"))
 #+END_SRC
 
 *** Ace-Window
@@ -1476,7 +1477,7 @@ Some global key bindings for Org mode, as shown in the [[https://orgmode.org/org
 For TODO tasks and states, reference: [[http://doc.norang.ca/org-mode.html#TasksAndStates][Org Mode - Oraganize Your Life In Plain Text]]
 #+BEGIN_SRC emacs-lisp
   (setq org-todo-keywords
-        (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+        (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d@/!)")
                 (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
 
   (setq org-todo-keyword-faces
@@ -1544,6 +1545,36 @@ To *reload* a newly edited ~/.emacs.d/dotemacs.org:
 #+END_SRC
 
 *** Miscellaneous functions
+**** Set Last modified timestamp
+This is a rather well-known trick to switch to the previous buffer, well-suited to keep switching back and forth between two buffers.
+
+2019-06-06: modified already, to work for org-mode (find "#+date: " string) or any other file with "Last modified: " string.
+#+BEGIN_SRC emacs-lisp
+  (defun aeh/set-last-modified-ts ()
+    "Set new timestamp for \"Last modified: \" tag, or if in org-mode,
+  the \"#+date: \" tag.  Function searches for string from point-min forward;
+  when found, it deletes from point (at end of search string) to point-at-eol,
+  then inserts current time in specified format. "
+    (interactive)
+    (if (equal major-mode 'org-mode)
+        (save-excursion
+          (goto-char (point-min))
+          (when (search-forward "#+date: " nil t)
+            ;; It appears I do NOT need a lambda here, just execute two functions on when()
+            (delete-region (point) (point-at-eol))
+            (let ((current-prefix-arg '(16)))
+              (call-interactively 'org-time-stamp))))
+      (save-excursion
+        (goto-char (point-min))
+        (when (search-forward "Last modified: " nil t)
+          ;; It appears I do NOT need a lambda here, just execute two functions on when()
+          (delete-region (point) (point-at-eol))
+          (insert (format-time-string "%a %b %d, %Y %-H:%M:%S"))))))
+  ;; Set hook to execute function before writing.
+  (add-hook 'before-save-hook
+            (lambda () (aeh/set-last-modified-ts)))
+#+END_SRC
+
 **** Previous Buffer
 This is a rather well-known trick to switch to the previous buffer, well-suited to keep switching back and forth between two buffers.
 #+BEGIN_SRC emacs-lisp
