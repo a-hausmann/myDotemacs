@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-06 Thu 15:33>
+#+DATE: <2019-06-07 Fri 23:48>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -355,8 +355,6 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
   (global-set-key (kbd "C-c '") 'org-edit-src-code)
 #+END_SRC
 
-
-
 - This makes things look nicer; it replaces asterisks with nicer looking bullets.
 #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
@@ -407,15 +405,6 @@ Narrowing displays "selected" text and blanks out all other text in the buffer, 
 Function "narrow-to-defun" is (I think) useful only in Lisp, and I'm not sure what "narrow-to-page" means, so I will only enable "narrow-to-region", which is selected text. Narrowing is enacted with "C-x n n" and reversed by "widening", enacted with "C-x n w".
 #+BEGIN_SRC emacs-lisp
 (put 'narrow-to-region 'disabled nil)
-#+END_SRC
-
-Last Modified Dates
-At the top of my programming files I like to put a "Last modified: Thu Jun 06, 2019 8:13:42
-#+BEGIN_SRC emacs-lisp
-  ;; (if (string-equal major-mode "org-mode")
-  ;;     (setq time-stamp-pattern "10/#+DATE:[ \t]+\\\\?[\"<]+%:y-%02m-%02d %02H:%02M:%02S\\\\?[\">]")
-  ;;   (setq time-stamp-pattern "10/Last modified:[ \t]+\\\\?[\"<]+%:y-%02m-%02d %02H:%02M:%02S\\\\?[\">]"))
-  ;; (add-hook 'before-save-hook 'time-stamp)
 #+END_SRC
 
 *** Moving Around Emacs
@@ -1576,6 +1565,32 @@ This is a rather well-known trick to switch to the previous buffer, well-suited 
   (add-hook 'before-save-hook
             (lambda () (aeh/set-last-modified-ts)))
 #+END_SRC
+**** Cleaning the buffer
+This stuff is stolen code from Magnar Sveen, from his What The Emacs blog (http://whattheemacsd.com). It is pretty self explanatory. It could be pretty helpful (knowing how OCD I am about not using tabs or having trailing spaces.)
+
+#+begin_src emacs-lisp
+  (defun cleanup-buffer-safe ()
+    "Perform a bunch of safe operations on the whitespace content of a buffer.
+  Does not indent buffer, because it is used for a before-save-hook, and that
+  might be bad."
+    (interactive)
+    (untabify (point-min) (point-max))
+    (delete-trailing-whitespace)
+    (set-buffer-file-coding-system 'utf-8))
+
+  ;; Various superfluous white-space. Just say no.
+  ;; 2019-06-07: comment out the hook for now.
+  ;; (add-hook 'before-save-hook 'cleanup-buffer-safe)
+
+  (defun cleanup-buffer ()
+    "Perform a bunch of operations on the whitespace content of a buffer.
+  Including indent-buffer, which should not be called automatically on save."
+    (interactive)
+    (cleanup-buffer-safe)
+    (indent-region (point-min) (point-max)))
+
+  (global-set-key (kbd "C-c n") 'cleanup-buffer)
+#+end_src
 
 **** Previous Buffer
 This is a rather well-known trick to switch to the previous buffer, well-suited to keep switching back and forth between two buffers.
