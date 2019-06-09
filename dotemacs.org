@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-08 Sat 22:45>
+#+DATE: <2019-06-08 Sat 23:02>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -341,7 +341,10 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
 #+BEGIN_SRC emacs-lisp
   (require 'org-tempo)
   (setq org-ellipsis " ")
-  (setq org-src-fontify-natively t)
+  ;; 2019-06-08: After loading ONE of MANY themes, the "fontify-natively" non-nil started
+  ;; throwing code between source markers into horrid light colors regardless of theme used.
+  ;; Setting the variable to nil gets rid of that tendency.
+  (setq org-src-fontify-natively nil)
   (setq org-src-tab-acts-natively t)
   (setq org-confirm-babel-evaluate nil)
   (setq org-export-with-smart-quotes t)
