@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-08 Sat 00:01>
+#+DATE: <2019-06-08 Sat 22:45>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -380,14 +380,18 @@ I really, *really* like visual-line-mode, so set globally.
  Default browser
  According to the [[https://www.emacswiki.org/emacs/BrowseUrl][BrowseUrl wiki]], there is already support for Opera, Firefox, and Chromium, even Edge, but not Internet Exploder. Looking at most of the documentation on the Wiki page, it seems that both must variables must be set, and there is no way out of that.  Oh well.
  2019-01-11: change code to Chrome on Windows, else Opera. Code appears fine and evaluates, but doesn't work in Winders.  Shoot!
+
+2019-06-08: So, will try using the native Emacs EWW instead of attempting to use Chrome as the external browser.
  #+BEGIN_SRC emacs-lisp
    (defun aeh/browse-url-chrome (url &optional new-window)
      ;; (shell-command (concat "C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe" url)))
      (shell-command (concat "C:\\\\Users\\\\frst6889\\\\AppData\\\\Local\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe" url)))
 
+   ;; Since cannot get Chrome working in Windows, use EWW instead
    (if (string-equal system-type "windows-nt")
-       (setq browse-url-browser-function 'browse-url-generic
-             browse-url-generic-program 'aeh/browse-url-chrome)
+       (setq browse-url-browser-function 'eww-browse-url)
+     ;; (setq browse-url-browser-function 'browse-url-generic
+     ;;       browse-url-generic-program 'aeh/browse-url-chrome)
      (setq browse-url-browser-function 'browse-url-generic
            browse-url-generic-program "opera"))
  #+END_SRC
