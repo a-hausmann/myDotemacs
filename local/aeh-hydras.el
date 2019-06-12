@@ -1,6 +1,6 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Thu Jun 06, 2019 9:56:40
+;; Last modified: Wed Jun 12, 2019 0:03:30
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
@@ -71,22 +71,30 @@ _E_: Day, Month Day, Year HH:MI:SS PM
 (defhydra aeh/hydra-buffers (:hint nil :exit t)
   "
    buffers:   _b_ → buffers              _i_ → ibuffer                 _k_ → kill buffer
-              _p_ → prev buffer          _m_ → goto messages           _e_ → erase buffer
-              _E_ → erase buffer (force) _n_ → new buffer (untitled)   _A_ → save buffer AS file
-              _s_ → goto scratch         _S_ → goto scratch (force)    _z_ → zoom
+              _p_ → prev buffer          _e_ → erase buffer            _E_ → erase buffer (force)
+              _n_ → new buffer           _A_ → save buffer AS file     _r_ → rename buffer
+              _R_ → rename buffer uniquely
+              _G_ → GOTO buffer
 "
   ("b" #'counsel-ibuffer)
-  ("k" #'kill-this-buffer)
   ("i" #'ibuffer)
+  ("k" #'kill-this-buffer)
   ("p" #'aeh/switch-to-previous-buffer)
-  ("m" (switch-to-buffer "*Messages*"))
-  ("n" (switch-to-buffer (generate-new-buffer "untitled")))
-  ("A" #'write-file)
   ("e" #'erase-buffer)
   ("E" (let ((inhibit-read-only t)) (erase-buffer)))
-  ("s" (switch-to-buffer "*scratch*"))
-  ("S" (switch-to-buffer (get-buffer-create "*scratch*")))
-  ("z" #'hydra-zoom/body))
+  ("n" (switch-to-buffer (generate-new-buffer "untitled")))
+  ("A" #'write-file)
+  ("r" #'rename-buffer)
+  ("R" #'rename-uniquely)
+  ("G" #'aeh/hydra-buffer-goto/body))
+
+;; Buffer GOTO submenu
+(defhydra aeh/hydra-buffer-goto (:exit t)
+  "Buffer GOTO"
+  ("d" (switch-to-buffer "*dashboard*") "GOTO *dashboard")
+  ("m" (switch-to-buffer "*Messages*") "GOTO *Messages*")
+  ("s" (switch-to-buffer "*scratch*") "GOTO *scratch*")
+  ("S" (switch-to-buffer (get-buffer-create "*scratch*")) "Create *scratch*"))
 
 ;; Hydra for file conversions
 (defhydra aeh/hydra-files-convert (:hint nil :exit t)
