@@ -1,6 +1,6 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Wed Jun 12, 2019 0:03:30
+;; Last modified: Sat Jun 15, 2019 20:37:23
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
@@ -139,13 +139,14 @@ _E_: Day, Month Day, Year HH:MI:SS PM
 (defvar aeh/hydras/toggles/vdiff nil)
 (defhydra aeh/hydra-toggles (:hint nil :exit t)
   "
-   toggle:  _z_ → origami-mode        _C_ → column-enforce
+   toggle:  _z_ → origami-mode        _C_ → column-enforce _p_ → which-key-posframe
             _a_ → aggressive indent   _s_ → flycheck       _r_ → read only      _t_ → truncate lines   _e_ → debug on error
             _f_ → auto-fill           _S_ → flyspell       _c_ → completion     _W_ → word wrap        _g_ → debug on quit
             _w_ → whitespace          _E_ → electric-pairs _l_ → linum-relative _b_ → page break       _d_ → ediff/vdiff
 "
   ("z" origami-mode)
   ("C" column-enforce-mode)
+  ("p" which-key-posframe-mode)
   ("a" aggressive-indent-mode)
   ("b" page-break-lines-mode)
   ("c" company-mode)

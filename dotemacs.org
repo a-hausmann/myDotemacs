@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-08 Sat 23:17>
+#+DATE: <2019-06-15 Sat 20:51>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1257,6 +1257,19 @@ This is one of the best packages in Emacs, and takes advantage of the self-docum
     :init
     (which-key-mode))
 #+END_SRC
+
+*** Which-key-posframe
+This is a VERY neat package, putting the output of which-key to a posframe instead of the minibuffer. This is cool because the minibuffer is restricted to a specific number of rows, which then forces paging via C-h. Use =:demand= to force load and =:config= for configuration. I like the blue background and the center frame position seems pretty nice.  I wish I could find a way to set a border, but good enough. Add a toggle for the mode to aeh/hydra-toggles.
+#+begin_src emacs-lisp
+  (use-package which-key-posframe
+    :ensure t
+    :demand
+    :config
+    (which-key-posframe-mode)
+    )
+  (setq which-key-posframe-parameters '((background-color  . "blue")))
+  (setq which-key-posframe-poshandler 'posframe-poshandler-frame-center)
+#+end_src
 
 *** Yasnippet
 This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] for Emacs, rather ubiquitous and easy to use. Snippet files should go into ~/.emacs.d/private/snippets. The configuration here is mostly from Uncle Dave. Check out the [[https://github.com/joaotavora/yasnippet][Github account]] for additional configuration tips. 
