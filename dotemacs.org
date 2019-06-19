@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-18 Tue 23:57>
+#+DATE: <2019-06-19 Wed 00:04>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -421,34 +421,6 @@ This entire section is all about the mechanics of moving around in Emacs, whethe
 For some reason even Uncle Dave does not know, the following makes scrolling easier in emacs.
 #+BEGIN_SRC emacs-lisp
 (setq scroll-conservatively 100)
-#+END_SRC
-
-*Following window splits*
-After you split a window, the focus remains in the original window. Uncle Dave disliked this so much he wrote two functions to fix the problem.
-#+BEGIN_SRC emacs-lisp
-(defun split-and-follow-horizontally ()
-  (interactive)
-  (split-window-below)
-  (balance-windows)
-  (other-window 1))
-(global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
-
-(defun split-and-follow-vertically ()
-  (interactive)
-  (split-window-right)
-  (balance-windows)
-  (other-window 1))
-(global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
-#+END_SRC
-
-*Default kill-buffer to kill current buffer*
-By default =x k= is bound to =kill-buffer=; instead, we want to kill the current buffer.
-#+BEGIN_SRC emacs-lisp
-(defun kill-current-buffer ()
-  "Kills the current buffer."
-  (interactive)
-  (kill-buffer (current-buffer)))
-(global-set-key (kbd "C-x k") 'kill-current-buffer)
 #+END_SRC
 
 *Turn switch-to-buffer into counsel-ibuffer*
@@ -1705,6 +1677,34 @@ This is one of Bailey Ling's functions from "config-util.el".
   "Converts the current buffer to UNIX file format."
   (interactive)
   (set-buffer-file-coding-system 'undecided-unix nil))
+#+END_SRC
+
+**** Window splitting/following
+After you split a window, the focus remains in the original window. Uncle Dave disliked this so much he wrote two functions to fix the problem.
+#+BEGIN_SRC emacs-lisp
+(defun split-and-follow-horizontally ()
+  (interactive)
+  (split-window-below)
+  (balance-windows)
+  (other-window 1))
+(global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+
+(defun split-and-follow-vertically ()
+  (interactive)
+  (split-window-right)
+  (balance-windows)
+  (other-window 1))
+(global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+#+END_SRC
+
+**** Killing buffers cleanly
+By default =x k= is bound to =kill-buffer=; instead, we want to kill the current buffer.
+#+BEGIN_SRC emacs-lisp
+(defun kill-current-buffer ()
+  "Kills the current buffer."
+  (interactive)
+  (kill-buffer (current-buffer)))
+(global-set-key (kbd "C-x k") 'kill-current-buffer)
 #+END_SRC
 
 ** Diminish
