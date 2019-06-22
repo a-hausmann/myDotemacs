@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-19 Wed 00:04>
+#+DATE: <2019-06-22 Sat 00:16>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -720,6 +720,27 @@ I think that Company is acting a bit better now, and on 10/30/2018, I added some
                            ;; (bookmarks . 5)
                            ))
  #+END_SRC
+
+*** Dired-narrow
+From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.org#dired
+#+begin_src emacs-lisp
+  (use-package dired-narrow
+    :ensure t
+    :config
+    (bind-key "C-c C-n" #'dired-narrow)
+    (bind-key "C-c C-f" #'dired-narrow-fuzzy)
+    (bind-key "C-x C-n" #'dired-narrow-regexp))
+#+end_src
+
+*** Dired-subtree
+From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.org#dired
+#+begin_src emacs-lisp
+  (use-package dired-subtree :ensure t
+    :after dired
+    :config
+    (bind-key "<tab>" #'dired-subtree-toggle dired-mode-map)
+    (bind-key "<backtab>" #'dired-subtree-cycle dired-mode-map))
+#+end_src
 
 *** Expand region
 With this [[https://github.com/magnars/expand-region.el][simple package]] from Magnar Sveen of [[http://emacsrocks.com][Emacs Rocks]] fame, a quick key-chord can select an ever expanding region; use "C-=" to access this function.
