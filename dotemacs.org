@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-24 Mon 07:31>
+#+DATE: <2019-06-24 Mon 11:35>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -444,6 +444,7 @@ Thus far, this has worked well. The key here is that the function paired to the 
   ;; Global keybindings
   (aeh-leader-def
     :keymaps '(normal visual emacs)
+    ";" '(frog-jump-buffer :which-key "Frog jump buffer")
     "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
     "b" '(aeh/hydra-buffers/body :which-key "buffers")
     "c" '(aeh/hydra-counsel/body :which-key "counsel")
@@ -456,6 +457,7 @@ Thus far, this has worked well. The key here is that the function paired to the 
     "w" '(aeh/hydra-windows/body :which-key "windows"))
   (aeh-local-leader-def
     :keymaps 'insert
+    ";" '(frog-jump-buffer :which-key "Frog jump buffer")
     "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
     "c" '(aeh/hydra-counsel/body :which-key "counsel")
     "d" '(aeh/hydra-insert-date-menu/body :which-key "dates")
@@ -770,6 +772,13 @@ Flycheck does syntax checking for multiple languages.
 ;; bash hook
 (add-hook 'shell-mode-hook 'flycheck-mode)
 #+END_SRC
+
+*** Frog-jump-buffer
+This actually beats iBuffer and counsel-ibuffer with Swiper; use General for bindings.
+#+begin_src emacs-lisp
+(use-package frog-jump-buffer
+  :ensure t)
+#+end_src
 
 *** Git-gutter-fringe
 This is a version of git-gutter which works better with linum-mode, see [[https://github.com/syohex/emacs-git-gutter-fringe][here]]. I only thought I had not been able to get this to work, but, I was missing a logical point; git-gutter cannot be enabled unless the file-buffer is in a Git repository (duh!). Even if in a Git repository, any changes in a buffer *must be saved to the file* before git-gutter can detect any changes; changes to the buffer alone cannot be compared to the Git HEAD commit.
