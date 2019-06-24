@@ -1,6 +1,6 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Wed Jun 19, 2019 11:52:44
+;; Last modified: Thu Jun 20, 2019 7:33:58
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
@@ -278,5 +278,57 @@ _T_ load theme
   ("m" counsel-imenu)
   ("M" counsel-mark-ring)
   ("T" counsel-load-theme))
+
+;; 2019-06-19: Add "Window" commands (check for frame commands)
+;; Ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org#hydra
+(defhydra aeh/hydra-windows (:color pink)
+  "
+^
+^Windows^           ^Window^            ^Zoom^
+^-------^-----------^------^------------^----^--------------
+_q_ quit            _b_ balance         _-_ out
+^^                  _i_ heighten        _+_ in
+^^                  _j_ narrow          _=_ reset
+^^                  _k_ lower           ^^
+^^                  _l_ widen           ^^
+^^                  ^^                  ^^
+"
+  ("q" nil)
+  ("b" balance-windows)
+  ("i" enlarge-window)
+  ("j" shrink-window-horizontally)
+  ("k" shrink-window)
+  ("l" enlarge-window-horizontally)
+  ("-" text-scale-decrease)
+  ("+" text-scale-increase)
+  ("=" (text-scale-increase 0)))
+
+;; 2019-06-20: Add Magit commands
+;; Ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org#hydra
+(defhydra hydra-magit (:color blue)
+  "
+^
+^Magit^             ^Do^
+^-----^-------------^--^----------------
+_q_ quit            _b_ blame
+^^                  _c_ clone
+^^                  _i_ init
+^^                  _s_ status
+^^                  ^^
+"
+  ("q" nil)
+  ("b" magit-blame)
+  ("c" magit-clone)
+  ("i" magit-init)
+  ("s" magit-status))
+
+;; 2019-06-20: Add mode menu
+(defhydra aeh/hydra-modes (:exit t)
+  "Modes"
+  ("t" #'text-mode "Text mode")
+  ("p" #'prog-mode "Prog mode")
+  ("s" #'sql-mode "SQL mode"))
+
+
 
 (provide 'aeh-hydras)

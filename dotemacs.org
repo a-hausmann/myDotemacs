@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-22 Sat 00:16>
+#+DATE: <2019-06-24 Mon 07:31>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -448,10 +448,12 @@ Thus far, this has worked well. The key here is that the function paired to the 
     "b" '(aeh/hydra-buffers/body :which-key "buffers")
     "c" '(aeh/hydra-counsel/body :which-key "counsel")
     "f" '(aeh/hydra-files/body :which-key "files")
+    "m" '(aeh/hydra-modes/body :which-key "modes")
+    "M" '(aeh/hydra-magit/body :which-key "Magit")
     "r" '(aeh/hydra-rectangle/body :which-key "rectangle")
     "t" '(aeh/hydra-toggles/body :which-key "toggles")
     "y" '(aeh/hydra-yasnippet/body :which-key "snippets")
-    "z" '(aeh/hydra-newzoom/body :which-key "zoom"))
+    "w" '(aeh/hydra-windows/body :which-key "windows"))
   (aeh-local-leader-def
     :keymaps 'insert
     "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
@@ -536,6 +538,7 @@ Found a trick; instead of binding to "avy-goto-char", use "avy-goto-char-timer".
 #+BEGIN_SRC emacs-lisp
   (use-package avy
     :ensure t
+    :demand
     :diminish
     :bind
     ("M-s" . avy-goto-char-timer))
