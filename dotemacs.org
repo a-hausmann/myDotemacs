@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-24 Mon 14:38>
+#+DATE: <2019-06-24 Mon 22:45>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -467,58 +467,60 @@ Thus far, this has worked well. The key here is that the function paired to the 
 *** Ace-Window
 Yet another package from Oleh Krehel, [[https://github.com/abo-abo/ace-window/wiki][ace-window]] performs window movement with relatively few keystrokes.
 This is copied from the [[https://github.com/abo-abo/ace-window][github home]].
-#+BEGIN_SRC emacs-lisp
-    (use-package ace-window
-      :ensure t
-      :defer 1
-      :config
-      (set-face-attribute
-       'aw-leading-char-face nil
-       :foreground "deep sky blue"
-       :weight 'bold
-       :height 3.0)
-      (set-face-attribute
-       'aw-mode-line-face nil
-       :inherit 'mode-line-buffer-id
-       :foreground "lawn green")
-      (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l)
-            aw-dispatch-always t
-            aw-dispatch-alist
-            '((?x aw-delete-window "Ace - Delete Window")
-              (?c aw-swap-window "Ace - Swap Window")
-              (?n aw-flip-window)
-              (?v aw-split-window-vert "Ace - Split Vert Window")
-              (?h aw-split-window-horz "Ace - Split Horz Window")
-              (?m delete-other-windows "Ace - Maximize Window")
-              (?g delete-other-windows)
-              (?b balance-windows)
-              (?u (lambda ()
-                    (progn
-                      (winner-undo)
-                      (setq this-command 'winner-undo))))
-              (?r winner-redo)))
 
-      (when (package-installed-p 'hydra)
-        (defhydra aeh/hydra-window-size (:color red)
-          "Windows size"
-          ("h" shrink-window-horizontally "shrink horizontal")
-          ("j" shrink-window "shrink vertical")
-          ("k" enlarge-window "enlarge vertical")
-          ("l" enlarge-window-horizontally "enlarge horizontal"))
-        (defhydra aeh/hydra-window-frame (:color red)
-          "Frame"
-          ("f" make-frame "new frame")
-          ("x" delete-frame "delete frame"))
-        (defhydra aeh/hydra-window-scroll (:color red)
-          "Scroll other window"
-          ("n" joe-scroll-other-window "scroll")
-          ("p" joe-scroll-other-window-down "scroll down"))
-        (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
-        (add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
-        (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t))
-      (ace-window-display-mode t)
-  :bind
-  ([remap other-window] . ace-window))
+2019-06-24: Change "aw-dispatch-always" to nil so when only two windows will not force "choice".
+#+BEGIN_SRC emacs-lisp
+  (use-package ace-window
+    :ensure t
+    :defer 1
+    :config
+    (set-face-attribute
+     'aw-leading-char-face nil
+     :foreground "deep sky blue"
+     :weight 'bold
+     :height 3.0)
+    (set-face-attribute
+     'aw-mode-line-face nil
+     :inherit 'mode-line-buffer-id
+     :foreground "lawn green")
+    (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l)
+          aw-dispatch-always nil
+          aw-dispatch-alist
+          '((?x aw-delete-window "Ace - Delete Window")
+            (?c aw-swap-window "Ace - Swap Window")
+            (?n aw-flip-window)
+            (?v aw-split-window-vert "Ace - Split Vert Window")
+            (?h aw-split-window-horz "Ace - Split Horz Window")
+            (?m delete-other-windows "Ace - Maximize Window")
+            (?g delete-other-windows)
+            (?b balance-windows)
+            (?u (lambda ()
+                  (progn
+                    (winner-undo)
+                    (setq this-command 'winner-undo))))
+            (?r winner-redo)))
+
+    (when (package-installed-p 'hydra)
+      (defhydra aeh/hydra-window-size (:color red)
+        "Windows size"
+        ("h" shrink-window-horizontally "shrink horizontal")
+        ("j" shrink-window "shrink vertical")
+        ("k" enlarge-window "enlarge vertical")
+        ("l" enlarge-window-horizontally "enlarge horizontal"))
+      (defhydra aeh/hydra-window-frame (:color red)
+        "Frame"
+        ("f" make-frame "new frame")
+        ("x" delete-frame "delete frame"))
+      (defhydra aeh/hydra-window-scroll (:color red)
+        "Scroll other window"
+        ("n" joe-scroll-other-window "scroll")
+        ("p" joe-scroll-other-window-down "scroll down"))
+      (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
+      (add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
+      (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t))
+    (ace-window-display-mode t)
+    :bind
+    ([remap other-window] . ace-window))
 #+END_SRC
 
 *** Ag (Silver Searcher frontend)
