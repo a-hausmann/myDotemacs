@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-24 Mon 22:45>
+#+DATE: <2019-06-28 Fri 12:34>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1429,10 +1429,12 @@ OK, I forgot to add this until now...and setting up this configuration in git ma
   (setq evil-magit-use-y-for-yank nil)
 #+END_SRC
 * Final Stuff
-** Remap some keys
+** COMMENT Remap some keys
 Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/blog/2014-08-03-a-vim-like-emacs-config.html][here]]. 12/21/2018: fixed the problem of not having General's SPC giving me menu by defining SPC in dired-mode-map to nil. This then allows General to take over, the local private map not having a mapping for SPC.
 
 2019-05-24: Finally, figured out how to do the dang mapping for evil keys in dired--still in same reference doc, but making it look like the code for ibuffer-mode.  This now works well, though I'm not sure about the "n" and "N" mappings as I would be more likely to do a Swiper search than Evil search, hence these are wasted; comment out for now, as I'm still undecided.
+
+2019-06-28: Had revert-buffer set to "g" at some point, somehow, but lost that change. Still cannot seem to "override" the evil-commentary key-binding for "g", so change here to "C-c C-r", which is a least mnemonic for "revert-buffer".  This works OK.  I still like having dired in evil, so better typing "C-c C-r" than "revert-buffer".
 
 #+BEGIN_SRC emacs-lisp
   (eval-after-load 'dired
@@ -1447,10 +1449,12 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
          (kbd "u") 'dired-unmark
          (kbd "U") 'dired-unmark-all-marks
          (kbd "c") 'dired-create-directory
-         ;; (kbd "n") 'evil-search-next
-         ;; (kbd "N") 'evil-search-previous
          (kbd "q") 'kill-this-buffer
-         (kbd "g") 'revert-buffer)))
+         (kbd "C-c C-r") 'revert-buffer)
+       ;; (kbd "n") 'evil-search-next
+       ;; (kbd "N") 'evil-search-previous
+       )
+    )
   (define-key dired-mode-map (kbd "SPC") nil)
 #+END_SRC
 
