@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-28 Fri 23:41>
+#+DATE: <2019-06-29 Sat 00:24>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1388,12 +1388,13 @@ Evil-surround is a port of Tim Pope's Surround vim package. I cannot live withou
 
 ** Evil-commentary
 Evil-commentary is a [[https://github.com/linktohack/evil-commentary][port]] of Tim Pope's Commentary
+2019-06-29: should not be global, limit to prog-mode with hook.
 #+BEGIN_SRC emacs-lisp
   (use-package evil-commentary
     :ensure t
     :diminish
     :after evil)
-  (evil-commentary-mode 1)
+  ;; (evil-commentary-mode 1)
   (add-hook 'prog-mode-hook 'evil-commentary-mode)
 #+END_SRC
 
@@ -1435,7 +1436,7 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
 
 2019-05-24: Finally, figured out how to do the dang mapping for evil keys in dired--still in same reference doc, but making it look like the code for ibuffer-mode.  This now works well, though I'm not sure about the "n" and "N" mappings as I would be more likely to do a Swiper search than Evil search, hence these are wasted; comment out for now, as I'm still undecided.
 
-2019-06-28: Had revert-buffer set to "g" at some point, somehow, but lost that change. Still cannot seem to "override" the evil-commentary key-binding for "g", so change here to "C-c C-r", which is a least mnemonic for "revert-buffer".  This works OK.  I still like having dired in evil, so better typing "C-c C-r" than "revert-buffer".
+2019-06-28: Had revert-buffer set to "g" at some point, somehow, but lost that change. Still cannot seem to "override" the evil-commentary key-binding for "g", so change here to "C-c C-r", which is a least mnemonic for "revert-buffer".  This works OK.  I still like having dired in evil, so better typing "C-c C-r" than "revert-buffer". Found that evil-commentary.el defines "gc" and "gy" at a "global level" for normal evil-commentary-mode-map; map is two dimensional, so "g" map first/prefix key level, and "c" and "y" under that. So, I appear to be stuck with "C-c C-r" forever as the keybinding for revert-buffer in dired-mode.
 
 #+BEGIN_SRC emacs-lisp
   (eval-after-load 'dired
