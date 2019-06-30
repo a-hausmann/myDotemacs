@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-29 Sat 17:36>
+#+DATE: <2019-06-29 Sat 22:40>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -742,12 +742,13 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
 
 *** Dired-subtree
 From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.org#dired
+2019-06-29: Mike's config methodology for keybindings is not good. Better to use the :bind macro instead.
 #+begin_src emacs-lisp
   (use-package dired-subtree :ensure t
     :after dired
-    :config
-    (bind-key "<tab>" #'dired-subtree-toggle dired-mode-map)
-    (bind-key "<backtab>" #'dired-subtree-cycle dired-mode-map))
+    :bind
+    (:map dired-mode-map ("<tab>" . dired-subtree-toggle))
+    (:map dired-mode-map ("<backtab>" . dired-subtree-cycle)))
 #+end_src
 
 *** Expand region
