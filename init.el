@@ -73,7 +73,9 @@
   (package-install 'use-package t))
 (setq-default
  use-package-always-defer t
- use-package-always-ensure t)
+ use-package-always-ensure t
+ ;; 2019-06-29: add statistics
+ use-package-compute-statistics t)
 
 ;; 2018-12-16: migrate code from dotemacs.org file to here as it deals with version controlled files.
 ;; Follow symlinks for version controlled files
@@ -92,6 +94,11 @@
   (org-babel-load-file (expand-file-name "dotemacs.org" user-emacs-directory)))
 (garbage-collect)
 
+;; 2019-06-29: After loading dotemacs.el (after babel), display statistics of load in
+;; buffer "*use-package statistics*"; this will split the dashboard automatically, which we
+;; do NOT want, so  delete-other-windows (point remains in dashboard) to retain buffer unseen.
+(use-package-report)
+(delete-other-windows)
 ;;; init.el ends here
 
 (put 'narrow-to-region 'disabled nil)
