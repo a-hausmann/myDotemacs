@@ -47,6 +47,20 @@
 (add-hook 'emacs-startup-hook 'startup/reset-gc)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 2019-07-06: Added to make startup better.
+;; Ref: https://www.reddit.com/r/emacs/comments/c9ef5i/tried_emacs_on_windows_giving_up/
+;; Looked into setting "w32-pipe-buffer-size" to various: 0, 4096, 8192, but didn't seem to make any difference.
+;; The use-package-report shows that the biggest culprit is Evil and Evil-Magit, the latter is worst offender.
+;; As I recall, startup used to be around 30 seconds, and setting the w32-pipe-read-delay to 0 easily cuts in half.
+;; The buffer size didn't seem to make a difference; in fact, after experimenting, commenting all, startup remained
+;; shorter, so it appears (hard to tell for certain) that the big culprit is actually Windows--continuing to do
+;; stuff and take up CPU long after startup appears complete. Have found the same with SQL Developer too, so not
+;; that big a surprise to find Windows affecting Emacs startup.
+(when (boundp 'w32-pipe-read-delay)
+  (setq w32-pipe-read-delay 0))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; Set repositories
 (require 'package)
 (setq-default
