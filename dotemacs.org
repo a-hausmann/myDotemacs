@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-06-29 Sat 22:40>
+#+DATE: <2019-07-20 Sat 22:50>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -726,6 +726,13 @@ I think that Company is acting a bit better now, and on 10/30/2018, I added some
                            (projects . 5)
                            ;; (bookmarks . 5)
                            ))
+   ;; 2019-07-20: updated package, new info, ref: https://github.com/emacs-dashboard/emacs-dashboard
+   (setq dashboard-set-init-info 1)
+   (setq dashboard-set-footer 1)
+   (setq dashboard-footer-icon (all-the-icons-octicon "zap"
+                                                      :height 1.1
+                                                      :v-adjust -0.05
+                                                      :face 'font-lock-keyword-face))
  #+END_SRC
 
 *** Dired-narrow
