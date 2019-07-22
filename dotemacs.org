@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-07-20 Sat 22:50>
+#+DATE: <2019-07-21 Sun 23:03>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1786,3 +1786,18 @@ Diminish will remove or abbreviate minor mode names on the modeline. Although "u
     (diminish 'undo-tree-mode)
     (diminish 'auto-revert-mode))
 #+END_SRC
+** Misc. Settings 
+Readings on articles about "persistent undo" in Emacs, I see that variable "undo-tree-auto-save-history" should be True.
+
+#+begin_src emacs-lisp
+  ;; Enable the undo tree
+  (global-undo-tree-mode)
+  ;; Enable the auto-save of undo history
+  (setq undo-tree-auto-save-history t)
+  ;; Set the undo directory, create if it doesn't already exist.
+  (if (file-directory-p "~/.emacs.d/undo")
+      (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+    (progn
+      (dired-create-directory "~/.emacs.d/undo")
+      (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))) 
+#+end_src
