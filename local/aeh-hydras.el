@@ -1,6 +1,6 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Mon Jun 24, 2019 14:37:08
+;; Last modified: Fri Jul 26, 2019 8:46:49
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
@@ -327,9 +327,10 @@ _q_ quit            _b_ blame
 ;; 2019-06-20: Add mode menu
 (defhydra aeh/hydra-modes (:exit t)
   "Modes"
-  ("t" #'text-mode "Text mode")
+  ("o" #'orgtbl-mode "Org Table mode")
   ("p" #'prog-mode "Prog mode")
-  ("s" #'sql-mode "SQL mode"))
+  ("s" #'sql-mode "SQL mode")
+  ("t" #'text-mode "Text mode"))
 
 
 
