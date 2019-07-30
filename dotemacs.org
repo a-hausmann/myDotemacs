@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-07-25 Thu 07:49>
+#+DATE: <2019-07-29 Mon 23:06>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1534,6 +1534,17 @@ The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow,
 2019-07-23: Had to "initcap" some text today, but function "capitalize-region" has no key binding, so give it one:
 #+begin_src emacs-lisp 
 (bind-key "C-x M-c" 'capitalize-region)
+#+end_src
+
+2019-07-29: It's a PITA to have to remember the Windows hydra to increase/decrease text size, so here are some misc. global key bindings.
+#+begin_src emacs-lisp
+  (defun aeh/text-scale-reset ()
+    "Wrapper for \"(text-scale-increase 0)\""
+    (interactive)
+    (text-scale-increase 0))
+  (global-set-key (kbd "C-M--") 'text-scale-decrease)
+  (global-set-key (kbd "C-+") 'text-scale-increase)
+  (global-set-key (kbd "C-M-=") 'aeh/text-scale-reset)
 #+end_src
 
 ** Org mode stuff
