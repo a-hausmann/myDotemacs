@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-07-29 Mon 23:06>
+#+DATE: <2019-07-30 Tue 07:49>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -429,6 +429,12 @@ Function "narrow-to-defun" is (I think) useful only in Lisp, and I'm not sure wh
 #+BEGIN_SRC emacs-lisp
 (put 'narrow-to-region 'disabled nil)
 #+END_SRC
+
+2019-07-30: Enabling "paste over", ref: https://stackoverflow.com/questions/2627289/how-to-replace-a-region-in-emacs-with-yank-buffer-contents
+Doing this will enable the "paste over" functionality I've been used to in Vim for decades, copying text to unnamed buffer, then selecting the text to replace and pasting.
+#+begin_src emacs-lisp
+(delete-selection-mode 1)
+#+end_src
 
 *** Moving Around Emacs
 This entire section is all about the mechanics of moving around in Emacs, whether in a single buffer, or multiple buffers, a single window, or multiple windows.  See the Packages section for Avy and other movement conveniences.
