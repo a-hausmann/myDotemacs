@@ -112,6 +112,7 @@
   ;; Right hand side (rhs) definition
   '(
     (line-column :face highlight-face)
+    (selection-info :face highlight-face)
     (major-mode :face highlight-face :separator " | ")
     (minor-modes)
     ;; ((flycheck-error flycheck-warning flycheck-info))
