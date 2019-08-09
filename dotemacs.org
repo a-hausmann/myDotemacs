@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-07-30 Tue 07:49>
+#+DATE: <2019-08-09 Fri 11:12>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -619,6 +619,14 @@ NOTE: This acts/looks weird in that, typing a pairable character, *three* appear
   ;;               (push '(?` . ?')
   ;;                     (getf autopair-extra-pairs :string))))
 #+END_SRC
+*** Beacon
+Shine a light on the point position whenever the window scrolls to you can find the point.
+Ref: https://github.com/Malabarba/beacon
+#+begin_src emacs-lisp
+(use-package beacon
+  :ensure t)
+(beacon-mode 1)
+#+end_src
 *** Column-enforce-mode
 I found this while putzing around on the web and it works something like Vims columnline setting; text beyond a limit is highlighted so you know when the limit is exceeded. Can set to any column or use standard 80 columns.
 #+begin_src emacs-lisp
@@ -927,6 +935,32 @@ These are some key bindings for Ivy/Counsel/Swiper [[https://github.com/abo-abo/
 (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 #+END_SRC
 
+2019-08-09: Add ivy-posframe support.
+#+begin_src emacs-lisp
+  (use-package ivy-posframe
+    :ensure t)
+
+  ;; Reference: https://github.com/tumashu/ivy-posframe
+
+  ;; The main display "style" is `ivy-posframe-style', but there are others; below is the list:
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+
+  ;; You can also have different displays based on the command:
+  (setq ivy-posframe-display-functions-alist
+        '((swiper          . ivy-posframe-display-at-point)
+          (complete-symbol . ivy-posframe-display-at-point)
+          (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
+          (t               . ivy-posframe-display-at-window-center)))
+
+  ;; Turn on the mode.
+  (ivy-posframe-mode 1)
+#+end_src
+
 *** Kill-ring setup
 Change the limit (max) from 60 (default) to 100.
 #+BEGIN_SRC emacs-lisp
@@ -1218,72 +1252,72 @@ OTOH, I have gotten used to Ace-window, so disabling this package.
 Uncle Dave has switched from Treemacs to Sunrise-Commander; I'm not sure why, as using his default configuration, I could not get it to work.  Not sure where he's going there. [9/2/2018] As of today, MELPA does not have sunrise-commander, so back to Treemacs. Note that must also include treemacs-evil, and treemacs-projectile to get full functionality. Will initially use configuration from [[https://github.com/Alexander-Miller/treemacs][Github site]].
 
 #+BEGIN_SRC emacs-lisp
-(use-package treemacs
-  :ensure t
-  :defer t
-  :commands (treemacs)
-  :bind (("C-c t" . treemacs))
-  (:map global-map
-        ("M-0"       . treemacs-select-window)
-        ("C-x t 1"   . treemacs-delete-other-windows)
-        ("C-x t t"   . treemacs)
-        ("C-x t B"   . treemacs-bookmark)
-        ("C-x t C-t" . treemacs-find-file)
-        ("C-x t M-t" . treemacs-find-tag))
-  :diminish " U"
-  :init
-  (with-eval-after-load 'winum
-    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-  :config
-  (progn
-    (setq treemacs-collapse-dirs              (if (executable-find "python") 3 0)
-          treemacs-deferred-git-apply-delay   0.5
-          treemacs-display-in-side-window     t
-          treemacs-file-event-delay           5000
-          treemacs-file-follow-delay          0.2
-          treemacs-follow-after-init          t
-          treemacs-follow-recenter-distance   0.1
-          treemacs-goto-tag-strategy          'refetch-index
-          treemacs-indentation                2
-          treemacs-indentation-string         " "
-          treemacs-is-never-other-window      nil
-          treemacs-no-png-images              nil
-          treemacs-project-follow-cleanup     nil
-          treemacs-persist-file               (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-          treemacs-recenter-after-file-follow nil
-          treemacs-recenter-after-tag-follow  nil
-          treemacs-show-hidden-files          t
-          treemacs-silent-filewatch           nil
-          treemacs-silent-refresh             nil
-          treemacs-sorting                    'alphabetic-desc
-          treemacs-space-between-root-nodes   t
-          treemacs-tag-follow-cleanup         t
-          treemacs-tag-follow-delay           1.5
-          treemacs-width                      35)
+  (use-package treemacs
+    :ensure t
+    :defer t
+    :commands (treemacs)
+    :bind (("C-c t" . treemacs))
+    (:map global-map
+          ("M-0"       . treemacs-select-window)
+          ("C-x t 1"   . treemacs-delete-other-windows)
+          ("C-x t t"   . treemacs)
+          ("C-x t B"   . treemacs-bookmark)
+          ("C-x t C-t" . treemacs-find-file)
+          ("C-x t M-t" . treemacs-find-tag))
+    :diminish " U"
+    :init
+    (with-eval-after-load 'winum
+      (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+    :config
+    (progn
+      (setq treemacs-collapse-dirs              (if (executable-find "python") 3 0)
+            treemacs-deferred-git-apply-delay   0.5
+            treemacs-display-in-side-window     t
+            treemacs-file-event-delay           5000
+            treemacs-file-follow-delay          0.2
+            treemacs-follow-after-init          t
+            treemacs-follow-recenter-distance   0.1
+            treemacs-goto-tag-strategy          'refetch-index
+            treemacs-indentation                2
+            treemacs-indentation-string         " "
+            treemacs-is-never-other-window      nil
+            treemacs-no-png-images              nil
+            treemacs-project-follow-cleanup     nil
+            treemacs-persist-file               (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+            treemacs-recenter-after-file-follow nil
+            treemacs-recenter-after-tag-follow  nil
+            treemacs-show-hidden-files          t
+            treemacs-silent-filewatch           nil
+            treemacs-silent-refresh             nil
+            treemacs-sorting                    'alphabetic-desc
+            treemacs-space-between-root-nodes   t
+            treemacs-tag-follow-cleanup         t
+            treemacs-tag-follow-delay           1.5
+            treemacs-width                      35)
 
-    ;; The default width and height of the icons is 22 pixels. If you are
-    ;; using a Hi-DPI display, uncomment this to double the icon size.
-    ;;(treemacs-resize-icons 44)
+      ;; The default width and height of the icons is 22 pixels. If you are
+      ;; using a Hi-DPI display, uncomment this to double the icon size.
+      ;;(treemacs-resize-icons 44)
 
-    (treemacs-follow-mode t)
-    (treemacs-filewatch-mode t)
-    (treemacs-fringe-indicator-mode t)
-    (pcase (cons (not (null (executable-find "git")))
-                 (not (null (executable-find "python3"))))
-      (`(t . t)
-       (treemacs-git-mode 'extended))
-      (`(t . _)
-       (treemacs-git-mode 'simple))))
-  :bind
-)
+      (treemacs-follow-mode t)
+      (treemacs-filewatch-mode t)
+      (treemacs-fringe-indicator-mode t)
+      (pcase (cons (not (null (executable-find "git")))
+                   (not (null (executable-find "python3"))))
+        (`(t . t)
+         (treemacs-git-mode 'extended))
+        (`(t . _)
+         (treemacs-git-mode 'simple))))
+    :bind
+  )
 
-(use-package treemacs-evil
-  :after treemacs evil
-  :ensure t)
+  (use-package treemacs-evil
+    :after treemacs evil
+    :ensure t)
 
-(use-package treemacs-projectile
-  :after treemacs projectile
-  :ensure t)
+  (use-package treemacs-projectile
+    :after treemacs projectile
+    :ensure t)
 #+END_SRC
 
 *** Try
