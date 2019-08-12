@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-08-09 Fri 11:12>
+#+DATE: <2019-08-11 Sun 23:36>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -56,6 +56,7 @@ Set the size of the frame. Some UI elements are best left unused.
 *** Set Font
 #+begin_src emacs-lisp
   ;; Set default font
+  ;; 2019-08-11: need a slightly larger font on home Linux laptop with its greater resolution.
   (if (string-equal system-type "windows-nt")
       (set-face-attribute 'default nil
                           :family "Lucida Sans Typewriter"
@@ -64,7 +65,7 @@ Set the size of the frame. Some UI elements are best left unused.
                           :width 'normal)
     (set-face-attribute 'default nil
                         :family "Source Code Pro"
-                        :height 110
+                        :height 120
                         :weight 'normal
                         :width 'normal)
     )
@@ -796,12 +797,12 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
     (:map dired-mode-map ("<backtab>" . dired-subtree-cycle)))
 #+end_src
 
-*** Expand region
+*** Expand-region
 With this [[https://github.com/magnars/expand-region.el][simple package]] from Magnar Sveen of [[http://emacsrocks.com][Emacs Rocks]] fame, a quick key-chord can select an ever expanding region; use "C-=" to access this function.
 
 #+BEGIN_SRC emacs-lisp
 (use-package expand-region
-  :init)
+  :demand)
 (global-set-key (kbd "C-=") 'er/expand-region)
 #+END_SRC
 
@@ -886,7 +887,14 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
  (use-package htmlize
    :ensure t
    :init)
-#+END_SRC
+#+END_SR
+*** Hungry-delete
+#+begin_src emacs-lisp
+  (use package hungry-delete
+    :ensure t
+    :config
+    (global-hungry-delete-mode 1))
+#+end_src
 *** Ivy, Counsel, Swiper
 Uncle Dave makes slight use of Ivy and other "abo-abo" packages, but from what I've seen in videos and blogs, the combo of Ivy/Swiper/Counsel beats everything else.
 
