@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-08-13 Tue 23:46>
+#+DATE: <2019-08-14 Wed 08:14>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -126,12 +126,6 @@ I will have some subdirectories containing elisp code, so add these directories 
       (add-to-list 'load-path "c:/Users/frst6889/.emacs.d/private/local")
     (add-to-list 'load-path "~/.emacs.d/private/local"))
 #+END_SRC
-
-*** Set dired settings for "Midnight Commander" style use.
-#+begin_src emacs-lisp
-  ;; Setting the dired-dwim-target to True will allow dired to guess the target of an operation like Copy or Move.
-  (setq dired-dwim-target t)
-#+end_src
 
 *** Personalization: set user variables for Name and Email Address.
 2019-04-10: Set this up for automatic "import" into Org mode templates.
@@ -394,30 +388,30 @@ See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for mor
   (setq-default
    ;; ad-redefinition-action 'accept                   ; Silence warnings for redefinition
    auto-window-vscroll nil                          ; Lighten vertical scroll
-   confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
-   cursor-in-non-selected-windows nil               ; Hide the cursor in inactive windows
-   delete-by-moving-to-trash t                      ; Delete files to trash
+   confirm-kill-emacs 'yes-or-no-p        ; Confirm before exiting Emacs
+   cursor-in-non-selected-windows nil     ; Hide the cursor in inactive windows
+   delete-by-moving-to-trash t            ; Delete files to trash
    ;; display-time-default-load-average nil            ; Don't display load average
-   display-time-format "%H:%M"                      ; Format the time string
-   fill-column 80                                   ; Set width for automatic line breaks
+   display-time-format "%H:%M"            ; Format the time string
+   fill-column 80                         ; Set width for automatic line breaks
    help-window-select t                             ; Focus new help windows when opened
-   indent-tabs-mode nil                             ; Stop using tabs to indent
-   inhibit-startup-screen t                         ; Disable start-up screen
-   ;; initial-scratch-message ""                       ; Empty the initial *scratch* buffer
-   mouse-yank-at-point t                            ; Yank at point rather than pointer
+   indent-tabs-mode nil                   ; Stop using tabs to indent
+   inhibit-startup-screen t               ; Disable start-up screen
+   mouse-yank-at-point t                  ; Yank at point rather than pointer
    ;; ns-use-srgb-colorspace nil                       ; Don't use sRGB colors
    ;; recenter-positions '(5 top bottom)               ; Set re-centering positions
-   scroll-conservatively most-positive-fixnum       ; Always scroll by one line
-   ;; scroll-margin 2                                  ; Add a margin when scrolling vertically
-   select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
-   sentence-end-double-space nil                    ; End a sentence after a dot and a space
-   show-trailing-whitespace nil                     ; Display trailing whitespaces
+   scroll-conservatively most-positive-fixnum ; Always scroll by one line
+   scroll-margin 2                                  ; Add a margin when scrolling vertically
+   select-enable-clipboard t              ; Merge system's and Emacs' clipboard
+   sentence-end-double-space nil          ; End a sentence after a dot and a space
+   show-trailing-whitespace nil           ; Display trailing whitespaces
    ;; split-height-threshold nil                       ; Disable vertical window splitting
    ;; split-width-threshold nil                        ; Disable horizontal window splitting
-   tab-width 4                                      ; Set width for tabs
+   tab-width 4                            ; Set width for tabs
    ;; uniquify-buffer-name-style 'forward              ; Uniquify buffer names
    window-combination-resize t                      ; Resize windows proportionally
-   x-stretch-cursor t)                              ; Stretch cursor to the glyph width
+   x-stretch-cursor t                              ; Stretch cursor to the glyph width
+   )
   ;; (cd "~/")                                         ; Move to the user directory
   (delete-selection-mode 1)                         ; Replace region when inserting text
   (display-time-mode 1)                             ; Enable time in the mode-line
@@ -425,10 +419,14 @@ See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for mor
   (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
   (global-subword-mode 1)                           ; Iterate through CamelCase words
   ;; (menu-bar-mode 0)                                 ; Disable the menu bar
-  (mouse-avoidance-mode 'banish)                    ; Avoid collision of mouse with point
+  ;; DO NOT USE option "banish" as this conflicts with Windows, at least Windows 10, as if you drag
+  ;; the frame to the corner it demands to take half the screen and will not enable pulling out to
+  ;; to middle of screen.  Most disconcerting!
+  (mouse-avoidance-mode 'animate)                   ; Avoid collision of mouse with point KEEP ON ANIMATE
   (put 'downcase-region 'disabled nil)              ; Enable downcase-region
   (put 'upcase-region 'disabled nil)                ; Enable upcase-region
   (set-default-coding-systems 'utf-8)               ; Default to utf-8 encoding
+  (setq dired-dwim-target t)                        ; Allow direct to dwim target of move, copy commands.
 #+end_src
 *** Functionality
  Disable backups and auto-saves
