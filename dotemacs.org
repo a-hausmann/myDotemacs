@@ -7,7 +7,11 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
+<<<<<<< HEAD
 #+DATE: <2019-08-14 Wed 08:14>
+=======
+#+DATE: <2019-08-17 Sat 01:30>
+>>>>>>> Org-bullets changes
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -369,12 +373,27 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
   (global-set-key (kbd "C-c '") 'org-edit-src-code)
 #+END_SRC
 
-- This makes things look nicer; it replaces asterisks with nicer looking bullets.
+- This makes things look nicer; it replaces asterisks with nicer looking bullets.  
+I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/configurations-for-beautifying-emacs-org-mode/][here]].
 #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
     :ensure t
-    :init
-      (add-hook 'org-mode-hook 'org-bullets-mode))
+    :demand
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+  ;; make available "org-bullet-face" such that I can control the font size individually
+  (setq org-bullets-face-name (quote org-bullet-face))
+  (setq org-bullets-bullet-list '("✙" "♱" "♰" "☥" "✞" "✟" "✝" "†" "✠" "✚" "✜" "✛" "✢" "✣" "✤" "✥"))
+  ;; (setq org-ellipsis "⚡⚡⚡")
+  (setq org-ellipsis "▼▼▼")
+  (custom-set-faces
+   '(org-level-1 ((t (:inherit outline-1 :height 1.3))))
+   '(org-level-2 ((t (:inherit outline-2 :height 1.2))))
+   '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+   '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
+   '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
+   )
 #+END_SRC
 
 - Global mode settings
