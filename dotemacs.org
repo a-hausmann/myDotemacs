@@ -7,11 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-<<<<<<< HEAD
-#+DATE: <2019-08-14 Wed 08:14>
-=======
-#+DATE: <2019-08-17 Sat 01:30>
->>>>>>> Org-bullets changes
+#+DATE: <2019-08-17 Sat 01:42>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
