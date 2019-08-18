@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-08-17 Sat 01:42>
+#+DATE: <2019-08-17 Sat 22:59>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -53,6 +53,21 @@ Set the size of the frame. Some UI elements are best left unused.
     (blink-cursor-mode 0))
 #+END_SRC
 
+*** Set the Customization file
+Tell Emacs to put all Customization into a special file, so as not to corrupt either init.el or this file.
+#+BEGIN_SRC emacs-lisp
+(setq-default custom-file (expand-file-name ".custom.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
+#+END_SRC
+
+*** Set garbage collection hook
+Garbage-collect on focus-out, Emacs should feel snappier.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'focus-out-hook #'garbage-collect)
+#+END_SRC
+
 *** Set Font
 #+begin_src emacs-lisp
   ;; Set default font
@@ -70,21 +85,6 @@ Set the size of the frame. Some UI elements are best left unused.
                         :width 'normal)
     )
 #+end_src
-*** Set the Customization file
-Tell Emacs to put all Customization into a special file, so as not to corrupt either init.el or this file.
-#+BEGIN_SRC emacs-lisp
-(setq-default custom-file (expand-file-name ".custom.el" user-emacs-directory))
-(when (file-exists-p custom-file)
-  (load custom-file))
-#+END_SRC
-
-*** Set garbage collection
-Garbage-collect on focus-out, Emacs should feel snappier.
-
-#+BEGIN_SRC emacs-lisp
-(add-hook 'focus-out-hook #'garbage-collect)
-#+END_SRC
-
 *** Set regular package refreshes without killing restarts
 Have found out that the many, *many* times I have received a "package not found" even when I can absolutely find the package in Melpa is that I have an outdated package listing, easily fixed with the following:
 
@@ -143,31 +143,75 @@ This section allows for transparency of Emacs frame.
   ;; (set-frame-parameter nil 'alpha '(80 . 75))
 #+end_src
 
-** Languages
+*** Better defaults
+See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for more info
+#+begin_src emacs-lisp
+  (setq-default
+   ;; ad-redefinition-action 'accept                   ; Silence warnings for redefinition
+   auto-window-vscroll nil                          ; Lighten vertical scroll
+   confirm-kill-emacs 'yes-or-no-p        ; Confirm before exiting Emacs
+   cursor-in-non-selected-windows nil     ; Hide the cursor in inactive windows
+   delete-by-moving-to-trash t            ; Delete files to trash
+   ;; display-time-default-load-average nil            ; Don't display load average
+   display-time-format "%H:%M"            ; Format the time string
+   fill-column 80                         ; Set width for automatic line breaks
+   help-window-select t                             ; Focus new help windows when opened
+   indent-tabs-mode nil                   ; Stop using tabs to indent
+   inhibit-startup-screen t               ; Disable start-up screen
+   mouse-yank-at-point t                  ; Yank at point rather than pointer
+   ;; ns-use-srgb-colorspace nil                       ; Don't use sRGB colors
+   ;; recenter-positions '(5 top bottom)               ; Set re-centering positions
+   scroll-conservatively most-positive-fixnum ; Always scroll by one line
+   scroll-margin 2                                  ; Add a margin when scrolling vertically
+   select-enable-clipboard t              ; Merge system's and Emacs' clipboard
+   sentence-end-double-space nil          ; End a sentence after a dot and a space
+   show-trailing-whitespace nil           ; Display trailing whitespaces
+   ;; split-height-threshold nil                       ; Disable vertical window splitting
+   ;; split-width-threshold nil                        ; Disable horizontal window splitting
+   tab-width 4                            ; Set width for tabs
+   ;; uniquify-buffer-name-style 'forward              ; Uniquify buffer names
+   window-combination-resize t                      ; Resize windows proportionally
+   x-stretch-cursor t                              ; Stretch cursor to the glyph width
+   )
+  ;; (cd "~/")                                         ; Move to the user directory
+  (delete-selection-mode 1)                         ; Replace region when inserting text
+  (display-time-mode 1)                             ; Enable time in the mode-line
+  (fringe-mode 0)                                   ; Disable fringes
+  (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
+  (global-subword-mode 1)                           ; Iterate through CamelCase words
+  ;; (menu-bar-mode 0)                                 ; Disable the menu bar
+  ;; DO NOT USE option "banish" as this conflicts with Windows, at least Windows 10, as if you drag
+  ;; the frame to the corner it demands to take half the screen and will not enable pulling out to
+  ;; to middle of screen.  Most disconcerting!
+  (mouse-avoidance-mode 'animate)                   ; Avoid collision of mouse with point KEEP ON ANIMATE
+  (put 'downcase-region 'disabled nil)              ; Enable downcase-region
+  (put 'upcase-region 'disabled nil)                ; Enable upcase-region
+  (set-default-coding-systems 'utf-8)               ; Default to utf-8 encoding
+  (setq dired-dwim-target t)                        ; Allow direct to dwim target of move, copy commands
+  (setq make-backup-files nil)                      ; Disable backup files
+  (setq auto-save-default nil)                      ; Disable auto-save funtionality
+#+end_src
+*** Languages
 
 Here is where I put languages configurations: Lisp, etc.
 
-*** Lisp
-
+**** Lisp
 #+BEGIN_SRC emacs-lisp
 (use-package emacs-lisp-mode
   :ensure nil
   :delight emacs-lisp-mode "Emacs Lisp"
   :config (delight 'lisp-interaction-mode "Lisp Interaction"))
-
 (use-package ielm
   :ensure nil
   :hook (ielm-mode . (lambda () (setq-local scroll-margin 0))))
-
 (use-package lisp-mode
   :ensure nil
   :delight lisp-mode "Lisp")
-
 (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 #+END_SRC
 
-** Theme
-*** ZeroDark
+*** Themes
+**** ZeroDark
  One so far: ZeroDark--but I found one much better for me. So, use "disabled" to kill zerodark without losing the code.
 
  I've been watching a number of "Uncle Dave's" [[http://www.youtube.com/channel/UCDEtZ7AKmwS0_GNJog01D2g][videos]], quite instructive, and rather like the theme he uses, "zerodark".  He uses the following to ensure the theme package and also customize it.
@@ -266,7 +310,7 @@ Here is where I put languages configurations: Lisp, etc.
                                                    :bold t :height 1.0)))))))
  #+END_SRC
 
-*** SanityInc-tomorrow-bright
+**** SanityInc-tomorrow-bright
 [[https://github.com/purcell/color-theme-sanityinc-tomorrow][SanityInc-Tomorrow]] is a collection of five variations: day, night, blue, *bright* (my favorite), and eighties.
 
 #+BEGIN_SRC emacs-lisp
@@ -279,17 +323,24 @@ Here is where I put languages configurations: Lisp, etc.
 (load-theme 'sanityinc-tomorrow-bright t nil)
 #+END_SRC
 
-** Interface
+*** Enable narrowing
+Narrowing displays "selected" text and blanks out all other text in the buffer, making it appear that nothing else exists. You can perform any editing necessary while narrowed, to be retained when full text is restored by "widening" back to the full buffer.
+
+Function "narrow-to-defun" is (I think) useful only in Lisp, and I'm not sure what "narrow-to-page" means, so I will only enable "narrow-to-region", which is selected text. Narrowing is enacted with "C-x n n" and reversed by "widening", enacted with "C-x n w".
+#+BEGIN_SRC emacs-lisp
+(put 'narrow-to-region 'disabled nil)
+#+END_SRC
+
 *** Looks
 This will take care of startup messages, menus/scrollbars, encoding, "cursorline" highlighting, pretty symbols, and some Org mode settings.    
 
-- Remove startup message, possibly replace later (see dashboard)
+**** Remove startup message, possibly replace later (see dashboard)
  #+BEGIN_SRC emacs-lisp
  (setq inhibit-startup-message t)
  #+END_SRC
 
-- Disable menus and scrollbars
- Can set any of these from -1 (FALSE as it is not 1) to 1 (TRUE) if they are desired.
+**** Disable menus and scrollbars
+Can set any of these from -1 (FALSE as it is not 1) to 1 (TRUE) if they are desired.
 2019-01-10: I think for a time, if Windows, use menu-bar-mode...
 2019-04-14: changing back, let's see the menu bar for a while.
  #+BEGIN_SRC emacs-lisp
@@ -302,18 +353,18 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
    (scroll-bar-mode -1)
  #+END_SRC
 
-- Disable annoying bell
+**** Disable annoying bell
  Comment this line for visual reminder of events.
  #+BEGIN_SRC emacs-lisp
  (setq ring-bell-function 'ignore)
  #+END_SRC
 
-- Change "yes or no" questions to "y or n". This is great! *NEVER* change this one! 2019-08-13: see "Better defaults."
+**** Change "yes or no" questions to "y or n". This is great! *NEVER* change this one! 2019-08-13: see "Better defaults."
  #+BEGIN_SRC emacs-lisp
    ;; (defalias 'yes-or-no-p 'y-or-n-p)
  #+END_SRC
 
-- Set UTF-8 encoding
+**** Set UTF-8 encoding
  #+BEGIN_SRC emacs-lisp
  (setq locale-coding-system 'utf-8)
  (set-terminal-coding-system 'utf-8)
@@ -322,13 +373,13 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
  (prefer-coding-system 'utf-8)
  #+END_SRC
 
-- Highlight current line
+**** Highlight current line
  While "hl-line" works well in GUI, it's not so hot in terminal, so use only in GUI.
  #+BEGIN_SRC emacs-lisp
  (when window-system (add-hook 'prog-mode-hook 'hl-line-mode))
  #+END_SRC
 
-- Pretty symbols
+**** Pretty symbols
  Changes =lambda= to an actual symbol, plus some others; works only in GUI mode.
  #+BEGIN_SRC emacs-lisp
  (when window-system
@@ -338,12 +389,12 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
        (global-pretty-mode t)))
  #+END_SRC
 
-- Show parens
+**** Show parens
  #+BEGIN_SRC emacs-lisp
  (show-paren-mode 1)
  #+END_SRC
 
-- ORG MODE settings
+**** ORG MODE settings
  Org mode is such an important part of Emacs it is now part of the "core" software. As such, there is no need for a "use-package" setup, but some common settings are good.
  2019-01-07: Org templates are NOT working in Windows version. This is due to Org version 9.2, see "org-plus-contrib-20181230/org-version.el".
 ;; '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC")
@@ -369,7 +420,7 @@ This will take care of startup messages, menus/scrollbars, encoding, "cursorline
   (global-set-key (kbd "C-c '") 'org-edit-src-code)
 #+END_SRC
 
-- This makes things look nicer; it replaces asterisks with nicer looking bullets.  
+**** This makes things look nicer; it replaces asterisks with nicer looking bullets.  
 I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/configurations-for-beautifying-emacs-org-mode/][here]].
 #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
@@ -392,65 +443,12 @@ I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/c
    )
 #+END_SRC
 
-- Global mode settings
+**** Global mode settings
 I really, *really* like visual-line-mode, so set globally.
 #+BEGIN_SRC emacs-lisp
   (global-visual-line-mode 1)
 #+END_SRC
-*** Better defaults
-See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for more info
-#+begin_src emacs-lisp
-  (setq-default
-   ;; ad-redefinition-action 'accept                   ; Silence warnings for redefinition
-   auto-window-vscroll nil                          ; Lighten vertical scroll
-   confirm-kill-emacs 'yes-or-no-p        ; Confirm before exiting Emacs
-   cursor-in-non-selected-windows nil     ; Hide the cursor in inactive windows
-   delete-by-moving-to-trash t            ; Delete files to trash
-   ;; display-time-default-load-average nil            ; Don't display load average
-   display-time-format "%H:%M"            ; Format the time string
-   fill-column 80                         ; Set width for automatic line breaks
-   help-window-select t                             ; Focus new help windows when opened
-   indent-tabs-mode nil                   ; Stop using tabs to indent
-   inhibit-startup-screen t               ; Disable start-up screen
-   mouse-yank-at-point t                  ; Yank at point rather than pointer
-   ;; ns-use-srgb-colorspace nil                       ; Don't use sRGB colors
-   ;; recenter-positions '(5 top bottom)               ; Set re-centering positions
-   scroll-conservatively most-positive-fixnum ; Always scroll by one line
-   scroll-margin 2                                  ; Add a margin when scrolling vertically
-   select-enable-clipboard t              ; Merge system's and Emacs' clipboard
-   sentence-end-double-space nil          ; End a sentence after a dot and a space
-   show-trailing-whitespace nil           ; Display trailing whitespaces
-   ;; split-height-threshold nil                       ; Disable vertical window splitting
-   ;; split-width-threshold nil                        ; Disable horizontal window splitting
-   tab-width 4                            ; Set width for tabs
-   ;; uniquify-buffer-name-style 'forward              ; Uniquify buffer names
-   window-combination-resize t                      ; Resize windows proportionally
-   x-stretch-cursor t                              ; Stretch cursor to the glyph width
-   )
-  ;; (cd "~/")                                         ; Move to the user directory
-  (delete-selection-mode 1)                         ; Replace region when inserting text
-  (display-time-mode 1)                             ; Enable time in the mode-line
-  (fringe-mode 0)                                   ; Disable fringes
-  (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
-  (global-subword-mode 1)                           ; Iterate through CamelCase words
-  ;; (menu-bar-mode 0)                                 ; Disable the menu bar
-  ;; DO NOT USE option "banish" as this conflicts with Windows, at least Windows 10, as if you drag
-  ;; the frame to the corner it demands to take half the screen and will not enable pulling out to
-  ;; to middle of screen.  Most disconcerting!
-  (mouse-avoidance-mode 'animate)                   ; Avoid collision of mouse with point KEEP ON ANIMATE
-  (put 'downcase-region 'disabled nil)              ; Enable downcase-region
-  (put 'upcase-region 'disabled nil)                ; Enable upcase-region
-  (set-default-coding-systems 'utf-8)               ; Default to utf-8 encoding
-  (setq dired-dwim-target t)                        ; Allow direct to dwim target of move, copy commands.
-#+end_src
 *** Functionality
- Disable backups and auto-saves
- Change "nil" to "t" to use either of these
- #+BEGIN_SRC emacs-lisp
-   (setq make-backup-files nil)
-   (setq auto-save-default nil)
- #+END_SRC
-
  Default browser
  According to the [[https://www.emacswiki.org/emacs/BrowseUrl][BrowseUrl wiki]], there is already support for Opera, Firefox, and Chromium, even Edge, but not Internet Exploder. Looking at most of the documentation on the Wiki page, it seems that both must variables must be set, and there is no way out of that.  Oh well.
  2019-01-11: change code to Chrome on Windows, else Opera. Code appears fine and evaluates, but doesn't work in Winders.  Shoot!
@@ -475,36 +473,6 @@ Use electric-pair-mode globally. 2018-12-27: turned off Autopair, turned on Elec
   ;; 2019-04-08: Tried turning off in lisp-mode, Lispy still does weird stuff when not running.
   ;; 2019-04-14: Turning off to try Smartparens.
   ;; (electric-pair-mode 1)
-#+END_SRC
-
-Enable narrowing
-Narrowing displays "selected" text and blanks out all other text in the buffer, making it appear that nothing else exists. You can perform any editing necessary while narrowed, to be retained when full text is restored by "widening" back to the full buffer.
-
-Function "narrow-to-defun" is (I think) useful only in Lisp, and I'm not sure what "narrow-to-page" means, so I will only enable "narrow-to-region", which is selected text. Narrowing is enacted with "C-x n n" and reversed by "widening", enacted with "C-x n w".
-#+BEGIN_SRC emacs-lisp
-(put 'narrow-to-region 'disabled nil)
-#+END_SRC
-
-2019-07-30: Enabling "paste over", ref: https://stackoverflow.com/questions/2627289/how-to-replace-a-region-in-emacs-with-yank-buffer-contents
-Doing this will enable the "paste over" functionality I've been used to in Vim for decades, copying text to unnamed buffer, then selecting the text to replace and pasting.
-2019-08-13: Now in "Better defaults"
-#+begin_src emacs-lisp
-  ;; (delete-selection-mode 1)
-#+end_src
-
-*** Moving Around Emacs
-This entire section is all about the mechanics of moving around in Emacs, whether in a single buffer, or multiple buffers, a single window, or multiple windows.  See the Packages section for Avy and other movement conveniences.
-
-*Scrolling and why does the screen move*
-For some reason even Uncle Dave does not know, the following makes scrolling easier in emacs.
-2019-08-13: Now set in "Better defaults" section.
-#+BEGIN_SRC emacs-lisp
-  ;; (setq scroll-conservatively 100)
-#+END_SRC
-
-*Turn switch-to-buffer into counsel-ibuffer*
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-x b") 'counsel-ibuffer)
 #+END_SRC
 
 ** Packages
@@ -995,6 +963,7 @@ These are some key bindings for Ivy/Counsel/Swiper [[https://github.com/abo-abo/
 (global-set-key (kbd "C-c g") 'counsel-git)
 (global-set-key (kbd "C-c j") 'counsel-git-grep)
 (global-set-key (kbd "C-c k") 'counsel-ag)
+(global-set-key (kbd "C-x b") 'counsel-ibuffer)
 (global-set-key (kbd "C-x l") 'counsel-locate)
 (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 #+END_SRC
