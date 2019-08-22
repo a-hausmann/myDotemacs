@@ -1,6 +1,6 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Fri Jul 26, 2019 8:46:49
+;; Last modified: Thu Aug 22, 2019 13:03:25
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
@@ -155,7 +155,7 @@ _E_: Day, Month Day, Year HH:MI:SS PM
   ("e" toggle-debug-on-error)
   ("E" electric-pair-mode)
   ("h" highlight-thing-mode)
-  ("l" linum-relative-mode)
+  ("l" display-line-numbers-mode)       ; display type set to "visual" in "Better-defaults"
   ("g" toggle-debug-on-quit)
   ("s" flycheck-mode)
   ("S" flyspell-mode)
@@ -167,14 +167,14 @@ _E_: Day, Month Day, Year HH:MI:SS PM
   ;; This switches between smartparens and electric-pairs; at this point, I'm not sure what is installed.
   ;; ("p" /pairs/toggle)
   ("d" (progn
-	 (if aeh/hydras/toggles/vdiff
-	     (progn
-	       (/bindings/vdiff/turn-off)
-	       (message "using ediff"))
-	   (/vcs/setup-vdiff)
-	   (/bindings/vdiff/turn-on)
-	   (message "using vdiff"))
-	 (setq aeh/hydras/toggles/vdiff (not aeh/hydras/toggles/vdiff)))))
+	     (if aeh/hydras/toggles/vdiff
+	         (progn
+	           (/bindings/vdiff/turn-off)
+	           (message "using ediff"))
+	       (/vcs/setup-vdiff)
+	       (/bindings/vdiff/turn-on)
+	       (message "using vdiff"))
+	     (setq aeh/hydras/toggles/vdiff (not aeh/hydras/toggles/vdiff)))))
 
 
 ;; Hydra for rectangles
