@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-08-17 Sat 22:59>
+#+DATE: <2019-08-22 Thu 13:02>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -149,29 +149,30 @@ See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for mor
   (setq-default
    ;; ad-redefinition-action 'accept                   ; Silence warnings for redefinition
    auto-window-vscroll nil                          ; Lighten vertical scroll
-   confirm-kill-emacs 'yes-or-no-p        ; Confirm before exiting Emacs
-   cursor-in-non-selected-windows nil     ; Hide the cursor in inactive windows
-   delete-by-moving-to-trash t            ; Delete files to trash
+   confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
+   cursor-in-non-selected-windows nil               ; Hide the cursor in inactive windows
+   delete-by-moving-to-trash t                      ; Delete files to trash
    ;; display-time-default-load-average nil            ; Don't display load average
-   display-time-format "%H:%M"            ; Format the time string
-   fill-column 80                         ; Set width for automatic line breaks
+   display-time-format "%H:%M"                      ; Format the time string
+   fill-column 80                                   ; Set width for automatic line breaks
    help-window-select t                             ; Focus new help windows when opened
-   indent-tabs-mode nil                   ; Stop using tabs to indent
-   inhibit-startup-screen t               ; Disable start-up screen
-   mouse-yank-at-point t                  ; Yank at point rather than pointer
+   indent-tabs-mode nil                             ; Stop using tabs to indent
+   inhibit-startup-screen t                         ; Disable start-up screen
+   mouse-yank-at-point t                            ; Yank at point rather than pointer
    ;; ns-use-srgb-colorspace nil                       ; Don't use sRGB colors
    ;; recenter-positions '(5 top bottom)               ; Set re-centering positions
-   scroll-conservatively most-positive-fixnum ; Always scroll by one line
+   scroll-conservatively most-positive-fixnum       ; Always scroll by one line
    scroll-margin 2                                  ; Add a margin when scrolling vertically
-   select-enable-clipboard t              ; Merge system's and Emacs' clipboard
-   sentence-end-double-space nil          ; End a sentence after a dot and a space
-   show-trailing-whitespace nil           ; Display trailing whitespaces
+   select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
+   sentence-end-double-space nil                    ; End a sentence after a dot and a space
+   show-trailing-whitespace nil                     ; Display trailing whitespaces
    ;; split-height-threshold nil                       ; Disable vertical window splitting
    ;; split-width-threshold nil                        ; Disable horizontal window splitting
-   tab-width 4                            ; Set width for tabs
+   tab-width 4                                      ; Set width for tabs
    ;; uniquify-buffer-name-style 'forward              ; Uniquify buffer names
    window-combination-resize t                      ; Resize windows proportionally
-   x-stretch-cursor t                              ; Stretch cursor to the glyph width
+   x-stretch-cursor t                               ; Stretch cursor to the glyph width
+   display-line-numbers-type 'visual                ; Display relative+visible line#, works with folding.
    )
   ;; (cd "~/")                                         ; Move to the user directory
   (delete-selection-mode 1)                         ; Replace region when inserting text
@@ -190,6 +191,11 @@ See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for mor
   (setq dired-dwim-target t)                        ; Allow direct to dwim target of move, copy commands
   (setq make-backup-files nil)                      ; Disable backup files
   (setq auto-save-default nil)                      ; Disable auto-save funtionality
+#+end_src
+
+*** Hooks
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 #+end_src
 *** Languages
 
@@ -656,9 +662,10 @@ Ref: https://github.com/Malabarba/beacon
 I found this while putzing around on the web and it works something like Vims columnline setting; text beyond a limit is highlighted so you know when the limit is exceeded. Can set to any column or use standard 80 columns.
 #+begin_src emacs-lisp
   (use-package column-enforce-mode
-    :ensure t)
-  (add-hook 'prog-mode-hook 'column-enforce-mode)
-  (setq column-enforce-comments nil)
+    :ensure t
+    :diminish)
+    (add-hook 'prog-mode-hook 'column-enforce-mode)
+    (setq column-enforce-comments nil)
 #+end_src
 *** Command-log-mode
 Command-log-mode creates buffer "*command-log*" which displays commands executed. Then, "C-c o" will toggle the command-line-mode buffer to make it visible. Also, all the command-log-mode functions begin "clm/" so you can "M-x" then "clm/" to see the full list of commands which can be used.  The extra settings below make clear the packages defaults.
@@ -971,7 +978,8 @@ These are some key bindings for Ivy/Counsel/Swiper [[https://github.com/abo-abo/
 2019-08-09: Add ivy-posframe support.
 #+begin_src emacs-lisp
   (use-package ivy-posframe
-    :ensure t)
+    :ensure t
+    :diminish)
 
   ;; Reference: https://github.com/tumashu/ivy-posframe
 
@@ -1193,14 +1201,7 @@ I usually want *any* type of programming buffer to show line numbers, and I've b
 
 However, the documentation shows [[https://github.com/coldnew/linum-relative#backends][this]], which says with version 0.6 of linum-relative, I can set variable "linum-relative-backend" to "display-line-number-mode" which is implemented in C which gives *MUCH* better performance. However, this *ALSO* requires Emacs 26.1+, available for Linux/Mac/Windows since its release (5/28/2018); I may need to upgrade both Mac and work installations--Linux is already 26.1.
 
-#+BEGIN_SRC emacs-lisp
-  (use-package linum-relative
-    :ensure t)
-  (setq linum-relative-current-symbol "")
-  (add-hook 'prog-mode-hook 'linum-relative-mode)
-  ;; 2018-12-02: added to use "display-line-number-mode" as backend
-  (setq linum-relative-backend 'display-line-numbers-mode)
-#+END_SRC
+2019-08-22: Stopped using linum-relative, using display-line-number-mode exclusively, set to "visual"; this works well with folding.
 
 *** Rainbow-mode
 Very useful if working web or game development--or theme development--when this minor mode is active, it will automatically display the appropriate color for each hexadecimal code which resembles a color code, i.e. "#CF6A4C".
