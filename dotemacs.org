@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-08-27 Tue 13:50>
+#+DATE: <2019-08-30 Fri 13:30>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -173,6 +173,8 @@ See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for mor
    window-combination-resize t                      ; Resize windows proportionally
    x-stretch-cursor t                               ; Stretch cursor to the glyph width
    display-line-numbers-type 'visual                ; Display relative+visible line#, works with folding.
+   ;; 2019-08-30: Found in Oleh Krehel's init.el.
+   recentf-max-saved-items 100                      ; abo-abo sets to 600, but I'm cautious.
    )
   ;; (cd "~/")                                         ; Move to the user directory
   (delete-selection-mode 1)                         ; Replace region when inserting text
@@ -931,11 +933,12 @@ Uncle Dave makes slight use of Ivy and other "abo-abo" packages, but from what I
 
 Ref: [[https://github.com/jamiecollinson/dotfiles/blob/master/config.org/][Jamie Collinson Emacs config.org]]
 #+BEGIN_SRC emacs-lisp
-(use-package ivy
-  :ensure t
-  :diminish ivy-mode)
-(ivy-mode t)
-(setq ivy-initial-inputs-alist nil)
+  (use-package ivy
+    :ensure t
+    :demand
+    :diminish ivy-mode)
+  (ivy-mode t)
+  (setq ivy-initial-inputs-alist nil)
 #+END_SRC
 
 By default ivy starts filters with ^. I don't normally want that and can easily type it manually when I do.
@@ -945,19 +948,24 @@ By default ivy starts filters with ^. I don't normally want that and can easily 
 
 Counsel is a collection of ivy enhanced versions of common Emacs commands. I haven't bound much as ivy-mode takes care of most things. 
 #+BEGIN_SRC emacs-lisp
-(use-package counsel
-  :bind (("M-x" . counsel-M-x)))
+  (use-package counsel
+    :ensure
+    :demand
+    :bind (("M-x" . counsel-M-x)))
 #+END_SRC
 
 Swiper is an ivy enhanced version of isearch.
 #+BEGIN_SRC emacs-lisp
-(use-package swiper
-  :ensure t)
+  (use-package swiper
+    :ensure t
+    :demand)
 #+END_SRC
 
 Hydra presents menus for ivy commands.
 #+BEGIN_SRC emacs-lisp
-  (use-package ivy-hydra)
+  (use-package ivy-hydra
+    :ensure
+    :demand)
   (global-set-key "\C-s" 'swiper)
 #+END_SRC
 
