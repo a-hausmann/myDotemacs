@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-08-30 Fri 13:30>
+#+DATE: <2019-09-04 Wed 13:52>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1915,7 +1915,11 @@ Diminish will remove or abbreviate minor mode names on the modeline. Although "u
     (diminish 'org-indent-mode)
     (diminish 'eldoc-mode)
     (diminish 'undo-tree-mode)
-    (diminish 'auto-revert-mode))
+    (diminish 'auto-revert-mode)
+    (diminish 'smartparens-mode)
+    (diminish 'beacon-mode)
+    (diminish 'org-indent-mode)
+    (diminish 'subword-mode))
 #+END_SRC
 ** Misc. Settings 
 Readings on articles about "persistent undo" in Emacs, I see that variable "undo-tree-auto-save-history" should be True.
