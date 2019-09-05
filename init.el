@@ -83,9 +83,10 @@
 
 ;; Again, taking a hint from Uncle Dave, just in case "use-package" in not installed...
 ;; Bootstrapping use-package
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-    (package-install 'use-package))
+;; 2019-09-05: duplicated below, should be able to remove easily.
+;; (unless (package-installed-p 'use-package)
+;;   (package-refresh-contents)
+;;     (package-install 'use-package))
 
 ;; Install dependencies
 (unless (and (package-installed-p 'delight)
@@ -98,6 +99,15 @@
  use-package-always-ensure t
  ;; 2019-06-29: add statistics
  use-package-compute-statistics t)
+
+;; 2019-09-05: installed this to track startup. Ref: https://github.com/dholm/benchmark-init-el
+(use-package benchmark-init
+  :ensure t
+  :config
+  ;; To disable collection of benchmark data after init is done.
+  (add-hook 'after-init-hook 'benchmark-init/deactivate)
+  )
+(benchmark-init/activate)
 
 ;; 2018-12-16: migrate code from dotemacs.org file to here as it deals with version controlled files.
 ;; Follow symlinks for version controlled files
