@@ -26,12 +26,20 @@
 ;; Replacing next line, which sets gc-cons-threshold to highest ONLY for startup,
 ;; and therefore creates a LET condition on the entire init.el contents.
 ;; Use Uncle Dave's version instead: https://github.com/daedreth/UncleDavesEmacs/blob/master/init.el
-;;
-; (let ((gc-cons-threshold most-positive-fixnum))
+;; See Bailey Lings comments: http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/
 
 ;;; This fixed garbage collection, makes emacs start up faster ;;;;;;;
-(setq gc-cons-threshold 402653184
-      gc-cons-percentage 0.6)
+;; 2019-09-05: Lots of experimenting trying to get faster in Windows. Ref: https://blog.d46.us/advanced-emacs-startup/
+;; First is code at bottom, sending a startup elapsed time with garbage collection count to *Messages* buffer.
+;; Just setting at beginning and end did little, still around 20 seconds with 5-6 garbage collections.
+;; The most-positive-fixnum about the same.
+
+;; (setq gc-cons-threshold 402653184
+;;       gc-cons-percentage 0.6)
+
+(setq gc-cons-threshold most-positive-fixnum
+      gc-cons-percentage 0.6
+      )
 
 (defvar startup/file-name-handler-alist file-name-handler-alist)
 (setq file-name-handler-alist nil)
@@ -41,7 +49,7 @@
 
 (defun startup/reset-gc ()
   (setq gc-cons-threshold 16777216
-    gc-cons-percentage 0.1))
+        gc-cons-percentage 0.1))
 
 (add-hook 'emacs-startup-hook 'startup/revert-file-name-handler-alist)
 (add-hook 'emacs-startup-hook 'startup/reset-gc)
@@ -117,3 +125,12 @@
 
 (put 'narrow-to-region 'disabled nil)
 (put 'dired-find-alternate-file 'disabled nil)
+
+;; 2019-09-05: put startup elapsed time with GC counter to *Messages* buffer.
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "Emacs ready in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))

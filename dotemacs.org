@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-09-04 Wed 13:52>
+#+DATE: <2019-09-05 Thu 13:34>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -205,17 +205,20 @@ Here is where I put languages configurations: Lisp, etc.
 
 **** Lisp
 #+BEGIN_SRC emacs-lisp
-(use-package emacs-lisp-mode
-  :ensure nil
-  :delight emacs-lisp-mode "Emacs Lisp"
-  :config (delight 'lisp-interaction-mode "Lisp Interaction"))
-(use-package ielm
-  :ensure nil
-  :hook (ielm-mode . (lambda () (setq-local scroll-margin 0))))
-(use-package lisp-mode
-  :ensure nil
-  :delight lisp-mode "Lisp")
-(add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
+  (use-package emacs-lisp-mode
+    :ensure nil
+    :defer 2
+    :delight emacs-lisp-mode "Emacs Lisp"
+    :config (delight 'lisp-interaction-mode "Lisp Interaction"))
+  (use-package ielm
+    :ensure nil
+    :defer 2
+    :hook (ielm-mode . (lambda () (setq-local scroll-margin 0))))
+  (use-package lisp-mode
+    :ensure nil
+    :defer 2
+    :delight lisp-mode "Lisp")
+  (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 #+END_SRC
 
 *** Themes
@@ -322,13 +325,13 @@ Here is where I put languages configurations: Lisp, etc.
 [[https://github.com/purcell/color-theme-sanityinc-tomorrow][SanityInc-Tomorrow]] is a collection of five variations: day, night, blue, *bright* (my favorite), and eighties.
 
 #+BEGIN_SRC emacs-lisp
-(use-package color-theme-sanityinc-tomorrow
-  :ensure t
-  :init)
-;; For whatever reason, the name for "load-theme" is "sanityinc-tomorrow-bright"
-;; I already loaded all versions, marked as "safe" to use, but the "nil" below 
-;; should do that on first load for new Emacs installation.
-(load-theme 'sanityinc-tomorrow-bright t nil)
+  (use-package color-theme-sanityinc-tomorrow
+    :ensure t
+    :demand)
+  ;; For whatever reason, the name for "load-theme" is "sanityinc-tomorrow-bright"
+  ;; I already loaded all versions, marked as "safe" to use, but the "nil" below 
+  ;; should do that on first load for new Emacs installation.
+  (load-theme 'sanityinc-tomorrow-bright t nil)
 #+END_SRC
 
 *** Enable narrowing
@@ -433,22 +436,21 @@ I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/c
 #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
     :ensure t
-    :demand
+    :defer 2
     :config
-    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-
-  ;; make available "org-bullet-face" such that I can control the font size individually
-  (setq org-bullets-face-name (quote org-bullet-face))
-  (setq org-bullets-bullet-list '("✙" "♱" "♰" "☥" "✞" "✟" "✝" "†" "✠" "✚" "✜" "✛" "✢" "✣" "✤" "✥"))
-  ;; (setq org-ellipsis "⚡⚡⚡")
-  (setq org-ellipsis "▼▼▼")
-  (custom-set-faces
-   '(org-level-1 ((t (:inherit outline-1 :height 1.3))))
-   '(org-level-2 ((t (:inherit outline-2 :height 1.2))))
-   '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
-   '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
-   '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
-   )
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+    ;; make available "org-bullet-face" such that I can control the font size individually
+    (setq org-bullets-face-name (quote org-bullet-face))
+    (setq org-bullets-bullet-list '("✙" "♱" "♰" "☥" "✞" "✟" "✝" "†" "✠" "✚" "✜" "✛" "✢" "✣" "✤" "✥"))
+    ;; (setq org-ellipsis "⚡⚡⚡")
+    (setq org-ellipsis "▼▼▼")
+    (custom-set-faces
+     '(org-level-1 ((t (:inherit outline-1 :height 1.3))))
+     '(org-level-2 ((t (:inherit outline-2 :height 1.2))))
+     '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+     '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
+     '(org-level-5 ((t (:inherit outline-5 :height 1.0)))))
+    )
 #+END_SRC
 
 **** Global mode settings
@@ -584,6 +586,7 @@ Documentation reference: https://agel.readthedocs.io/en/latest/index.html
 #+begin_src emacs-lisp
   (use-package ag
     :ensure t
+    :defer 2
     :config
     (setq ag-group-matches nil))
 #+end_src
@@ -605,7 +608,7 @@ Found a trick; instead of binding to "avy-goto-char", use "avy-goto-char-timer".
 #+BEGIN_SRC emacs-lisp
   (use-package avy
     :ensure t
-    :demand
+    :defer 1
     :diminish
     :bind
     ("M-s" . avy-goto-char-timer))
@@ -624,9 +627,10 @@ Found [[https://github.com/Malabarba/aggressive-indent-mode][here]], aggressive-
 *** Async
  This will allow asynchronous processing wherever possible...pretty nice.
  #+BEGIN_SRC emacs-lisp
- (use-package async
-   :ensure t
-   :init (dired-async-mode 1))
+   (use-package async
+     :ensure t
+     :defer 1
+     :config (dired-async-mode 1))
  #+END_SRC
 *** Autopair
 [[https://github.com/joaotavora/autopair][Autopair]] is one of several alternatives to Vim's auto-pairs. There is also [[https://github.com/Fuco1/smartparens][Smartparens]], and Electric Pair, which appears to be built into Emacs at this point.
@@ -694,8 +698,7 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
 #+BEGIN_SRC emacs-lisp
   (use-package company
     :ensure t
-    :demand
-    :init
+    :defer 1
     :diminish
     :config
     (setq company-idle-delay 0)
@@ -743,44 +746,50 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
 
   (use-package company-shell
     :ensure t
+    :after company
     :config
-      (require 'company)
-      (add-hook 'shell-mode-hook 'shell-mode-company-init))
+    (require 'company)
+    (add-hook 'shell-mode-hook 'shell-mode-company-init))
 #+END_SRC
 
 *Company Improvements*
 I think that Company is acting a bit better now, and on 10/30/2018, I added some code from Oleh Krehel's [[https://oremacs.com/2017/12/27/company-numbers/][blog]] to: show numbers on the popup, and be able to use them to select text. This works like a charm. Oleh's blog article is from December 2017, and he states his git log shows he's been using this setup for three years without any issues.  Grand!
 
+2019-09-05: After setting Counsel to defer, needed to wrap this entire code with an "with-eval-after-load" function.
+
 #+BEGIN_SRC emacs-lisp
   ;; Basic setting
-  (setq company-show-numbers t)
+  (with-eval-after-load 'company
 
-  ;; Oleh's function:
-  (defun ora-company-number ()
-    "Forward to `company-complete-number'.
+    (setq company-show-numbers t)
+
+    ;; Oleh's function:
+    (defun ora-company-number ()
+      "Forward to `company-complete-number'.
 
   Unless the number is potentially part of the candidate.
   In that case, insert the number."
-    (interactive)
-    (let* ((k (this-command-keys))
-           (re (concat "^" company-prefix k)))
-      (if (cl-find-if (lambda (s) (string-match re s))
-                      company-candidates)
-          (self-insert-command 1)
-        (company-complete-number (string-to-number k)))))
+      (interactive)
+      (let* ((k (this-command-keys))
+             (re (concat "^" company-prefix k)))
+        (if (cl-find-if (lambda (s) (string-match re s))
+                        company-candidates)
+            (self-insert-command 1)
+          (company-complete-number (string-to-number k)))))
 
-  ;; Add some bindings
-  (let ((map company-active-map))
-    (mapc
-     (lambda (x)
-       (define-key map (format "%d" x) 'ora-company-number))
-     (number-sequence 0 9))
-    (define-key map " " (lambda ()
-                          (interactive)
-                          (company-abort)
-                          (self-insert-command 1)))
-    ;; This line UNBINDS RET key from closing the popup
-    (define-key map (kbd "<return>") nil))
+    ;; Add some bindings
+    (let ((map company-active-map))
+      (mapc
+       (lambda (x)
+         (define-key map (format "%d" x) 'ora-company-number))
+       (number-sequence 0 9))
+      (define-key map " " (lambda ()
+                            (interactive)
+                            (company-abort)
+                            (self-insert-command 1)))
+      ;; This line UNBINDS RET key from closing the popup
+      (define-key map (kbd "<return>") nil))
+    )
 #+END_SRC
 
 *** Dashboard
@@ -788,6 +797,7 @@ I think that Company is acting a bit better now, and on 10/30/2018, I added some
  #+BEGIN_SRC emacs-lisp
    (use-package dashboard
      :ensure t
+     :defer 1
      :diminish)
    (dashboard-setup-startup-hook)
    ;; Disable shortcut "jump" indicators for each section, set
@@ -834,9 +844,9 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
 With this [[https://github.com/magnars/expand-region.el][simple package]] from Magnar Sveen of [[http://emacsrocks.com][Emacs Rocks]] fame, a quick key-chord can select an ever expanding region; use "C-=" to access this function.
 
 #+BEGIN_SRC emacs-lisp
-(use-package expand-region
-  :demand)
-(global-set-key (kbd "C-=") 'er/expand-region)
+  (use-package expand-region
+    :defer 2)
+  (global-set-key (kbd "C-=") 'er/expand-region)
 #+END_SRC
 
 *** Eyebrowse
@@ -935,43 +945,32 @@ Ref: [[https://github.com/jamiecollinson/dotfiles/blob/master/config.org/][Jamie
 #+BEGIN_SRC emacs-lisp
   (use-package ivy
     :ensure t
-    :demand
+    :defer 1
     :diminish ivy-mode)
   (ivy-mode t)
+  ;; By default ivy starts filters with ^. I don't normally want that and can easily type it manually when I do.
   (setq ivy-initial-inputs-alist nil)
-#+END_SRC
 
-By default ivy starts filters with ^. I don't normally want that and can easily type it manually when I do.
-#+BEGIN_SRC emacs-lisp
-(setq ivy-initial-inputs-alist nil)
-#+END_SRC
-
-Counsel is a collection of ivy enhanced versions of common Emacs commands. I haven't bound much as ivy-mode takes care of most things. 
-#+BEGIN_SRC emacs-lisp
+  ;; Counsel is a collection of ivy enhanced versions of common Emacs commands. I haven't bound much as ivy-mode takes care of most things. 
   (use-package counsel
     :ensure
-    :demand
+    :defer 1
     :bind (("M-x" . counsel-M-x)))
-#+END_SRC
 
-Swiper is an ivy enhanced version of isearch.
-#+BEGIN_SRC emacs-lisp
+  ;; Swiper is an ivy enhanced version of isearch.
   (use-package swiper
     :ensure t
-    :demand)
-#+END_SRC
+    :defer 1)
 
-Hydra presents menus for ivy commands.
-#+BEGIN_SRC emacs-lisp
+  ;; Hydra presents menus for ivy commands.
   (use-package ivy-hydra
     :ensure
-    :demand)
+    :after ivy
+    :defer 1)
   (global-set-key "\C-s" 'swiper)
-#+END_SRC
 
-These are some key bindings for Ivy/Counsel/Swiper [[https://github.com/abo-abo/swiper#small-config-example][ref]]:
-2019-08-27: Some changes here, ref.: https://oremacs.com/swiper/
-#+BEGIN_SRC emacs-lisp
+  ;; These are some key bindings for Ivy/Counsel/Swiper ref: https://github.com/abo-abo/swiper#small-config-example
+  ;; 2019-08-27: Some changes here, ref.: https://oremacs.com/swiper/
   (setq ivy-use-virtual-buffers t)
   (setq ivy-count-format "(%d/%d) ")
   (setq enable-recursive-minibuffers t)
@@ -996,24 +995,22 @@ These are some key bindings for Ivy/Counsel/Swiper [[https://github.com/abo-abo/
 #+begin_src emacs-lisp
   (use-package ivy-posframe
     :ensure t
-    :diminish)
-
-  ;; Reference: https://github.com/tumashu/ivy-posframe
-
-  ;; The main display "style" is `ivy-posframe-style', but there are others; below is the list:
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
-
-  ;; You can also have different displays based on the command:
-  (setq ivy-posframe-display-functions-alist
-        '((swiper          . ivy-posframe-display-at-point)
-          (complete-symbol . ivy-posframe-display-at-point)
-          (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
-          (t               . ivy-posframe-display-at-window-center)))
+    :defer 1
+    :diminish
+    :config
+    ;; Reference: https://github.com/tumashu/ivy-posframe
+    ;; The main display "style" is `ivy-posframe-style', but there are others; below is the list:
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+    (setq ivy-posframe-display-functions-alist
+          '((swiper          . ivy-posframe-display-at-point)
+            (complete-symbol . ivy-posframe-display-at-point)
+            (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
+            (t               . ivy-posframe-display-at-window-center))))
 
   ;; Turn on the mode.
   (ivy-posframe-mode 1)
@@ -1039,7 +1036,7 @@ This setup is translated from or taken from [[https://github.com/abo-abo/lispy#c
 #+BEGIN_SRC emacs-lisp
   (use-package lispy
     :ensure t
-    :init)
+    :defer 2)
   (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
   ;; One can use "M-:" - eval-expression to use lispy in the mini-buffer during eval-expression
   (defun conditionally-enable-lispy ()
@@ -1072,9 +1069,10 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
 =2019-05-23: NOTE: Evil selection will NOT work, you *MUST* set Emacs mark (C-<SPC>) and move point to end of region to move.=
 
 #+BEGIN_SRC emacs-lisp
-(use-package move-text
-  :ensure t
-  :init
+  (use-package move-text
+    :ensure t
+    :defer 2
+    :config
     (move-text-default-bindings))
 #+END_SRC
 *** Multiple-cursors
@@ -1118,7 +1116,7 @@ Here is some documentation for the package:
   (use-package neotree
     :ensure t
     :after evil
-    :demand
+    :defer 2
     :config
     (progn
       (global-set-key [f8] 'neotree-toggle)
@@ -1196,19 +1194,20 @@ NOTE: As *usual*, others configuration is incorrect, as they use ":config" inste
    (use-package projectile
      :ensure t
      :diminish
+     :defer 1
      ;; To pin to melpa-stable, need to edit init.el to add the stable repository
      :pin melpa-stable
      :config
      (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
      (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
      (projectile-mode +1)
+     ;; I do NOT need this right now, but someone might, someday.
+     ;; (global-set-key (kbd "<f5>") 'projectile-compile-project)
+     ;; 2018-12-01: Add setting to use Ivy for completion instead of default Ido
+     (setq projectile-completion-system 'ivy)
      )
    (projectile-mode 1)
    ;; Let Projectile call "make"
-   ;; I do NOT need this right now, but someone might, someday.
-   (global-set-key (kbd "<f5>") 'projectile-compile-project)
-   ;; 2018-12-01: Add setting to use Ivy for completion instead of default Ido
-   (setq projectile-completion-system 'ivy)
  #+END_SRC
 
 *** Relative line numbering
@@ -1405,7 +1404,7 @@ This is a VERY neat package, putting the output of which-key to a posframe inste
 #+begin_src emacs-lisp
   (use-package which-key-posframe
     :ensure t
-    :demand
+    :defer 1
     :config
     (which-key-posframe-mode)
     )
@@ -1445,12 +1444,11 @@ Note that Evil Mode is a minor mode, and like all minor modes, minor modes loade
 
 ** Evil-mode
 *Start at the beginning*
-*MUST* use ":init" attribute to activate the package, synonymous with "package-initialize", see documentation for same.
 #+BEGIN_SRC emacs-lisp
   (use-package evil
     :ensure t
+    :defer 1
     :config
-    :init
     (evil-mode 1)
 
     ;; Do NOT have to use evil in every mode, so let's make a list where evil is not used.
@@ -1545,13 +1543,20 @@ This is pretty awesome.  In normal mode, "cx" plus motion keys will "select" the
 
 ** Evil-magit
 OK, I forgot to add this until now...and setting up this configuration in git made me realize I had no Magit evil bindings. Whoops.  This should take care of it all, but will likely have to tweak the keybindings more later.
+
+2019-09-05: This takes too long to start up 15+ seconds usually. Tweaked with ":after evil" which helped some, but still too long. Disabled then and tested Magit; the only change I noticed is that I could not use "hjkl" as usual. 
+
+Native Magit: h=magit-dispatch, j=Prefix, k=magit-delete-thing, l=magit-log. Evil-magit sets variable "evil-magit-mode-map-bindings", when condition "evil-magit-want-horizontal-movement" section to reset keys: "h" -> "H", "l" -> "L", etc. I would be hard-pressed to get the same, so should get used to using "n" and "p" for vertical movement, or maybe arrows.
 #+BEGIN_SRC emacs-lisp
   ;; 2018-12-16: Adding evil-magit
   (use-package evil-magit
     :ensure t
-    :demand)
-  (setq evil-magit-state 'normal)
-  (setq evil-magit-use-y-for-yank nil)
+    :defer 2
+    :after evil
+    :config
+    (setq evil-magit-state 'normal)
+    (setq evil-magit-use-y-for-yank nil)
+    )
 #+END_SRC
 * Final Stuff
 ** Remap some keys
@@ -1578,9 +1583,9 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
          (kbd "gg") 'revert-buffer)
        ;; (kbd "n") 'evil-search-next
        ;; (kbd "N") 'evil-search-previous
+       (define-key dired-mode-map (kbd "SPC") nil)
        )
     )
-  (define-key dired-mode-map (kbd "SPC") nil)
 #+END_SRC
 
 Same kind of thing for ibuffer-mode as well, same link.
