@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-09-05 Thu 13:34>
+#+DATE: <2019-09-10 Tue 12:43>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -327,7 +327,7 @@ Here is where I put languages configurations: Lisp, etc.
 #+BEGIN_SRC emacs-lisp
   (use-package color-theme-sanityinc-tomorrow
     :ensure t
-    :demand)
+    :defer 1)
   ;; For whatever reason, the name for "load-theme" is "sanityinc-tomorrow-bright"
   ;; I already loaded all versions, marked as "safe" to use, but the "nil" below 
   ;; should do that on first load for new Emacs installation.
@@ -838,6 +838,18 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
     :bind
     (:map dired-mode-map ("<tab>" . dired-subtree-toggle))
     (:map dired-mode-map ("<backtab>" . dired-subtree-cycle)))
+#+end_src
+
+*** EditorConfig for Emacs
+2019-09-10: I don't know why this wasn't added before. Ref: https://github.com/editorconfig/editorconfig-emacs#readme
+Note, the documentation states the package "requires a Core program", then goes on to state that it's not really necessary as the package includes a core library implemented in Emacs Lisp.
+#+begin_src emacs-lisp
+  (use-package editorconfig
+    :ensure t
+    :defer 2
+    :config
+    (editorconfig-mode 1)
+    (setq editorconfig-trim-whitespaces-mode 'ws-butler-mode))
 #+end_src
 
 *** Expand-region
@@ -1410,6 +1422,16 @@ This is a VERY neat package, putting the output of which-key to a posframe inste
     )
   (setq which-key-posframe-parameters '((background-color  . "blue")))
   (setq which-key-posframe-poshandler 'posframe-poshandler-frame-center)
+#+end_src
+
+*** WS-Butler 
+This is a package suggested by EditorConfig, to trim trailing whitespace ONLY on changed lines.
+#+begin_src emacs-lisp 
+  (use-package ws-butler
+    :ensure t
+    :defer 2
+    :config
+    (add-hook 'prog-mode-hook #'ws-butler-mode))
 #+end_src
 
 *** Yasnippet

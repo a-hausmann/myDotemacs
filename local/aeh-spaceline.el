@@ -30,6 +30,7 @@
 ;; This configuration also requires "delight"
 (use-package delight
   :ensure nil
+  :demand
   :preface
   (defun me/delight-powerline-major-mode (original-function &rest arguments)
     (let ((inhibit-mode-name-delight nil)) (apply original-function arguments)))
@@ -54,7 +55,7 @@
 
 ;; Copied from the reference source.
 (use-package spaceline
-  :demand t
+  :demand
   :config
   ;; 2018-12-09: attempted to define a buffer status segment to accurately "describe" the actual status.
   ;; This did not go well, and when I use this in spaceline-install, it always shows an empty line after the initial "a"
@@ -66,9 +67,9 @@
   (spaceline-define-segment aeh/buffer-status
     "Buffer status: read-only, modified"
     (cond (buffer-read-only (propertize "RO" 'face 'spaceline-read-only))
-  	  ((buffer-modified-p) (propertize "**" 'face 'spaceline-modified))
-	  ;; (t "--")))
-	  (t (propertize "--" 'face 'spaceline-unmodified))))
+  	      ((buffer-modified-p) (propertize "**" 'face 'spaceline-modified))
+	      ;; (t "--")))
+	      (t (propertize "--" 'face 'spaceline-unmodified))))
 
   ;; This is again one of Mathieu's customizations, but without the custom package function call. I should be able to use it.
   (spaceline-define-segment aeh/version-control
@@ -81,10 +82,8 @@
 
 ;; And now for the spaceline-config package.
 (use-package spaceline-config
-  :demand t
   :ensure nil
-  ;; :config
-  )
+  :demand)
 ;; Configure the mode-line
 (setq-default
  mode-line-format '("%e" (:eval (spaceline-ml-main)))
