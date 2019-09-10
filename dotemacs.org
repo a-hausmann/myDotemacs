@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-09-10 Tue 12:43>
+#+DATE: <2019-09-10 Tue 15:18>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1602,7 +1602,8 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
          (kbd "U") 'dired-unmark-all-marks
          (kbd "c") 'dired-create-directory
          (kbd "q") 'kill-this-buffer
-         (kbd "gg") 'revert-buffer)
+         (kbd "gg") 'revert-buffer
+         (kbd "M-s") 'avy-goto-char-timer)
        ;; (kbd "n") 'evil-search-next
        ;; (kbd "N") 'evil-search-previous
        (define-key dired-mode-map (kbd "SPC") nil)
