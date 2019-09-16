@@ -14,6 +14,7 @@ img
 *.eshell-aliases
 *.package-refresh-date
 *.session
+*.bak
 recentf
 dotemacs.html
 dotemacs.el
