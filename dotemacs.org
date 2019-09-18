@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-09-13 Fri 14:10>
+#+DATE: <2019-09-17 Tue 23:54>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -593,9 +593,11 @@ Documentation reference: https://agel.readthedocs.io/en/latest/index.html
 Downloaded/installed this somewhen, but never included in the dotemacs.org file till now (2019-07-22). At this point, am certain that the display of the hex value of the icon is 100% Windows-based problem.  I don't have this issue in Linux--the icons display properly.
 #+begin_src emacs-lisp
   (use-package all-the-icons
-    :ensure t)
+    :ensure t
+    :defer 2)
   (use-package all-the-icons-dired
-    :ensure t)
+    :ensure t
+    :defer 2)
 #+end_src
 *** Avy
 When avy is invoked you are prompted for the character to jump to /in the visible portion of the buffer/. Then each instance of the character is overlaid with another letter; pressing /that/ letter will move the point to that location. This can be hard to get used to, but once you do, you can swiftly move about the visible buffer.
