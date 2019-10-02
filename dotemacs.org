@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-09-17 Tue 23:54>
+#+DATE: <2019-10-02 Wed 07:38>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -823,6 +823,7 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
 #+begin_src emacs-lisp
   (use-package dired-narrow
     :ensure t
+    :defer 2
     :bind
     (:map dired-mode-map ("C-c C-n" . dired-narrow))
     (:map dired-mode-map ("C-c C-f" . dired-narrow-fuzzy))
@@ -976,11 +977,12 @@ Ref: [[https://github.com/jamiecollinson/dotfiles/blob/master/config.org/][Jamie
     :defer 1)
 
   ;; Hydra presents menus for ivy commands.
+  ;; 2019-10-02: Change Swiper binding to "C-S-s"
   (use-package ivy-hydra
     :ensure
     :after ivy
     :defer 1)
-  (global-set-key "\C-s" 'swiper)
+  (global-set-key (kbd "C-S-s") 'swiper)
 
   ;; These are some key bindings for Ivy/Counsel/Swiper ref: https://github.com/abo-abo/swiper#small-config-example
   ;; 2019-08-27: Some changes here, ref.: https://oremacs.com/swiper/
@@ -1446,7 +1448,7 @@ This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] fo
   (setq yas-snippet-dirs '("~/.emacs.d/private/snippets"))
   (setq yas-indent-line 'fixed)
   ;; (add-hook 'prog-mode-hook 'yas-minor-mode)
-  (yas-global-mode)
+  (yas-global-mode 1)
 #+END_SRC
 
 ** Hydras
@@ -1604,9 +1606,13 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
          (kbd "c") 'dired-create-directory
          (kbd "q") 'kill-this-buffer
          (kbd "gg") 'revert-buffer
-         (kbd "M-s") 'avy-goto-char-timer)
+         (kbd "M-s") 'avy-goto-char-timer
+         (kbd "W") 'evil-forward-WORD-begin
+         (kbd "B") 'evil-backward-WORD-begin
+         (kbd "E") 'evil-forward-WORD-end
        ;; (kbd "n") 'evil-search-next
        ;; (kbd "N") 'evil-search-previous
+       )
        (define-key dired-mode-map (kbd "SPC") nil)
        )
     )
