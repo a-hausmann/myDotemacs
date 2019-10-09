@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-10-02 Wed 07:38>
+#+DATE: <2019-10-09 Wed 08:44>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -45,11 +45,16 @@ These are items I still need to create, or fix.
 *** Set the size of the frame
 Reference: https://raw.githubusercontent.com/angrybacon/dotemacs/master/dotemacs.org
 
-Set the size of the frame. Some UI elements are best left unused.
+Set the size of the frame. Some UI elements are best left unused. 2019-10-09: Set Windows a little bigger than home Linux due to differences in resolution of systems.
 #+BEGIN_SRC emacs-lisp
   (when window-system
-    (add-to-list 'default-frame-alist '(height . 45))
-    (add-to-list 'default-frame-alist '(width . 150))
+    (if (string-equal system-type "windows-nt")
+        (progn
+          (add-to-list 'default-frame-alist '(height . 45))
+          (add-to-list 'default-frame-alist '(width . 150)))
+      (progn
+        (add-to-list 'default-frame-alist '(height . 40))
+        (add-to-list 'default-frame-alist '(width . 140))))
     (blink-cursor-mode 0))
 #+END_SRC
 
@@ -793,7 +798,8 @@ I think that Company is acting a bit better now, and on 10/30/2018, I added some
 #+END_SRC
 
 *** Dashboard
- This is the *NEW* startup screen, and together with Projectile, can provide with a quick look into the latest used files and projects. The welcome message (logo-title) can be whatever you want, the startup-banner can be any image file (.png preferable?).
+This is the *NEW* startup screen, and together with Projectile, can provide with a quick look into the latest used files and projects. The welcome message (logo-title) can be whatever you want, the startup-banner can be any image file (.png preferable?).
+2019-10-09: Using Projectile, I can easily do "C-c p f" to select a project and file-open from there--the same thing that the "projects" gets me in the dashboard; I prefer to regain some real estate and see only recent files.
  #+BEGIN_SRC emacs-lisp
    (use-package dashboard
      :ensure t
@@ -804,8 +810,8 @@ I think that Company is acting a bit better now, and on 10/30/2018, I added some
    (setq dashboard-show-shortcuts nil)
    (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png")
    (setq dashboard-banner-logo-title "My Startup Page - Get Hacking!")
-   (setq dashboard-items '((recents  . 10)
-                           (projects . 5)
+   (setq dashboard-items '((recents  . 15)
+                           ;; (projects . 5)
                            ;; (bookmarks . 5)
                            ))
    ;; 2019-07-20: updated package, new info, ref: https://github.com/emacs-dashboard/emacs-dashboard
