@@ -1,6 +1,6 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Thu Aug 22, 2019 13:03:25
+;; Last modified: Wed Oct 09, 2019 9:44:11
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
@@ -139,18 +139,18 @@ _E_: Day, Month Day, Year HH:MI:SS PM
 (defvar aeh/hydras/toggles/vdiff nil)
 (defhydra aeh/hydra-toggles (:hint nil :exit t)
   "
-   toggle:  _z_ → origami-mode        _C_ → column-enforce _p_ → which-key-posframe
+   toggle:  _z_ → origami-mode        _c_ → column-enforce _p_ → which-key-posframe
             _a_ → aggressive indent   _s_ → flycheck       _r_ → read only      _t_ → truncate lines   _e_ → debug on error
-            _f_ → auto-fill           _S_ → flyspell       _c_ → completion     _W_ → word wrap        _g_ → debug on quit
+            _f_ → auto-fill           _S_ → flyspell       _C_ → completion     _W_ → word wrap        _g_ → debug on quit
             _w_ → whitespace          _E_ → electric-pairs _l_ → linum-relative _b_ → page break       _d_ → ediff/vdiff
             _h_ → highlight-thing
 "
   ("z" origami-mode)
-  ("C" column-enforce-mode)
+  ("c" column-enforce-mode)
   ("p" which-key-posframe-mode)
   ("a" aggressive-indent-mode)
   ("b" page-break-lines-mode)
-  ("c" company-mode)
+  ("C" company-mode)
   ("t" toggle-truncate-lines)
   ("e" toggle-debug-on-error)
   ("E" electric-pair-mode)
@@ -307,7 +307,7 @@ _q_ quit            _b_ balance         _-_ out
 
 ;; 2019-06-20: Add Magit commands
 ;; Ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org#hydra
-(defhydra hydra-magit (:color blue)
+(defhydra aeh/hydra-magit (:color blue)
   "
 ^
 ^Magit^             ^Do^
