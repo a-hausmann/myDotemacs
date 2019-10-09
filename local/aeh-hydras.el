@@ -1,6 +1,6 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Wed Oct 09, 2019 9:44:11
+;; Last modified: Wed Oct 09, 2019 15:35:11
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
@@ -11,6 +11,7 @@
 ;; aeh/hydra-insert-date-menu
 (defconst aeh/date-simple "%m/%d/%Y" "Simple format: MM/DD/YYYY")
 (defconst aeh/date-format "%Y-%m-%d" "Simple date as YYYY-MM-DD")
+(defconst aeh/date-file "%Y%m%d" "Simple format: YYYYMMDD")
 (defconst aeh/date-time-format "%Y-%m-%d %-H:%M:%S" "Simple Date with Time: YYYY-MM-DD HH24:MI:SS")
 (defconst aeh/day-format "%a %b %d, %Y" "English date as: Day Mon Date, Year")
 (defconst aeh/day-time-format "%a %b %d, %Y %-H:%M:%S" "English Date Time as: Day Mon Date, Year HH24:MI:SS")
@@ -30,6 +31,7 @@
 _q_: quit
 _s_: MM/DD/YYYY
 _d_: YYYY-MM-DD
+_f_: YYYYMMDD
 _t_: YYYY-MM-DD HH24:MI:SS
 _D_: DD Mon Date, Year
 _T_: DD Mon Date, Year HH24:MI:SS
@@ -39,6 +41,7 @@ _E_: Day, Month Day, Year HH:MI:SS PM
   ("q" nil)
   ("s" (insert (format-time-string aeh/date-simple)))
   ("d" (insert (format-time-string aeh/date-format)))
+  ("f" (insert (format-time-string aeh/date-file)))
   ("t" (insert (format-time-string aeh/date-time-format)))
   ("D" (insert (format-time-string aeh/day-format)))
   ("T" (insert (format-time-string aeh/day-time-format)))
