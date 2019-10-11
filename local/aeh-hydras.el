@@ -1,6 +1,6 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Wed Oct 09, 2019 15:35:11
+;; Last modified: Fri Oct 11, 2019 13:26:42
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
@@ -268,6 +268,7 @@ _l_ find library
 _L_ load library
 _m_ imenu
 _M_ mark ring
+_r_ recent files
 _T_ load theme
 "
   ("q" nil :exit t)
@@ -282,6 +283,7 @@ _T_ load theme
   ("L" counsel-load-library)
   ("m" counsel-imenu)
   ("M" counsel-mark-ring)
+  ("r" counsel-recentf)
   ("T" counsel-load-theme))
 
 ;; 2019-06-19: Add "Window" commands (check for frame commands)

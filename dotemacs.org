@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-10-10 Thu 22:43>
+#+DATE: <2019-10-11 Fri 13:30>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -407,32 +407,6 @@ Can set any of these from -1 (FALSE as it is not 1) to 1 (TRUE) if they are desi
  #+BEGIN_SRC emacs-lisp
  (show-paren-mode 1)
  #+END_SRC
-
-**** ORG MODE settings
- Org mode is such an important part of Emacs it is now part of the "core" software. As such, there is no need for a "use-package" setup, but some common settings are good.
- 2019-01-07: Org templates are NOT working in Windows version. This is due to Org version 9.2, see "org-plus-contrib-20181230/org-version.el".
-;; '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC")
-
- These are from UncleDavesEmacs: 
-#+BEGIN_SRC emacs-lisp
-  (require 'org-tempo)
-  (setq org-ellipsis " ")
-  ;; 2019-06-08: After loading ONE of MANY themes, the "fontify-natively" non-nil started
-  ;; throwing code between source markers into horrid light colors regardless of theme used.
-  ;; Setting the variable to nil gets rid of that tendency.
-  (setq org-src-fontify-natively nil)
-  (setq org-src-tab-acts-natively t)
-  (setq org-confirm-babel-evaluate nil)
-  (setq org-export-with-smart-quotes t)
-  (setq org-src-window-setup 'current-window)                   ; Allows for "C-c '" to narrow to code being edited.
-  ;: 2018-10-22: Wow! Errors galore in Spacemacs UNTIL changing the simple "add-to-list" to an "eval-after-load" (see below).
-  ;; 2019-01-07: Updated to Org 9.2, this method now invalid, using yas-snippet instead.
-  (add-hook 'org-mode-hook
-              '(lambda ()
-                 (visual-line-mode 1)
-                 (org-indent-mode 1)))
-  (global-set-key (kbd "C-c '") 'org-edit-src-code)
-#+END_SRC
 
 **** This makes things look nicer; it replaces asterisks with nicer looking bullets.  
 I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/configurations-for-beautifying-emacs-org-mode/][here]].
@@ -1654,13 +1628,11 @@ Now do Origami keys.
 Viewed a Xah Lee (see [[http://ergoemacs.org/emacs/emacs.html][Ergoemacs.org]] )video on efficiently opening files, and several good methods are just function calls I can tie to key bindings. Plus, I found a better way to bind keys than using "global-key-binding" with "kbd" functions--use "bind-key" instead; this comes along with the "use-package" function, so is already available.
 
 The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow, and jump to the one selected. The "dired-jump" function uses the currently opened file as a starting point, opens a buffer to dired in the file's directory and places point on the current file.
+
+2019-10-11: "counsel-recentf" is MUCH better than "recentf-open-files", so deleting the latter code.
 #+begin_src emacs-lisp
   (bind-key "C-c m b" 'bookmark-jump)
   (bind-key "C-c d" 'dired-jump)
-  ;; Set "recentf-mode" to turn on the mode, then map "recentf-open-files" to present list.
-  ;; NOTE: Ivy will NOT work in this listing, but can use number or RET to open any file in list.
-  (recentf-mode 1)
-  (bind-key "C-c f r" 'recentf-open-files)
 #+end_src
 
 2019-07-23: Had to "initcap" some text today, but function "capitalize-region" has no key binding, so give it one:
@@ -1680,6 +1652,31 @@ The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow,
 #+end_src
 
 ** Org mode stuff
+ Org mode is such an important part of Emacs it is now part of the "core" software. As such, there is no need for a "use-package" setup, but some common settings are good.
+ 2019-01-07: Org templates are NOT working in Windows version. This is due to Org version 9.2, see "org-plus-contrib-20181230/org-version.el".
+ Original code: '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC")
+
+ These are from UncleDavesEmacs: 
+#+BEGIN_SRC emacs-lisp
+  (require 'org-tempo)
+  (setq org-ellipsis " ")
+  ;; 2019-06-08: After loading ONE of MANY themes, the "fontify-natively" non-nil started
+  ;; throwing code between source markers into horrid light colors regardless of theme used.
+  ;; Setting the variable to nil gets rid of that tendency.
+  (setq org-src-fontify-natively nil)
+  (setq org-src-tab-acts-natively t)
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-export-with-smart-quotes t)
+  (setq org-src-window-setup 'current-window)                   ; Allows for "C-c '" to narrow to code being edited.
+  ;: 2018-10-22: Wow! Errors galore in Spacemacs UNTIL changing the simple "add-to-list" to an "eval-after-load" (see below).
+  ;; 2019-01-07: Updated to Org 9.2, this method now invalid, using yas-snippet instead.
+  (add-hook 'org-mode-hook
+              '(lambda ()
+                 (visual-line-mode 1)
+                 (org-indent-mode 1)))
+  (global-set-key (kbd "C-c '") 'org-edit-src-code)
+#+END_SRC
+
 Some global key bindings for Org mode, as shown in the [[https://orgmode.org/orgguide.pdf][compact Org Guide]].
 #+begin_src emacs-lisp
   ;; The following lines are always needed. Choose your own keys.
@@ -1692,19 +1689,36 @@ Some global key bindings for Org mode, as shown in the [[https://orgmode.org/org
 For TODO tasks and states, reference: [[http://doc.norang.ca/org-mode.html#TasksAndStates][Org Mode - Oraganize Your Life In Plain Text]]
 #+BEGIN_SRC emacs-lisp
   (setq org-todo-keywords
-        (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d@/!)")
+        (quote ((sequence "TODO(t)" "NEXT(n)" "ONGOING" "|" "DONE(d@/!)")
                 (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
 
   (setq org-todo-keyword-faces
         (quote (("TODO" :foreground "red" :weight bold)
                 ("NEXT" :foreground "blue" :weight bold)
+                ("ONGOING" :forground "yellow" :weight bold)
                 ("DONE" :foreground "forest green" :weight bold)
                 ("WAITING" :foreground "orange" :weight bold)
                 ("HOLD" :foreground "magenta" :weight bold)
                 ("CANCELLED" :foreground "forest green" :weight bold)
                 ("MEETING" :foreground "forest green" :weight bold)
                 ("PHONE" :foreground "forest green" :weight bold))))
-
+  ;; More from http://pragmaticemacs.com/emacs/org-mode-basics-vii-a-todo-list-with-schedules-and-deadlines/
+  ;;warn me of any deadlines in next 7 days
+  (setq org-deadline-warning-days 7)
+  ;;show me tasks scheduled or due in next fortnight
+  (setq org-agenda-span (quote fortnight))
+  ;;don't show tasks as scheduled if they are already shown as a deadline
+  (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+  ;;normal todo list - not sure I want to ignore deadlines/schedules
+  ;; (setq org-agenda-todo-ignore-deadlines (quote all))
+  ;; (setq org-agenda-todo-ignore-scheduled (quote all))
+  ;;sort tasks in order of when they are due and then by priority
+  (setq org-agenda-sorting-strategy
+        (quote
+         ((agenda deadline-up priority-down)
+          (todo priority-down category-keep)
+          (tags priority-down category-keep)
+          (search category-keep))))
 #+END_SRC
 
 ** Sane tabs-or-spaces
