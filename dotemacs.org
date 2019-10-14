@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-10-14 Mon 00:02>
+#+DATE: <2019-10-14 Mon 08:53>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -865,6 +865,14 @@ This actually beats iBuffer and counsel-ibuffer with Swiper; use General for bin
 #+begin_src emacs-lisp
 (use-package frog-jump-buffer
   :ensure t)
+#+end_src
+
+*** Garbage Collector Magic Hack
+Does a sneaky way of garbage collection.
+#+begin_src emacs-lisp
+  (use-package gcmh
+    :ensure t)
+  (gcmh-mode 1)
 #+end_src
 
 *** Git-gutter-fringe
