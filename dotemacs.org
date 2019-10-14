@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-10-11 Fri 13:30>
+#+DATE: <2019-10-14 Mon 00:02>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -936,16 +936,24 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
 Uncle Dave makes slight use of Ivy and other "abo-abo" packages, but from what I've seen in videos and blogs, the combo of Ivy/Swiper/Counsel beats everything else.
 
 Ref: [[https://github.com/jamiecollinson/dotfiles/blob/master/config.org/][Jamie Collinson Emacs config.org]]
+Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dotemacs/
+
 #+BEGIN_SRC emacs-lisp
   (use-package ivy
     :ensure t
     :defer 1
-    :diminish ivy-mode)
+    :diminish ivy-mode
+    :config
+    (setq ivy-wrap t)
+    (setq ivy-count-format "(%d/%d) ")
+    (setq ivy-height-alist '((t lambda (_caller) (/ (window-height) 4))))
+    :bind (("C-c v" . ivy-push-view)
+           ("C-c V" . ivy-switch-view)))
   (ivy-mode t)
   ;; By default ivy starts filters with ^. I don't normally want that and can easily type it manually when I do.
   (setq ivy-initial-inputs-alist nil)
 
-  ;; Counsel is a collection of ivy enhanced versions of common Emacs commands. I haven't bound much as ivy-mode takes care of most things. 
+  ;; Counsel is a collection of ivy enhanced versions of common Emacs commands. I haven't bound much as ivy-mode takes care of most things.
   (use-package counsel
     :ensure
     :defer 1
@@ -967,7 +975,6 @@ Ref: [[https://github.com/jamiecollinson/dotfiles/blob/master/config.org/][Jamie
   ;; These are some key bindings for Ivy/Counsel/Swiper ref: https://github.com/abo-abo/swiper#small-config-example
   ;; 2019-08-27: Some changes here, ref.: https://oremacs.com/swiper/
   (setq ivy-use-virtual-buffers t)
-  (setq ivy-count-format "(%d/%d) ")
   (setq enable-recursive-minibuffers t)
   ;; (global-set-key (kbd "C-c C-r") 'ivy-resume)
   (global-set-key (kbd "<f6>") 'ivy-resume)
