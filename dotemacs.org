@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-10-14 Mon 08:53>
+#+DATE: <2019-10-16 Wed 10:10>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1311,6 +1311,8 @@ OTOH, I have gotten used to Ace-window, so disabling this package.
 *** Treemacs file manager
 Uncle Dave has switched from Treemacs to Sunrise-Commander; I'm not sure why, as using his default configuration, I could not get it to work.  Not sure where he's going there. [9/2/2018] As of today, MELPA does not have sunrise-commander, so back to Treemacs. Note that must also include treemacs-evil, and treemacs-projectile to get full functionality. Will initially use configuration from [[https://github.com/Alexander-Miller/treemacs][Github site]].
 
+Found Reddit page noting icons for treemacs, found new package to assist: https://www.reddit.com/r/emacs/comments/dhrl56/post_your_emacsscreenshot_here/
+
 #+BEGIN_SRC emacs-lisp
   (use-package treemacs
     :ensure t
@@ -1378,6 +1380,12 @@ Uncle Dave has switched from Treemacs to Sunrise-Commander; I'm not sure why, as
   (use-package treemacs-projectile
     :after treemacs projectile
     :ensure t)
+
+  ;; 2019-10-16: added package
+  (use-package treemacs-icons-dired
+    :after treemacs dired
+    :ensure t
+    :config (treemacs-icons-dired-mode))
 #+END_SRC
 
 *** Try
