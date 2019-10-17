@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-10-16 Wed 10:10>
+#+DATE: <2019-10-17 Thu 09:52>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1172,7 +1172,14 @@ NOTE: As *usual*, others configuration is incorrect, as they use ":config" inste
               (origami-mode)
               (origami-close-all-nodes (current-buffer))))
 #+END_SRC
-
+*** Paradox
+This package has several improvements to the package menu, allowing better updating of existing packages.
+Ref: https://github.com/Malabarba/paradox
+#+begin_src emacs-lisp
+  (use-package paradox
+    :ensure 1
+    :config (paradox-enable))
+#+end_src
 *** Projectile
  Projectile is an excellent project manager because it automatically recognizes directories with a ".git" directory as *projects* and treats them as a "whole", so searching for/jumping to another file in the project is simple. It can be greatly enhanced by other packages as well.
  Some basic Projectile commands:
@@ -1975,6 +1982,26 @@ By default =x k= is bound to =kill-buffer=; instead, we want to kill the current
   (kill-buffer (current-buffer)))
 (global-set-key (kbd "C-x k") 'kill-current-buffer)
 #+END_SRC
+
+**** Upgrade Assistance
+These functions are copied from here: 
+#+begin_src emacs-lisp
+  (defun package-menu-find-marks ()
+    "Find packages marked for action in *Packages*."
+    (interactive)
+    (occur "^[A-Z]"))
+
+  ;; Only in Emacs 25.1+
+  (defun package-menu-filter-by-status (status)
+    "Filter the *Packages* buffer by status."
+    (interactive
+     (list (completing-read
+            "Status: " '("new" "installed" "dependency" "obsolete"))))
+    (package-menu-filter (concat "status:" status)))
+
+  (define-key package-menu-mode-map "s" #'package-menu-filter-by-status)
+  (define-key package-menu-mode-map "a" #'package-menu-find-marks)
+#+end_src
 
 ** Diminish
 Diminish will remove or abbreviate minor mode names on the modeline. Although "use-package" does support the diminish function, the [[https://github.com/jwiegley/use-package][documentation]] states the package must be installed. (The same with "delight"; not sure what that does--yet.) Diminish wasn't diminishing at startup until after I moved it to the END of the packages listing--then it still wasn't diminishing Undo-tree (which seems to be a requirement of another package.) So, let's try it at the end of everything...yup, that did it!
