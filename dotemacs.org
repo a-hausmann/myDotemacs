@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-10-17 Thu 09:52>
+#+DATE: <2019-10-17 Thu 22:53>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1177,7 +1177,7 @@ This package has several improvements to the package menu, allowing better updat
 Ref: https://github.com/Malabarba/paradox
 #+begin_src emacs-lisp
   (use-package paradox
-    :ensure 1
+    :ensure t
     :config (paradox-enable))
 #+end_src
 *** Projectile
