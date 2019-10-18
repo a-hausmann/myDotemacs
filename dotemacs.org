@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-10-17 Thu 22:53>
+#+DATE: <2019-10-18 Fri 08:11>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1946,7 +1946,7 @@ This is one of Bailey Ling's functions from "config-util.el".
   (interactive)
   (set-buffer-file-coding-system 'undecided-dos nil))
 #+END_SRC
-**** Conver buffer to UNIX format
+**** Convert buffer to UNIX format
 This is one of Bailey Ling's functions from "config-util.el".
 #+BEGIN_SRC emacs-lisp
 (defun aeh/set-buffer-to-unix-format ()
@@ -2001,6 +2001,16 @@ These functions are copied from here:
 
   (define-key package-menu-mode-map "s" #'package-menu-filter-by-status)
   (define-key package-menu-mode-map "a" #'package-menu-find-marks)
+#+end_src
+
+**** Delete carriage returns from buffer
+#+begin_src emacs-lisp
+  (defun aeh/delete-carrage-returns ()
+    (interactive)
+    (save-excursion
+      (goto-char 0)
+      (while (search-forward "\r" nil :noerror)
+        (replace-match ""))))
 #+end_src
 
 ** Diminish

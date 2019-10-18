@@ -1,6 +1,6 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Fri Oct 11, 2019 13:26:42
+;; Last modified: Fri Oct 18, 2019 8:16:58
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
@@ -77,6 +77,7 @@ _E_: Day, Month Day, Year HH:MI:SS PM
               _p_ → prev buffer          _e_ → erase buffer            _E_ → erase buffer (force)
               _n_ → new buffer           _A_ → save buffer AS file     _r_ → rename buffer
               _R_ → rename uniquely      _g_ → revert buffer           _G_ → GOTO buffer
+              _M_ → delete ^M
 "
   ("b" #'counsel-ibuffer)
   ("i" #'ibuffer)
@@ -89,7 +90,8 @@ _E_: Day, Month Day, Year HH:MI:SS PM
   ("r" #'rename-buffer)
   ("R" #'rename-uniquely)
   ("g" #'revert-buffer)
-  ("G" #'aeh/hydra-buffer-goto/body))
+  ("G" #'aeh/hydra-buffer-goto/body)
+  ("M" #'aeh/delete-carrage-returns))
 
 ;; Buffer GOTO submenu
 (defhydra aeh/hydra-buffer-goto (:exit t)
