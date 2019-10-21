@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-10-18 Fri 08:11>
+#+DATE: <2019-10-21 Mon 07:40>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -2056,4 +2056,11 @@ Readings on articles about "persistent undo" in Emacs, I see that variable "undo
       (setq default-directory "C:/_work/")
     (setq default-directory "~/"))
   (message "Default Dir: %S" default-directory) 
+#+end_src
+** Finally 
+This is the place to put "final" steps, like visiting common files, etc.
+#+begin_src emacs-lisp
+  ;; 2019-10-21: setting default directory for work/home
+  (if (string-equal system-type "windows-nt")
+      (find-file "c:/_work/org/todo.org"))
 #+end_src
