@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-10-21 Mon 07:40>
+#+DATE: <2019-10-23 Wed 15:24>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -796,6 +796,19 @@ This is the *NEW* startup screen, and together with Projectile, can provide with
                                                       :v-adjust -0.05
                                                       :face 'font-lock-keyword-face))
  #+END_SRC
+
+*** Dired-git-info 
+Learned about this one from Reddit, ref: http://xenodium.com/showhide-emacs-dired-details-in-style/, and looked at the repo: https://github.com/clemera/dired-git-info.
+
+This works OK in Windows, but is very slow as it appears to send a "git log" command string to Git for each file...probably best to narrow the dired buffer before invoking this mode.
+
+#+begin_src emacs-lisp
+  (use-package dired-git-info
+    :ensure t
+    :config)
+  (with-eval-after-load 'dired
+    (define-key dired-mode-map ")" 'dired-git-info-mode))
+#+end_src
 
 *** Dired-narrow
 From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.org#dired
@@ -1620,9 +1633,10 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
          (kbd "W") 'evil-forward-WORD-begin
          (kbd "B") 'evil-backward-WORD-begin
          (kbd "E") 'evil-forward-WORD-end
-       ;; (kbd "n") 'evil-search-next
-       ;; (kbd "N") 'evil-search-previous
-       )
+         (kbd ")") 'dired-git-info-mode
+         ;; (kbd "n") 'evil-search-next
+         ;; (kbd "N") 'evil-search-previous
+         )
        (define-key dired-mode-map (kbd "SPC") nil)
        )
     )
