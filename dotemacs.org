@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-10-23 Wed 15:24>
+#+DATE: <2019-10-30 Wed 14:04>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1452,12 +1452,15 @@ This is a VERY neat package, putting the output of which-key to a posframe inste
 
 *** WS-Butler 
 This is a package suggested by EditorConfig, to trim trailing whitespace ONLY on changed lines.
+2019-10-28: Change prog-mode-hook to multiple hooks as do NOT want text mode butlered.
 #+begin_src emacs-lisp 
   (use-package ws-butler
     :ensure t
     :defer 2
     :config
-    (add-hook 'prog-mode-hook #'ws-butler-mode))
+    (add-hook 'sql-mode-hook #'ws-butler-mode)
+    (add-hook 'sh-mode-hook #'ws-butler-mode)
+    (add-hook 'emacs-lisp-mode-hook #'ws-butler-mode))
 #+end_src
 
 *** Yasnippet
@@ -1606,6 +1609,23 @@ Native Magit: h=magit-dispatch, j=Prefix, k=magit-delete-thing, l=magit-log. Evi
     (setq evil-magit-use-y-for-yank nil)
     )
 #+END_SRC
+
+** Evil-mc 
+2019-10-30: trying evil-mc (multiple cursors) again as this does work, after I understand it better.  Will need to create a new toggle.
+I do NOT want enable evil-mc globally, but only as needed. Mappings are:
+- "C-c m m" will toggle evil-mc-mode on and off
+- "C-n"/"C-p" mark next/previous occurrance as part of cursors
+- "M-n"/"M-p" cycle through cursors
+- "C-t" skip next occurrance of word
+- "g r n"/"g r p" (in normal mode) to skip next or previous occurrance ("g r n" is equivalent to "C-t")
+- "g r u" undo last cursor
+- "g r q" quit all cursors
+
+#+begin_src emacs-lisp
+  (use-package evil-mc
+    :ensure t
+    :bind (("C-c m m" . evil-mc-mode)))
+#+end_src
 * Final Stuff
 ** Remap some keys
 Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/blog/2014-08-03-a-vim-like-emacs-config.html][here]]. 12/21/2018: fixed the problem of not having General's SPC giving me menu by defining SPC in dired-mode-map to nil. This then allows General to take over, the local private map not having a mapping for SPC.
