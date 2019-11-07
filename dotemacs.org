@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-11-05 Tue 14:46>
+#+DATE: <2019-11-06 Wed 14:01>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -782,7 +782,8 @@ This is the *NEW* startup screen, and together with Projectile, can provide with
    (dashboard-setup-startup-hook)
    ;; Disable shortcut "jump" indicators for each section, set
    (setq dashboard-show-shortcuts nil)
-   (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png")
+   ;; (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png")
+   (setq dashboard-startup-banner "~/.emacs.d/img/dont-tread-on-emacs-150.png")
    (setq dashboard-banner-logo-title "My Startup Page - Get Hacking!")
    (setq dashboard-items '((recents  . 15)
                            ;; (projects . 5)
