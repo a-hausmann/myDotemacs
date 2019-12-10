@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-11-07 Thu 18:35>
+#+DATE: <2019-12-10 Tue 08:42>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -2117,4 +2117,6 @@ This is the place to put "final" steps, like visiting common files, etc.
   ;; 2019-10-21: setting default directory for work/home
   (if (string-equal system-type "windows-nt")
       (find-file "c:/_work/org/todo.org"))
+  ;; 2019-12-10: Created ~/.emacs.d/private/local/aeh-useful.el, so load it
+  (load "aeh-useful")
 #+end_src
