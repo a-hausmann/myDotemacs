@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-12-10 Tue 08:42>
+#+DATE: <2019-12-16 Mon 12:47>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -153,6 +153,7 @@ See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for mor
    ;; display-time-default-load-average nil            ; Don't display load average
    display-time-format "%H:%M"                      ; Format the time string
    fill-column 80                                   ; Set width for automatic line breaks
+   garbage-collection-messages t                    ; set to non-nil to see GC messages.
    help-window-select t                             ; Focus new help windows when opened
    indent-tabs-mode nil                             ; Stop using tabs to indent
    inhibit-startup-screen t                         ; Disable start-up screen
@@ -686,7 +687,7 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
   (add-hook 'after-init-hook 'global-company-mode)
   (add-hook 'sql-mode-hook
             #'(lambda ()
-                (setq-default company-minimum-prefix-length 2)
+                (setq-default company-minimum-prefix-length 4)
                 (setq-default company-dabbrev-code-ignore-case t)
                 (setq-default completion-ignore-case t)))
 
@@ -1742,6 +1743,8 @@ The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow,
 
  These are from UncleDavesEmacs: 
 #+BEGIN_SRC emacs-lisp
+  ;; 2019-12-16: add to template-alist.
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (require 'org-tempo)
   (setq org-ellipsis " ")
   ;; 2019-06-08: After loading ONE of MANY themes, the "fontify-natively" non-nil started
