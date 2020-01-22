@@ -7,11 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-<<<<<<< HEAD
-#+DATE: <2020-01-22 Wed 11:51>
-=======
-#+DATE: <2019-12-08 Sun 21:30>
->>>>>>> Hook change, add diminish.
+#+DATE: <2020-01-22 Wed 17:11>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
