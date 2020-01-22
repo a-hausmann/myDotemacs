@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2019-12-16 Mon 12:47>
+#+DATE: <2020-01-22 Wed 11:51>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -578,6 +578,24 @@ Downloaded/installed this somewhen, but never included in the dotemacs.org file 
   (use-package all-the-icons-dired
     :ensure t
     :defer 2)
+#+end_src
+*** Amx (2020-01-22)
+Amx is the newer alternative to smex (aka smart M-x).
+Might look into installing "prescient" instead of amx. Links below:
+https://www.reddit.com/r/emacs/comments/8q1nor/prescientel_simple_but_effective_sorting_and/
+https://github.com/raxod502/prescient.el
+
+#+begin_src emacs-lisp
+  (use-package amx
+    :ensure t
+    :defer 1
+    :config
+    (amx-mode t)   ; always in amx-mode
+    (global-set-key (kbd "M-x") 'amx)
+    (global-set-key (kbd "M-X") 'amx-major-mode-commands)
+    ;; This is your old M-x.
+    (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command))
+  ;; (setq-default amx-save-file (no-littering-expand-var-file-name ".amx-items"))
 #+end_src
 *** Avy
 When avy is invoked you are prompted for the character to jump to /in the visible portion of the buffer/. Then each instance of the character is overlaid with another letter; pressing /that/ letter will move the point to that location. This can be hard to get used to, but once you do, you can swiftly move about the visible buffer.
