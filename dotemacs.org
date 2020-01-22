@@ -7,7 +7,11 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
+<<<<<<< HEAD
 #+DATE: <2020-01-22 Wed 11:51>
+=======
+#+DATE: <2019-12-08 Sun 21:30>
+>>>>>>> Hook change, add diminish.
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1850,7 +1854,6 @@ Nice little guide [[https://dougie.io/emacs/indentation/#using-tabs-or-spaces-in
   ;; Hooks to Disable Tabs
   (add-hook 'lisp-mode-hook 'aeh/disable-tabs)
   (add-hook 'emacs-lisp-mode-hook 'aeh/disable-tabs)
-  (add-hook 'emacs-lisp-mode-hook 'aeh/disable-tabs)
   (add-hook 'sql-mode-hook 'aeh/disable-tabs)
 #+END_SRC
 
@@ -2108,7 +2111,6 @@ Diminish will remove or abbreviate minor mode names on the modeline. Although "u
     (diminish 'auto-revert-mode)
     (diminish 'smartparens-mode)
     (diminish 'beacon-mode)
-    (diminish 'org-indent-mode)
     (diminish 'subword-mode))
 #+END_SRC
 ** Misc. Settings 
