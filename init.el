@@ -65,8 +65,17 @@
 ;; shorter, so it appears (hard to tell for certain) that the big culprit is actually Windows--continuing to do
 ;; stuff and take up CPU long after startup appears complete. Have found the same with SQL Developer too, so not
 ;; that big a surprise to find Windows affecting Emacs startup.
+;; 2020-01-29: Link: https://www.reddit.com/r/emacs/comments/eumt4g/emacs_win10_slow/
+;; Variable w32-get-true-file-attributes with non-nil issues extra system calls to determine accurate link counts.
+;; Said to be more useful for NTFS over FAT, but u/zsome sets this to nil, and gets better results (along with
+;; changing the buffer size.
 (when (boundp 'w32-pipe-read-delay)
-  (setq w32-pipe-read-delay 0))
+  (setq w32-pipe-read-delay 0)
+  (setq w32-pipe-buffer-size (* 64 1024))
+  (setq w32-get-true-file-attributes nil)
+  )
+;; (when (boundp 'w32-pipe-buffer-size)
+;;   (setq w32-pipe-buffer-size (* 64 1024)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Set repositories
