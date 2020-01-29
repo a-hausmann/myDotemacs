@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-01-22 Wed 17:11>
+#+DATE: <2020-01-29 Wed 00:08>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1443,6 +1443,35 @@ The try package allows one to "try" other packages without really installing the
   :ensure t)
 #+end_src
 
+*** Undo-fu
+See Reddit: https://www.reddit.com/r/emacs/comments/epehfg/rfc_undohist_updated/ for details, his undo-fu looks promising.
+#+begin_src emacs-lisp
+  (use-package undo-fu
+    :ensure t
+    :after evil
+    :defer 1
+    :config
+    (define-key evil-normal-state-map (kbd "u") 'undo-fu-only-undo)
+    (define-key evil-normal-state-map (kbd "C-r") 'undo-fu-only-redo)
+    (define-key evil-normal-state-map (kbd "C-c C-r") 'isearch-backward)    ; don't want to lose isearch-backward
+    (global-undo-tree-mode -1))
+  (use-package undo-fu-session
+    :ensure t
+    :after evil
+    :defer 1
+    :config
+    (progn
+      (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+      (if (file-directory-p "~/.emacs.d/undo-fu-session")
+          (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo-fu-session")))
+        (progn
+          (dired-create-directory "~/.emacs.d/undo-fu-session")
+          (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo-fu-session")))))
+      )
+    )
+  (global-undo-fu-session-mode 1)
+#+end_src
+
 *** Wgrep
 2019-04-21: Installed Silver Searcher on home laptop, and will attempt to do the same on Windows laptop at work. I reviewed the "Using Emacs #48 - Silversearcher" which includes the Wgrep package.  These two work together pretty well; Silversearcher finds files with text and places into a buffer, while wgrep can edit that buffer, saving the changes back into the files the original search terms found.
 #+begin_src emacs-lisp
@@ -1661,6 +1690,7 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
 
 2019-06-28: Had revert-buffer set to "g" at some point, somehow, but lost that change. Still cannot seem to "override" the evil-commentary key-binding for "g", so change here to "C-c C-r", which is a least mnemonic for "revert-buffer".  This works OK.  I still like having dired in evil, so better typing "C-c C-r" than "revert-buffer". Found that evil-commentary.el defines "gc" and "gy" at a "global level" for normal evil-commentary-mode-map; map is two dimensional, so "g" map first/prefix key level, and "c" and "y" under that. Best yet, set to "gg" so "g" will prefix to both evil-commentary and revert-buffer.
 
+*** Dired
 #+BEGIN_SRC emacs-lisp
   (eval-after-load 'dired
     '(progn
@@ -1689,6 +1719,7 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
     )
 #+END_SRC
 
+*** Ibuffer
 Same kind of thing for ibuffer-mode as well, same link.
 #+BEGIN_SRC emacs-lisp
   (evil-define-key 'normal ibuffer-mode-map
@@ -1702,6 +1733,7 @@ Same kind of thing for ibuffer-mode as well, same link.
     (kbd "M-s a M-C-s") 'ibuffer-do-isearch-regexp)
 #+END_SRC
 
+*** Origami
 Now do Origami keys.
 #+begin_src emacs-lisp
   (evil-define-key 'normal prog-mode-map (kbd "TAB") 'aeh/origami-toggle-node)
@@ -1716,21 +1748,24 @@ Now do Origami keys.
   (define-key evil-normal-state-map "zk" 'origami-previous-fold)
 #+end_src
 
+*** Jumping to bookmarks, dired
 Viewed a Xah Lee (see [[http://ergoemacs.org/emacs/emacs.html][Ergoemacs.org]] )video on efficiently opening files, and several good methods are just function calls I can tie to key bindings. Plus, I found a better way to bind keys than using "global-key-binding" with "kbd" functions--use "bind-key" instead; this comes along with the "use-package" function, so is already available.
 
 The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow, and jump to the one selected. The "dired-jump" function uses the currently opened file as a starting point, opens a buffer to dired in the file's directory and places point on the current file.
 
-2019-10-11: "counsel-recentf" is MUCH better than "recentf-open-files", so deleting the latter code.
+***-10-11: "counsel-recentf" is MUCH better than "recentf-open-files", so deleting the latter code.
 #+begin_src emacs-lisp
   (bind-key "C-c m b" 'bookmark-jump)
   (bind-key "C-c d" 'dired-jump)
 #+end_src
 
+*** Capitalize region
 2019-07-23: Had to "initcap" some text today, but function "capitalize-region" has no key binding, so give it one:
 #+begin_src emacs-lisp 
 (bind-key "C-x M-c" 'capitalize-region)
 #+end_src
 
+*** Scale text
 2019-07-29: It's a PITA to have to remember the Windows hydra to increase/decrease text size, so here are some misc. global key bindings.
 #+begin_src emacs-lisp
   (defun aeh/text-scale-reset ()
@@ -1742,11 +1777,13 @@ The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow,
   (global-set-key (kbd "C-M-=") 'aeh/text-scale-reset)
 #+end_src
 
+*** Iedit
 2019-11-01: Somehow lost keybindings to iedit, so put the main one back.
 #+begin_src emacs-lisp 
   (global-set-key (kbd "C-;") 'iedit-mode)
 #+end_src
 
+*** Dwimming case
 2019-11-05: Some dwim chords for region-based case.
 #+begin_src emacs-lisp
   (global-set-key (kbd "C-c u") 'upcase-dwim)
@@ -2111,26 +2148,17 @@ Diminish will remove or abbreviate minor mode names on the modeline. Although "u
 #+END_SRC
 ** Misc. Settings 
 Readings on articles about "persistent undo" in Emacs, I see that variable "undo-tree-auto-save-history" should be True.
+2020-01-28: Got rid of undo-tree--as much as possible. Evil requires it to be installed, but I can and will disable it with the loading of undo-fu-session. I will still need the "undo" directory, as undo-fu-session saves undo history, and all the config is done in the undo-fu/undo-fu-session package config.
 
+*** Set work default directory
 #+begin_src emacs-lisp
-  ;; Enable the undo tree
-  ;; (global-undo-tree-mode)
-  ;; Enable the auto-save of undo history
-  (setq undo-tree-auto-save-history t)
-  ;; Set the undo directory, create if it doesn't already exist.
-  (if (file-directory-p "~/.emacs.d/undo")
-      (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
-    (progn
-      (dired-create-directory "~/.emacs.d/undo")
-      (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))) 
-
   ;; 2019-09-11: setting default directory for work/home
   (if (string-equal system-type "windows-nt")
       (setq default-directory "C:/_work/")
     (setq default-directory "~/"))
-  (message "Default Dir: %S" default-directory) 
+  (message "Default Dir: %S" default-directory)
 #+end_src
-** Finally 
+** Finally
 This is the place to put "final" steps, like visiting common files, etc.
 #+begin_src emacs-lisp
   ;; 2019-10-21: setting default directory for work/home
