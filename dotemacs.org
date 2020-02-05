@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-01-29 Wed 00:08>
+#+DATE: <2020-02-05 Wed 12:35>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -500,11 +500,17 @@ Thus far, this has worked well. The key here is that the function paired to the 
 #+END_SRC
 
 *** Ace-Window
-Yet another package from Oleh Krehel, [[https://github.com/abo-abo/ace-window/wiki][ace-window]] performs window movement with relatively few keystrokes.
-This is copied from the [[https://github.com/abo-abo/ace-window][github home]].
+Yet another package from Oleh Krehel, https://github.com/abo-abo/ace-window/wiki performs window movement with relatively few keystrokes.
+This is copied from the https://github.com/abo-abo/ace-window.
 
 2019-06-24: Change "aw-dispatch-always" to nil so when only two windows will not force "choice".
 #+BEGIN_SRC emacs-lisp
+  (defun aeh/scroll-other-window()
+    (interactive)
+    (scroll-other-window 1))
+  (defun aeh/scroll-other-window-down ()
+    (interactive)
+    (scroll-other-window-down 1))
   (use-package ace-window
     :ensure t
     :defer 1
@@ -548,11 +554,11 @@ This is copied from the [[https://github.com/abo-abo/ace-window][github home]].
         ("x" delete-frame "delete frame"))
       (defhydra aeh/hydra-window-scroll (:color red)
         "Scroll other window"
-        ("n" joe-scroll-other-window "scroll")
-        ("p" joe-scroll-other-window-down "scroll down"))
-      (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
-      (add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
-      (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t))
+        ("n" aeh/scroll-other-window "scroll")
+        ("p" aeh/scroll-other-window-down "scroll down"))
+      (add-to-list 'aw-dispatch-alist '(?w aeh/hydra-window-size/body) t)
+      (add-to-list 'aw-dispatch-alist '(?o aeh/hydra-window-scroll/body) t)
+      (add-to-list 'aw-dispatch-alist '(?\; aeh/hydra-window-frame/body) t))
     (ace-window-display-mode t)
     :bind
     ([remap other-window] . ace-window))
