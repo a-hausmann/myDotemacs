@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-02-05 Wed 12:35>
+#+DATE: <2020-02-19 Wed 14:24>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -699,13 +699,15 @@ Aha, found the keys to much of this: variables "company-dabbrev-code-ignore-case
 
 Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the docs on the variables showed other variables possibly involved.
 
+2020-02-19: Change from idle-delay 0 (no delay) to use <M-f2> to complete on demand. Note; in Fundamental mode, company-mode is disabled.
 #+BEGIN_SRC emacs-lisp
   (use-package company
     :ensure t
     :defer 1
     :diminish
     :config
-    (setq company-idle-delay 0)
+    (setq company-idle-delay nil)
+    (global-set-key (kbd "<M-f2>") 'company-complete-common)
     (setq company-minimum-prefix-length 5)
     (setq company-dabbrev-ignore-case t))
   (add-hook 'after-init-hook 'global-company-mode)
