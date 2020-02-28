@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-02-19 Wed 14:24>
+#+DATE: <2020-02-28 Fri 12:24>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -2170,8 +2170,15 @@ Readings on articles about "persistent undo" in Emacs, I see that variable "undo
 This is the place to put "final" steps, like visiting common files, etc.
 #+begin_src emacs-lisp
   ;; 2019-10-21: setting default directory for work/home
+  ;; 2020-02-28: modified work path to progn to add x12-mode.el
   (if (string-equal system-type "windows-nt")
-      (find-file "c:/_work/org/todo.org"))
+      (progn
+        (find-file "c:/_work/org/todo.org")
+        ;; 2020-02-28: add x12-mode autoload plus file extensions
+        (progn
+          (autoload 'x12-mode "x12-mode" "" t)
+          ;; Add more file extensions as required
+          (add-to-list 'auto-mode-alist '("\\.x12\\'" . x12-mode)))))
   ;; 2019-12-10: Created ~/.emacs.d/private/local/aeh-useful.el, so load it
   (load "aeh-useful")
 #+end_src
