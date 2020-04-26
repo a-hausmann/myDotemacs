@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-02-28 Fri 12:24>
+#+DATE: <2020-04-25 Sat 21:48>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1066,6 +1066,18 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
 
   ;; Turn on the mode.
   (ivy-posframe-mode 1)
+#+end_src
+
+04/25/2020: Add ivy-rich support.
+#+begin_src emacs-lisp
+  (use-package ivy-rich
+    :ensure
+    :after ivy
+    :config
+    (setq ivy-rich-path-style 'abbreviate)
+    (setcdr (assq t ivy-format-functions-alist)
+            #'ivy-format-function-line)
+    (ivy-rich-mode 1))
 #+end_src
 
 *** Kill-ring setup
