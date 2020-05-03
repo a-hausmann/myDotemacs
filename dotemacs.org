@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-03 Sun 16:29>
+#+DATE: <2020-05-03 Sun 17:27>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -970,9 +970,10 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
    :ensure t
    :defer 2)
 #+END_SRC
+
 *** Hungry-delete
 #+begin_src emacs-lisp
-  (use package hungry-delete
+  (use-package hungry-delete
     :ensure t
     :config
     (global-hungry-delete-mode 1))
@@ -1133,7 +1134,9 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
   (setq git-commit-summary-max-length 50)
   (use-package magit-gitflow
     :ensure t
-    :hook (magit-mode turn-on-magit-gitflow))
+    :after magit
+    :defer 1
+    :hook (magit-mode . turn-on-magit-gitflow))
 #+END_SRC
 
 *** Move-text
@@ -1717,6 +1720,7 @@ I do NOT want enable evil-mc globally, but only as needed. Mappings are:
     :ensure t
     :bind (("C-c m m" . evil-mc-mode)))
 #+end_src
+
 * Final Stuff
 ** Remap some keys
 Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/blog/2014-08-03-a-vim-like-emacs-config.html][here]]. 12/21/2018: fixed the problem of not having General's SPC giving me menu by defining SPC in dired-mode-map to nil. This then allows General to take over, the local private map not having a mapping for SPC.
