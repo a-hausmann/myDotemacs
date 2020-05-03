@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-04-25 Sat 21:48>
+#+DATE: <2020-05-03 Sun 16:29>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -623,8 +623,9 @@ Found a trick; instead of binding to "avy-goto-char", use "avy-goto-char-timer".
 Found [[https://github.com/Malabarba/aggressive-indent-mode][here]], aggressive-indent-mode is a minor mode which deals with changing code better than the standard electric-indent-mode. This does *not* work well with SQL or PL/SQL, and the documentation states the "aggressive-indent-excluded-modes" list will *only* be used in aggressive-indent is turned on globally.  This means, I cannot use the "prog-mode-hook" as that would include SQL. Set now for ONLY Emacs-lisp.
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
-    :ensure t)
-  (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
+    :ensure t
+    :hook (emacs-lisp-mode . aggressive-indent-mode))
+  ;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
   ;; (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
 #+END_SRC
 
@@ -673,8 +674,9 @@ I found this while putzing around on the web and it works something like Vims co
 #+begin_src emacs-lisp
   (use-package column-enforce-mode
     :ensure t
-    :diminish)
-    (add-hook 'prog-mode-hook 'column-enforce-mode)
+    :diminish
+    :hook (prog-mode . column-enforce-mode))
+    ;; (add-hook 'prog-mode-hook 'column-enforce-mode)
     (setq column-enforce-comments nil)
 #+end_src
 *** Command-log-mode
@@ -881,8 +883,8 @@ With this [[https://github.com/magnars/expand-region.el][simple package]] from M
 
 #+BEGIN_SRC emacs-lisp
   (use-package expand-region
-    :defer 2)
-  (global-set-key (kbd "C-=") 'er/expand-region)
+    :defer 2
+    :bind ("C-=" . er/expand-region))
 #+END_SRC
 
 *** Eyebrowse
@@ -895,11 +897,10 @@ Look into [[https://github.com/wasamasa/eyebrowse][Eyebrowse]] mode; Mike Zamans
 *** Flycheck
 Flycheck does syntax checking for multiple languages.
 #+BEGIN_SRC emacs-lisp
-(use-package flycheck
-  :ensure t)
-
-;; bash hook
-(add-hook 'shell-mode-hook 'flycheck-mode)
+  (use-package flycheck
+    :ensure t
+    :hook (shell-mode . flycheck-mode))
+  ;; (add-hook 'shell-mode-hook 'flycheck-mode)
 #+END_SRC
 
 *** Frog-jump-buffer
@@ -925,35 +926,29 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
 2019-01-09: git-gutter depends on "diff" as external command, not available in Winders. Make this conditional; bypass loading on Winders.
 #+BEGIN_SRC emacs-lisp
   ;; 2019-01-07: git-gutter depends on *nix "find" command, not found in Windows; dang it!
+  ;; 2020-05-03: restructure, use ":bind" and ":hook"
   (cond
    ((not (string-equal system-type "windows-nt"))
     (progn
       (use-package git-gutter-fringe
-        :ensure t)
-      ;; Jump to next/previous hunk
-
-      (global-set-key (kbd "M-p") 'git-gutter:previous-hunk)
-      (global-set-key (kbd "M-n") 'git-gutter:next-hunk)
-      ;; Stage current hunk
-      (global-set-key (kbd "C-x v s") 'git-gutter:stage-hunk)
-      ;; Revert current hunk
-      (global-set-key (kbd "C-x v r") 'git-gutter:revert-hunk)
-      ;; Mark current hunk
-      (global-set-key (kbd "C-x v SPC") #'git-gutter:mark-hunk)
-      (global-git-gutter-mode +1)
-      ;; Suggested in StackOverflow, ref: https://stackoverflow.com/questions/23344540/emacs-update-git-gutter-annotations-when-staging-or-unstaging-changes-in-magit
-      (add-hook 'magit-post-refresh-hook #'git-gutter:update-all-windows)
-      (custom-set-variables
-       '(git-gutter:update-interval 2)
-       '(git-gutter:window-width 2)
-       '(git-gutter:lighter "GG")
-       '(git-gutter:modified-sign "<>") ;; two space
-       '(git-gutter:added-sign "++")    ;; multiple character is OK
-       '(git-gutter:deleted-sign "--")
-       )
-      (set-face-foreground 'git-gutter:modified "yellow")
-      (set-face-foreground 'git-gutter:added    "green")
-      (set-face-foreground 'git-gutter:deleted  "red"))))
+        :ensure t
+        :bind (("M-p" . git-gutter:previous-hunk)
+               ("M-n" . git-gutter:next-hunk)
+               ("C-x v s" . git-gutter:stage-hunk)
+               ("C-x v r" . git-gutter:revert-hunk)
+               ("C-x v SPC" . git-gutter:mark-hunk))
+        :hook (magit-post-refresh . git-gutter:update-all-windows)
+        :config ((global-git-gutter-mode +1)
+                 (custom-set-variables
+                  '(git-gutter:update-interval 2)
+                  '(git-gutter:window-width 2)
+                  '(git-gutter:lighter "GG")
+                  '(git-gutter:modified-sign "<>") ;; two space
+                  '(git-gutter:added-sign "++")    ;; multiple character is OK
+                  '(git-gutter:deleted-sign "--"))
+                 (set-face-foreground 'git-gutter:modified "yellow")
+                 (set-face-foreground 'git-gutter:added    "green")
+                 (set-face-foreground 'git-gutter:deleted  "red"))))))
 #+END_SRC
 
 *** Highlight-thing
@@ -973,8 +968,8 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
 #+BEGIN_SRC emacs-lisp
  (use-package htmlize
    :ensure t
-   :init)
-#+END_SR
+   :defer 2)
+#+END_SRC
 *** Hungry-delete
 #+begin_src emacs-lisp
   (use package hungry-delete
@@ -994,25 +989,39 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
     :defer 1
     :diminish ivy-mode
     :config
+    (ivy-mode t)
     (setq ivy-wrap t)
     (setq ivy-count-format "(%d/%d) ")
     (setq ivy-height-alist '((t lambda (_caller) (/ (window-height) 4))))
+    (setq ivy-initial-inputs-alist nil)
     :bind (("C-c v" . ivy-push-view)
-           ("C-c V" . ivy-switch-view)))
-  (ivy-mode t)
+           ("C-c V" . ivy-switch-view)
+           ("<f6>"  . ivy-resume)))
   ;; By default ivy starts filters with ^. I don't normally want that and can easily type it manually when I do.
-  (setq ivy-initial-inputs-alist nil)
 
   ;; Counsel is a collection of ivy enhanced versions of common Emacs commands. I haven't bound much as ivy-mode takes care of most things.
   (use-package counsel
     :ensure
     :defer 1
-    :bind (("M-x" . counsel-M-x)))
+    :bind (("M-x" . counsel-M-x)
+           ("C-c g" . 'counsel-git)
+           ("C-c j" . 'counsel-git-grep)
+           ("C-c k" . 'counsel-ag)
+           ("C-x b" . 'counsel-ibuffer)
+           ("C-x l" . 'counsel-locate)
+           ("C-x C-f" . 'counsel-find-file)
+           ("<f1> f" . 'counsel-describe-function)
+           ("<f1> v" . 'counsel-describe-variable)
+           ("<f1> l" . 'counsel-find-library)
+           ("<f2> i" . 'counsel-info-lookup-symbol)
+           ("<f2> u" . 'counsel-unicode-char)
+           (:map minibuffer-local-map ("C-r" . counsel-minibuffer-history))))
 
   ;; Swiper is an ivy enhanced version of isearch.
   (use-package swiper
     :ensure t
-    :defer 1)
+    :defer 1
+    :bind ("C-S-s" . swiper))
 
   ;; Hydra presents menus for ivy commands.
   ;; 2019-10-02: Change Swiper binding to "C-S-s"
@@ -1020,27 +1029,26 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
     :ensure
     :after ivy
     :defer 1)
-  (global-set-key (kbd "C-S-s") 'swiper)
+  ;; (global-set-key (kbd "C-S-s") 'swiper)
 
   ;; These are some key bindings for Ivy/Counsel/Swiper ref: https://github.com/abo-abo/swiper#small-config-example
   ;; 2019-08-27: Some changes here, ref.: https://oremacs.com/swiper/
   (setq ivy-use-virtual-buffers t)
   (setq enable-recursive-minibuffers t)
   ;; (global-set-key (kbd "C-c C-r") 'ivy-resume)
-  (global-set-key (kbd "<f6>") 'ivy-resume)
-  (global-set-key (kbd "C-c g") 'counsel-git)
-  (global-set-key (kbd "C-c j") 'counsel-git-grep)
-  (global-set-key (kbd "C-c k") 'counsel-ag)
-  (global-set-key (kbd "C-x b") 'counsel-ibuffer)
-  (global-set-key (kbd "C-x l") 'counsel-locate)
-  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
-  ;; 2019-08-27: new
-  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-  (global-set-key (kbd "<f1> l") 'counsel-find-library)
-  (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-  (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+  ;; (global-set-key (kbd "<f6>") 'ivy-resume)
+  ;; (global-set-key (kbd "C-c g") 'counsel-git)
+  ;; (global-set-key (kbd "C-c j") 'counsel-git-grep)
+  ;; (global-set-key (kbd "C-c k") 'counsel-ag)
+  ;; (global-set-key (kbd "C-x b") 'counsel-ibuffer)
+  ;; (global-set-key (kbd "C-x l") 'counsel-locate)
+  ;; (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  ;; (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+  ;; (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+  ;; (global-set-key (kbd "<f1> l") 'counsel-find-library)
+  ;; (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+  ;; (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+  ;; (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 #+END_SRC
 
 2019-08-09: Add ivy-posframe support.
@@ -1100,13 +1108,15 @@ This setup is translated from or taken from [[https://github.com/abo-abo/lispy#c
 #+BEGIN_SRC emacs-lisp
   (use-package lispy
     :ensure t
-    :defer 2)
-  (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
-  ;; One can use "M-:" - eval-expression to use lispy in the mini-buffer during eval-expression
-  (defun conditionally-enable-lispy ()
-    (when (eq this-command 'eval-expression)
-      (lispy-mode 1)))
-  (add-hook 'minibuffer-setup-hook 'conditionally-enable-lispy)
+    :defer 2
+    :config
+    ;; One can use "M-:" - eval-expression to use lispy in the mini-buffer during eval-expression
+    (defun conditionally-enable-lispy ()
+      (when (eq this-command 'eval-expression)
+        (lispy-mode 1)))
+    (add-hook 'minibuffer-setup-hook 'conditionally-enable-lispy)
+    (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
+    )
 #+END_SRC
 
 *** Magit
@@ -1123,8 +1133,7 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
   (setq git-commit-summary-max-length 50)
   (use-package magit-gitflow
     :ensure t
-    :config
-    (add-hook 'magit-mode-hook 'turn-on-magit-gitflow))
+    :hook (magit-mode turn-on-magit-gitflow))
 #+END_SRC
 
 *** Move-text
@@ -1268,17 +1277,13 @@ Ref: https://github.com/Malabarba/paradox
      :defer 1
      ;; To pin to melpa-stable, need to edit init.el to add the stable repository
      :pin melpa-stable
+     :bind ((:map projectile-mode-map ("s-p" . projectile-command-map))
+            (:map projectile-mode-map ("C-c p" . projectile-command-map)))
      :config
-     (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-     (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
      (projectile-mode +1)
      ;; I do NOT need this right now, but someone might, someday.
      ;; (global-set-key (kbd "<f5>") 'projectile-compile-project)
-     ;; 2018-12-01: Add setting to use Ivy for completion instead of default Ido
-     (setq projectile-completion-system 'ivy)
-     )
-   (projectile-mode 1)
-   ;; Let Projectile call "make"
+     (setq projectile-completion-system 'ivy))
  #+END_SRC
 
 *** Relative line numbering
@@ -1296,17 +1301,18 @@ Very useful if working web or game development--or theme development--when this 
   (use-package rainbow-mode
     :ensure t
     :diminish
-    :init
-    (add-hook 'prog-mode-hook 'rainbow-mode)
-    (add-hook 'org-mode-hook 'rainbow-mode))
+    :hook ((prog-mode . rainbow-mode)
+           (org-mode . rainbow-mode)))
 #+END_SRC
 
 *** Smartparens
 Will try out Smartparens for a while, from 2019-04-14.
 #+begin_src emacs-lisp
-(use-package smartparens
-  :ensure t)
-(smartparens-global-mode 1)
+  (use-package smartparens
+    :ensure t
+    :defer 1
+    :config
+    (smartparens-global-mode 1))
 #+end_src
 
 *** Spaceline
@@ -1470,10 +1476,10 @@ See Reddit: https://www.reddit.com/r/emacs/comments/epehfg/rfc_undohist_updated/
     :ensure t
     :after evil
     :defer 1
+    :bind ((:map evil-normal-state-map ("u" . undo-fu-only-undo))
+           (:map evil-normal-state-map ("C-r" . undo-fu-only-redo))
+           (:map evil-normal-state-map ("C-c C-r" . isearch-backward)))   ; don't want to lose isearch-backward
     :config
-    (define-key evil-normal-state-map (kbd "u") 'undo-fu-only-undo)
-    (define-key evil-normal-state-map (kbd "C-r") 'undo-fu-only-redo)
-    (define-key evil-normal-state-map (kbd "C-c C-r") 'isearch-backward)    ; don't want to lose isearch-backward
     (global-undo-tree-mode -1))
   (use-package undo-fu-session
     :ensure t
@@ -1487,9 +1493,7 @@ See Reddit: https://www.reddit.com/r/emacs/comments/epehfg/rfc_undohist_updated/
         (progn
           (dired-create-directory "~/.emacs.d/undo-fu-session")
           (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo-fu-session")))))
-      )
-    )
-  (global-undo-fu-session-mode 1)
+      (global-undo-fu-session-mode 1)))
 #+end_src
 
 *** Wgrep
@@ -1509,15 +1513,18 @@ This is one of the best packages in Emacs, and takes advantage of the self-docum
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
     :ensure t
-    :init
+    :defer 1
+    :config
     (which-key-mode))
 #+END_SRC
 
 *** Which-key-posframe
 This is a VERY neat package, putting the output of which-key to a posframe instead of the minibuffer. This is cool because the minibuffer is restricted to a specific number of rows, which then forces paging via C-h. Use =:demand= to force load and =:config= for configuration. I like the blue background and the center frame position seems pretty nice.  I wish I could find a way to set a border, but good enough. Add a toggle for the mode to aeh/hydra-toggles.
+2020-05-03: set to disabled, frame sometimes not sized correctly and lines cut off
 #+begin_src emacs-lisp
   (use-package which-key-posframe
     :ensure t
+    :disabled
     :defer 1
     :config
     (which-key-posframe-mode)
@@ -1529,14 +1536,18 @@ This is a VERY neat package, putting the output of which-key to a posframe inste
 *** WS-Butler 
 This is a package suggested by EditorConfig, to trim trailing whitespace ONLY on changed lines.
 2019-10-28: Change prog-mode-hook to multiple hooks as do NOT want text mode butlered.
+2020-05-03: Change method from config to hook: https://github.com/jwiegley/use-package#hooks
 #+begin_src emacs-lisp 
   (use-package ws-butler
     :ensure t
     :defer 2
-    :config
-    (add-hook 'sql-mode-hook #'ws-butler-mode)
-    (add-hook 'sh-mode-hook #'ws-butler-mode)
-    (add-hook 'emacs-lisp-mode-hook #'ws-butler-mode))
+    ;; :config
+    ;; (add-hook 'sql-mode-hook #'ws-butler-mode)
+    ;; (add-hook 'sh-mode-hook #'ws-butler-mode)
+    ;; (add-hook 'emacs-lisp-mode-hook #'ws-butler-mode)
+    :hook ((sql-mode . ws-butler-mode)
+           (sh-mode . ws-butler-mode)
+           (emacs-lisp-mode . ws-butler-mode)))
 #+end_src
 
 *** Yasnippet
@@ -1544,13 +1555,17 @@ This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] fo
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
     :ensure t
-    :diminish 'yas-minor-mode)
+    :diminish 'yas-minor-mode
+    :config
+    (setq yas-snippet-dirs '("~/.emacs.d/private/snippets"))
+    (setq yas-indent-line 'fixed)
+    (yas-global-mode 1))
   (use-package yasnippet-snippets
     :ensure t)
-  (setq yas-snippet-dirs '("~/.emacs.d/private/snippets"))
-  (setq yas-indent-line 'fixed)
+  ;; (setq yas-snippet-dirs '("~/.emacs.d/private/snippets"))
+  ;; (setq yas-indent-line 'fixed)
   ;; (add-hook 'prog-mode-hook 'yas-minor-mode)
-  (yas-global-mode 1)
+  ;; (yas-global-mode 1)
 #+END_SRC
 
 ** Hydras
