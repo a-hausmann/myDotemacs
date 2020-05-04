@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-03 Sun 17:27>
+#+DATE: <2020-05-04 Mon 16:19>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -87,8 +87,7 @@ Garbage-collect on focus-out, Emacs should feel snappier.
                         :family "Source Code Pro"
                         :height 120
                         :weight 'normal
-                        :width 'normal)
-    )
+                        :width 'normal))
 #+end_src
 *** Set regular package refreshes without killing restarts
 Have found out that the many, *many* times I have received a "package not found" even when I can absolutely find the package in Melpa is that I have an outdated package listing, easily fixed with the following:
@@ -625,7 +624,6 @@ Found [[https://github.com/Malabarba/aggressive-indent-mode][here]], aggressive-
   (use-package aggressive-indent
     :ensure t
     :hook (emacs-lisp-mode . aggressive-indent-mode))
-  ;; (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode)
   ;; (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
 #+END_SRC
 
@@ -675,9 +673,8 @@ I found this while putzing around on the web and it works something like Vims co
   (use-package column-enforce-mode
     :ensure t
     :diminish
-    :hook (prog-mode . column-enforce-mode))
-    ;; (add-hook 'prog-mode-hook 'column-enforce-mode)
-    (setq column-enforce-comments nil)
+    :hook (prog-mode . column-enforce-mode)
+    :config (setq column-enforce-comments nil))
 #+end_src
 *** Command-log-mode
 Command-log-mode creates buffer "*command-log*" which displays commands executed. Then, "C-c o" will toggle the command-line-mode buffer to make it visible. Also, all the command-log-mode functions begin "clm/" so you can "M-x" then "clm/" to see the full list of commands which can be used.  The extra settings below make clear the packages defaults.
@@ -900,7 +897,6 @@ Flycheck does syntax checking for multiple languages.
   (use-package flycheck
     :ensure t
     :hook (shell-mode . flycheck-mode))
-  ;; (add-hook 'shell-mode-hook 'flycheck-mode)
 #+END_SRC
 
 *** Frog-jump-buffer
@@ -914,8 +910,9 @@ This actually beats iBuffer and counsel-ibuffer with Swiper; use General for bin
 Does a sneaky way of garbage collection.
 #+begin_src emacs-lisp
   (use-package gcmh
-    :ensure t)
-  (gcmh-mode 1)
+    :ensure t
+    :delight
+    :init (gcmh-mode 1))
 #+end_src
 
 *** Git-gutter-fringe
@@ -1030,26 +1027,11 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
     :ensure
     :after ivy
     :defer 1)
-  ;; (global-set-key (kbd "C-S-s") 'swiper)
 
   ;; These are some key bindings for Ivy/Counsel/Swiper ref: https://github.com/abo-abo/swiper#small-config-example
   ;; 2019-08-27: Some changes here, ref.: https://oremacs.com/swiper/
   (setq ivy-use-virtual-buffers t)
   (setq enable-recursive-minibuffers t)
-  ;; (global-set-key (kbd "C-c C-r") 'ivy-resume)
-  ;; (global-set-key (kbd "<f6>") 'ivy-resume)
-  ;; (global-set-key (kbd "C-c g") 'counsel-git)
-  ;; (global-set-key (kbd "C-c j") 'counsel-git-grep)
-  ;; (global-set-key (kbd "C-c k") 'counsel-ag)
-  ;; (global-set-key (kbd "C-x b") 'counsel-ibuffer)
-  ;; (global-set-key (kbd "C-x l") 'counsel-locate)
-  ;; (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-  ;; (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-  ;; (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-  ;; (global-set-key (kbd "<f1> l") 'counsel-find-library)
-  ;; (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-  ;; (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-  ;; (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 #+END_SRC
 
 2019-08-09: Add ivy-posframe support.
@@ -1116,8 +1098,7 @@ This setup is translated from or taken from [[https://github.com/abo-abo/lispy#c
       (when (eq this-command 'eval-expression)
         (lispy-mode 1)))
     (add-hook 'minibuffer-setup-hook 'conditionally-enable-lispy)
-    (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
-    )
+    (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1))))
 #+END_SRC
 
 *** Magit
@@ -1138,6 +1119,14 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
     :defer 1
     :hook (magit-mode . turn-on-magit-gitflow))
 #+END_SRC
+
+*** Modus vivendi
+Prot's excellent themes.
+#+begin_src emacs-lisp
+  (use-package modus-vivendi-theme
+    :ensure t
+    :pin gnu)
+#+end_src
 
 *** Move-text
 [[https://www.emacswiki.org/emacs/move-text.el][MoveText]] allows you to move the current line using M-up / M-down. If a region is marked, it will move the region instead.
@@ -1544,10 +1533,6 @@ This is a package suggested by EditorConfig, to trim trailing whitespace ONLY on
   (use-package ws-butler
     :ensure t
     :defer 2
-    ;; :config
-    ;; (add-hook 'sql-mode-hook #'ws-butler-mode)
-    ;; (add-hook 'sh-mode-hook #'ws-butler-mode)
-    ;; (add-hook 'emacs-lisp-mode-hook #'ws-butler-mode)
     :hook ((sql-mode . ws-butler-mode)
            (sh-mode . ws-butler-mode)
            (emacs-lisp-mode . ws-butler-mode)))
@@ -1565,10 +1550,6 @@ This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] fo
     (yas-global-mode 1))
   (use-package yasnippet-snippets
     :ensure t)
-  ;; (setq yas-snippet-dirs '("~/.emacs.d/private/snippets"))
-  ;; (setq yas-indent-line 'fixed)
-  ;; (add-hook 'prog-mode-hook 'yas-minor-mode)
-  ;; (yas-global-mode 1)
 #+END_SRC
 
 ** Hydras
@@ -2205,6 +2186,8 @@ This is the place to put "final" steps, like visiting common files, etc.
   (if (string-equal system-type "windows-nt")
       (progn
         (find-file "c:/_work/org/todo.org")
+        ;; 2020-04-27: Created acts.org, load with todo.org
+        (find-file "c:/_work/org/acts.org")
         ;; 2020-02-28: add x12-mode autoload plus file extensions
         (progn
           (autoload 'x12-mode "x12-mode" "" t)
