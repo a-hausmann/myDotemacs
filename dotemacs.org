@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-04 Mon 16:19>
+#+DATE: <2020-05-06 Wed 23:50>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -513,6 +513,7 @@ This is copied from the https://github.com/abo-abo/ace-window.
   (use-package ace-window
     :ensure t
     :defer 1
+    :diminish
     :config
     (set-face-attribute
      'aw-leading-char-face nil
@@ -594,6 +595,7 @@ https://github.com/raxod502/prescient.el
   (use-package amx
     :ensure t
     :defer 1
+    :diminish
     :config
     (amx-mode t)   ; always in amx-mode
     (global-set-key (kbd "M-x") 'amx)
@@ -623,6 +625,7 @@ Found [[https://github.com/Malabarba/aggressive-indent-mode][here]], aggressive-
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
     :ensure t
+    :diminish
     :hook (emacs-lisp-mode . aggressive-indent-mode))
   ;; (add-to-list 'aggressive-indent-excluded-modes 'html-mode)
 #+END_SRC
@@ -663,15 +666,19 @@ NOTE: This acts/looks weird in that, typing a pairable character, *three* appear
 Shine a light on the point position whenever the window scrolls to you can find the point.
 Ref: https://github.com/Malabarba/beacon
 #+begin_src emacs-lisp
-(use-package beacon
-  :ensure t)
-(beacon-mode 1)
+  (use-package beacon
+    :ensure t
+    :diminish
+    :defer 2
+    :config
+    (beacon-mode 1))
 #+end_src
 *** Column-enforce-mode
 I found this while putzing around on the web and it works something like Vims columnline setting; text beyond a limit is highlighted so you know when the limit is exceeded. Can set to any column or use standard 80 columns.
 #+begin_src emacs-lisp
   (use-package column-enforce-mode
     :ensure t
+    :defer 2
     :diminish
     :hook (prog-mode . column-enforce-mode)
     :config (setq column-enforce-comments nil))
@@ -681,6 +688,8 @@ Command-log-mode creates buffer "*command-log*" which displays commands executed
 #+BEGIN_SRC emacs-lisp
   (use-package command-log-mode
     :ensure t
+    :defer 2
+    :diminish
     :commands (command-log-mode)
     :bind ("C-c o" . clm/toggle-command-log-buffer))
 #+END_SRC
@@ -752,6 +761,7 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
   (use-package company-shell
     :ensure t
     :after company
+    :diminish
     :config
     (require 'company)
     (add-hook 'shell-mode-hook 'shell-mode-company-init))
@@ -833,6 +843,8 @@ This works OK in Windows, but is very slow as it appears to send a "git log" com
 #+begin_src emacs-lisp
   (use-package dired-git-info
     :ensure t
+    :defer 1
+    :diminish
     :config)
   (with-eval-after-load 'dired
     (define-key dired-mode-map ")" 'dired-git-info-mode))
@@ -845,6 +857,7 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
   (use-package dired-narrow
     :ensure t
     :defer 2
+    :diminish
     :bind
     (:map dired-mode-map ("C-c C-n" . dired-narrow))
     (:map dired-mode-map ("C-c C-f" . dired-narrow-fuzzy))
@@ -855,11 +868,26 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
 From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.org#dired
 2019-06-29: Mike's config methodology for keybindings is not good. Better to use the :bind macro instead.
 #+begin_src emacs-lisp
-  (use-package dired-subtree :ensure t
+  (use-package dired-subtree
+    :ensure t
     :after dired
+    :defer 1
+    :diminish
     :bind
     (:map dired-mode-map ("<tab>" . dired-subtree-toggle))
     (:map dired-mode-map ("<backtab>" . dired-subtree-cycle)))
+#+end_src
+
+*** Drag-stuff
+2020-05-04: installing to replace move-text.
+#+begin_src emacs-lisp
+  (use-package drag-stuff
+    :ensure t
+    :diminish
+    :defer 1
+    :bind ("M-<f3>" . drag-stuff-mode)
+    :config
+    (drag-stuff-define-keys))
 #+end_src
 
 *** EditorConfig for Emacs
@@ -880,7 +908,9 @@ With this [[https://github.com/magnars/expand-region.el][simple package]] from M
 
 #+BEGIN_SRC emacs-lisp
   (use-package expand-region
+    :ensure t
     :defer 2
+    :diminish
     :bind ("C-=" . er/expand-region))
 #+END_SRC
 
@@ -888,7 +918,9 @@ With this [[https://github.com/magnars/expand-region.el][simple package]] from M
 Look into [[https://github.com/wasamasa/eyebrowse][Eyebrowse]] mode; Mike Zamansky did a [[https://www.youtube.com/watch?v=s6IXj0bS7L8][demo]] of it, pretty good window manager, it tracks window/buffer splits well within one session, though there seems no way to save over sessions. Though on the blog page, Vadim notes that searching for "persist" in the README shows how to save using "built-in desktop.el" package.
 #+BEGIN_SRC emacs-lisp
   (use-package eyebrowse
-    :ensure t)
+    :ensure t
+    :defer 1
+    :diminish)
 #+END_SRC
 
 *** Flycheck
@@ -896,14 +928,18 @@ Flycheck does syntax checking for multiple languages.
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck
     :ensure t
+    :defer 2
+    :diminish
     :hook (shell-mode . flycheck-mode))
 #+END_SRC
 
 *** Frog-jump-buffer
 This actually beats iBuffer and counsel-ibuffer with Swiper; use General for bindings.
 #+begin_src emacs-lisp
-(use-package frog-jump-buffer
-  :ensure t)
+  (use-package frog-jump-buffer
+    :ensure t
+    :defer 1
+    :diminish)
 #+end_src
 
 *** Garbage Collector Magic Hack
@@ -911,8 +947,15 @@ Does a sneaky way of garbage collection.
 #+begin_src emacs-lisp
   (use-package gcmh
     :ensure t
+<<<<<<< HEAD
     :delight
     :init (gcmh-mode 1))
+=======
+    :diminish
+    :defer 1
+    :config
+    (gcmh-mode 1))
+>>>>>>> More dotemacs work, plus hydras work.
 #+end_src
 
 *** Git-gutter-fringe
@@ -924,18 +967,25 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
 #+BEGIN_SRC emacs-lisp
   ;; 2019-01-07: git-gutter depends on *nix "find" command, not found in Windows; dang it!
   ;; 2020-05-03: restructure, use ":bind" and ":hook"
+  ;; 2020-05-05: config not working now, disable for now.
   (cond
    ((not (string-equal system-type "windows-nt"))
     (progn
       (use-package git-gutter-fringe
         :ensure t
+        :disabled
+        :defer 1
+        :diminish
         :bind (("M-p" . git-gutter:previous-hunk)
                ("M-n" . git-gutter:next-hunk)
                ("C-x v s" . git-gutter:stage-hunk)
                ("C-x v r" . git-gutter:revert-hunk)
                ("C-x v SPC" . git-gutter:mark-hunk))
         :hook (magit-post-refresh . git-gutter:update-all-windows)
-        :config ((global-git-gutter-mode +1)
+        :config (
+                 (set-face-foreground 'git-gutter:modified "yellow")
+                 (set-face-foreground 'git-gutter:added    "green")
+                 (set-face-foreground 'git-gutter:deleted  "red")
                  (custom-set-variables
                   '(git-gutter:update-interval 2)
                   '(git-gutter:window-width 2)
@@ -943,9 +993,7 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
                   '(git-gutter:modified-sign "<>") ;; two space
                   '(git-gutter:added-sign "++")    ;; multiple character is OK
                   '(git-gutter:deleted-sign "--"))
-                 (set-face-foreground 'git-gutter:modified "yellow")
-                 (set-face-foreground 'git-gutter:added    "green")
-                 (set-face-foreground 'git-gutter:deleted  "red"))))))
+                 (global-git-gutter-mode))))))
 #+END_SRC
 
 *** Highlight-thing
@@ -953,6 +1001,8 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
 #+begin_src emacs-lisp
   (use-package highlight-thing
     :ensure t
+    :defer 2
+    :diminish
     :config
     (setq highlight-thing-what-thing 'word)
     (setq highlight-thing-case-sensitive-p nil)
@@ -963,15 +1013,18 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
  *Ensure "htmlize" is available for Org mode*
  This is a package not available when Emacs is compiled from source (mine), but is required by Org mode to export to HTML.
 #+BEGIN_SRC emacs-lisp
- (use-package htmlize
-   :ensure t
-   :defer 2)
+  (use-package htmlize
+    :ensure t
+    :defer 2
+    :diminish)
 #+END_SRC
 
 *** Hungry-delete
 #+begin_src emacs-lisp
   (use-package hungry-delete
     :ensure t
+    :defer 2
+    :diminish
     :config
     (global-hungry-delete-mode 1))
 #+end_src
@@ -1079,9 +1132,11 @@ Change the limit (max) from 60 (default) to 100.
 
 This is a package which is pretty simple, allowing you to browse the kill-ring like browsing autocompletion items; use C-n and C-p.
 #+BEGIN_SRC emacs-lisp
-(use-package popup-kill-ring
-  :ensure t
-  :bind ("M-y" . popup-kill-ring))
+  (use-package popup-kill-ring
+    :ensure t
+    :defer 1
+    :diminish
+    :bind ("M-y" . popup-kill-ring))
 #+END_SRC
 
 *** Lispy
@@ -1092,6 +1147,7 @@ This setup is translated from or taken from [[https://github.com/abo-abo/lispy#c
   (use-package lispy
     :ensure t
     :defer 2
+    :diminish
     :config
     ;; One can use "M-:" - eval-expression to use lispy in the mini-buffer during eval-expression
     (defun conditionally-enable-lispy ()
@@ -1109,6 +1165,8 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
 #+BEGIN_SRC emacs-lisp
   (use-package magit
     :ensure t
+    :defer 1
+    :diminish
     :commands (magit-status)
     :bind ("M-g" . magit-status))
   (setq magit-push-always-verify nil)
@@ -1117,6 +1175,7 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
     :ensure t
     :after magit
     :defer 1
+    :diminish
     :hook (magit-mode . turn-on-magit-gitflow))
 #+END_SRC
 
@@ -1132,10 +1191,11 @@ Prot's excellent themes.
 [[https://www.emacswiki.org/emacs/move-text.el][MoveText]] allows you to move the current line using M-up / M-down. If a region is marked, it will move the region instead.
 
 =2019-05-23: NOTE: Evil selection will NOT work, you *MUST* set Emacs mark (C-<SPC>) and move point to end of region to move.=
-
+2020-05-04: disabling in favor of drag-stuff, which can move regions horizontally, and do vertical lines better.
 #+BEGIN_SRC emacs-lisp
   (use-package move-text
     :ensure t
+    :disabled
     :defer 2
     :config
     (move-text-default-bindings))
@@ -1182,6 +1242,7 @@ Here is some documentation for the package:
     :ensure t
     :after evil
     :defer 2
+    :diminish
     :config
     (progn
       (global-set-key [f8] 'neotree-toggle)
@@ -1219,6 +1280,7 @@ NOTE: As *usual*, others configuration is incorrect, as they use ":config" inste
   ;; ;; Step 2, install Origami.
   (use-package origami
     :ensure t
+    :defer 1
     :diminish)
   (add-hook 'prog-mode-hook
             (lambda ()
@@ -1233,6 +1295,8 @@ Ref: https://github.com/Malabarba/paradox
 #+begin_src emacs-lisp
   (use-package paradox
     :ensure t
+    :defer 2
+    :diminish
     :config (paradox-enable))
 #+end_src
 *** Projectile
@@ -1292,6 +1356,7 @@ Very useful if working web or game development--or theme development--when this 
 #+BEGIN_SRC emacs-lisp
   (use-package rainbow-mode
     :ensure t
+    :defer 3
     :diminish
     :hook ((prog-mode . rainbow-mode)
            (org-mode . rainbow-mode)))
@@ -1303,6 +1368,7 @@ Will try out Smartparens for a while, from 2019-04-14.
   (use-package smartparens
     :ensure t
     :defer 1
+    :diminish
     :config
     (smartparens-global-mode 1))
 #+end_src
@@ -1457,8 +1523,10 @@ Found Reddit page noting icons for treemacs, found new package to assist: https:
 The try package allows one to "try" other packages without really installing them.  To use, "M-x try RET some-package".
 
 #+begin_src emacs-lisp
-(use-package try
-  :ensure t)
+  (use-package try
+    :ensure t
+    :defer 3
+    :diminish)
 #+end_src
 
 *** Undo-fu
@@ -1492,12 +1560,15 @@ See Reddit: https://www.reddit.com/r/emacs/comments/epehfg/rfc_undohist_updated/
 2019-04-21: Installed Silver Searcher on home laptop, and will attempt to do the same on Windows laptop at work. I reviewed the "Using Emacs #48 - Silversearcher" which includes the Wgrep package.  These two work together pretty well; Silversearcher finds files with text and places into a buffer, while wgrep can edit that buffer, saving the changes back into the files the original search terms found.
 #+begin_src emacs-lisp
   (use-package wgrep
-    :ensure t)
+    :ensure t
+    :defer 1
+    :diminish)
 
   (use-package wgrep-ag
     :ensure t
-    :demand
-    :after ag)
+    :after ag
+    :defer 1
+    :diminish)
 #+end_src
 
 *** Which-key
@@ -1506,6 +1577,7 @@ This is one of the best packages in Emacs, and takes advantage of the self-docum
   (use-package which-key
     :ensure t
     :defer 1
+    :diminish
     :config
     (which-key-mode))
 #+END_SRC
@@ -1533,6 +1605,10 @@ This is a package suggested by EditorConfig, to trim trailing whitespace ONLY on
   (use-package ws-butler
     :ensure t
     :defer 2
+<<<<<<< HEAD
+=======
+    :diminish
+>>>>>>> More dotemacs work, plus hydras work.
     :hook ((sql-mode . ws-butler-mode)
            (sh-mode . ws-butler-mode)
            (emacs-lisp-mode . ws-butler-mode)))
@@ -2149,23 +2225,26 @@ Diminish will remove or abbreviate minor mode names on the modeline. Although "u
 #+BEGIN_SRC emacs-lisp
   (use-package diminish
     :ensure t
-    :demand
-    :init
+    :defer 1
+    :config
     (diminish 'which-key-mode)
+    (diminish 'org-indent-mode)
+    (diminish 'smartparens-mode)
     (diminish 'linum-relative-mode)
     (diminish 'page-break-lines-mode)
     (diminish 'visual-line-mode)
     (diminish 'projectile-mode)
     (diminish 'ivy-mode)
     (diminish 'company-mode)
-    (diminish 'org-indent-mode)
     (diminish 'eldoc-mode)
     (diminish 'undo-tree-mode)
-    (diminish 'auto-revert-mode)
-    (diminish 'smartparens-mode)
     (diminish 'beacon-mode)
     (diminish 'subword-mode))
 #+END_SRC
+Diminish doesn't work for some minor modes as they are hard-coded into the minor mode. Instead, set custom variables to nil.
+#+begin_src emacs-lisp
+  (setq auto-revert-mode-text nil)
+#+end_src
 ** Misc. Settings 
 Readings on articles about "persistent undo" in Emacs, I see that variable "undo-tree-auto-save-history" should be True.
 2020-01-28: Got rid of undo-tree--as much as possible. Evil requires it to be installed, but I can and will disable it with the loading of undo-fu-session. I will still need the "undo" directory, as undo-fu-session saves undo history, and all the config is done in the undo-fu/undo-fu-session package config.

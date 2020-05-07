@@ -1,6 +1,6 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Fri Oct 18, 2019 8:16:58
+;; Last modified: Wed May 06, 2020 23:44:49
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
@@ -148,7 +148,7 @@ _E_: Day, Month Day, Year HH:MI:SS PM
             _a_ → aggressive indent   _s_ → flycheck       _r_ → read only      _t_ → truncate lines   _e_ → debug on error
             _f_ → auto-fill           _S_ → flyspell       _C_ → completion     _W_ → word wrap        _g_ → debug on quit
             _w_ → whitespace          _E_ → electric-pairs _l_ → linum-relative _b_ → page break       _d_ → ediff/vdiff
-            _h_ → highlight-thing
+            _h_ → highlight-thing     _D_ → drag-stuff
 "
   ("z" origami-mode)
   ("c" column-enforce-mode)
@@ -168,18 +168,19 @@ _E_: Day, Month Day, Year HH:MI:SS PM
   ("W" toggle-word-wrap)
   ("r" read-only-mode)
   ("f" auto-fill-mode)
+  ("D" drag-stuff-mode)
   ;; Needs work on the "/pairs/toggle" code, copied from Bailey Ling's code base.
   ;; This switches between smartparens and electric-pairs; at this point, I'm not sure what is installed.
   ;; ("p" /pairs/toggle)
   ("d" (progn
-	     (if aeh/hydras/toggles/vdiff
+         (if aeh/hydras/toggles/vdiff
 	         (progn
 	           (/bindings/vdiff/turn-off)
 	           (message "using ediff"))
-	       (/vcs/setup-vdiff)
-	       (/bindings/vdiff/turn-on)
-	       (message "using vdiff"))
-	     (setq aeh/hydras/toggles/vdiff (not aeh/hydras/toggles/vdiff)))))
+           (/vcs/setup-vdiff)
+           (/bindings/vdiff/turn-on)
+           (message "using vdiff"))
+         (setq aeh/hydras/toggles/vdiff (not aeh/hydras/toggles/vdiff)))))
 
 
 ;; Hydra for rectangles
