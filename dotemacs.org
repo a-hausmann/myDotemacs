@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-06 Wed 23:50>
+#+DATE: <2020-05-06 Wed 23:56>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -947,15 +947,10 @@ Does a sneaky way of garbage collection.
 #+begin_src emacs-lisp
   (use-package gcmh
     :ensure t
-<<<<<<< HEAD
-    :delight
-    :init (gcmh-mode 1))
-=======
     :diminish
     :defer 1
     :config
     (gcmh-mode 1))
->>>>>>> More dotemacs work, plus hydras work.
 #+end_src
 
 *** Git-gutter-fringe
@@ -1605,10 +1600,7 @@ This is a package suggested by EditorConfig, to trim trailing whitespace ONLY on
   (use-package ws-butler
     :ensure t
     :defer 2
-<<<<<<< HEAD
-=======
     :diminish
->>>>>>> More dotemacs work, plus hydras work.
     :hook ((sql-mode . ws-butler-mode)
            (sh-mode . ws-butler-mode)
            (emacs-lisp-mode . ws-butler-mode)))
