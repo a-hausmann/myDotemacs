@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-06 Wed 23:56>
+#+DATE: <2020-05-07 Thu 00:22>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -191,6 +191,7 @@ See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for mor
   (setq dired-dwim-target t)                        ; Allow direct to dwim target of move, copy commands
   (setq make-backup-files nil)                      ; Disable backup files
   (setq auto-save-default nil)                      ; Disable auto-save funtionality
+  (global-set-key (kbd "C-M-y") 'clipboard-yank)    ; 2020-05-07: add mapping to yank from clipboard
 #+end_src
 
 *** Hooks
