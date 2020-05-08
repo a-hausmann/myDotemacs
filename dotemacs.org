@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-07 Thu 00:22>
+#+DATE: <2020-05-08 Fri 00:34>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -581,10 +581,23 @@ Downloaded/installed this somewhen, but never included in the dotemacs.org file 
 #+begin_src emacs-lisp
   (use-package all-the-icons
     :ensure t
-    :defer 2)
+    :diminish
+    :defer 0.5)
   (use-package all-the-icons-dired
     :ensure t
-    :defer 2)
+    :diminish
+    :defer 1
+    :hook ((dired-mode . all-the-icons-dired-mode)
+           (dired-async-mode . all-the-icons-dired-mode)))
+  (use-package all-the-icons-ivy
+    :ensure t
+    :diminish
+    :defer 1
+    :custom (all-the-icons-ivy-buffer-commands '(ivy-switch-buffer-other-window ivy-switch-buffer))
+    :config
+    (add-to-list 'all-the-icons-ivy-file-commands 'counsel-dired-jump)
+    (add-to-list 'all-the-icons-ivy-file-commands 'counsel-find-library)
+    (all-the-icons-ivy-setup))
 #+end_src
 *** Amx (2020-01-22)
 Amx is the newer alternative to smex (aka smart M-x).
@@ -1613,12 +1626,14 @@ This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] fo
   (use-package yasnippet
     :ensure t
     :diminish 'yas-minor-mode
+    :defer 1
     :config
     (setq yas-snippet-dirs '("~/.emacs.d/private/snippets"))
     (setq yas-indent-line 'fixed)
     (yas-global-mode 1))
   (use-package yasnippet-snippets
-    :ensure t)
+    :ensure t
+    :defer 1)
 #+END_SRC
 
 ** Hydras
