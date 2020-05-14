@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-08 Fri 00:34>
+#+DATE: <2020-05-14 Thu 00:09>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -579,25 +579,28 @@ Documentation reference: https://agel.readthedocs.io/en/latest/index.html
 *** All-the-icons
 Downloaded/installed this somewhen, but never included in the dotemacs.org file till now (2019-07-22). At this point, am certain that the display of the hex value of the icon is 100% Windows-based problem.  I don't have this issue in Linux--the icons display properly.
 #+begin_src emacs-lisp
-  (use-package all-the-icons
-    :ensure t
-    :diminish
-    :defer 0.5)
-  (use-package all-the-icons-dired
-    :ensure t
-    :diminish
-    :defer 1
-    :hook ((dired-mode . all-the-icons-dired-mode)
-           (dired-async-mode . all-the-icons-dired-mode)))
-  (use-package all-the-icons-ivy
-    :ensure t
-    :diminish
-    :defer 1
-    :custom (all-the-icons-ivy-buffer-commands '(ivy-switch-buffer-other-window ivy-switch-buffer))
-    :config
-    (add-to-list 'all-the-icons-ivy-file-commands 'counsel-dired-jump)
-    (add-to-list 'all-the-icons-ivy-file-commands 'counsel-find-library)
-    (all-the-icons-ivy-setup))
+  ;; 2020-05-14: load for non-Windows only.
+  (if (not (string-equal system-type "windows-nt"))
+      (progn
+        (use-package all-the-icons
+          :ensure t
+          :diminish
+          :defer 0.5)
+        (use-package all-the-icons-dired
+          :ensure t
+          :diminish
+          :defer 1
+          :hook ((dired-mode . all-the-icons-dired-mode)
+                 (dired-async-mode . all-the-icons-dired-mode)))
+        (use-package all-the-icons-ivy
+          :ensure t
+          :diminish
+          :defer 1
+          :custom (all-the-icons-ivy-buffer-commands '(ivy-switch-buffer-other-window ivy-switch-buffer))
+          :config
+          (add-to-list 'all-the-icons-ivy-file-commands 'counsel-dired-jump)
+          (add-to-list 'all-the-icons-ivy-file-commands 'counsel-find-library)
+          (all-the-icons-ivy-setup))))
 #+end_src
 *** Amx (2020-01-22)
 Amx is the newer alternative to smex (aka smart M-x).
