@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-14 Thu 00:09>
+#+DATE: <2020-05-16 Sat 17:01>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -732,7 +732,9 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
     :diminish
     :config
     (setq company-idle-delay nil)
-    (global-set-key (kbd "<M-f2>") 'company-complete-common)
+    ;; (global-set-key (kbd "<M-f2>") 'company-complete-common)
+    ;; 2020-05-16: <M-f2> doesn't work in Linux, so remap to <C-f12>
+    (global-set-key (kbd "<C-f12>") 'company-complete-common)
     (setq company-minimum-prefix-length 5)
     (setq company-dabbrev-ignore-case t))
   (add-hook 'after-init-hook 'global-company-mode)
@@ -1100,10 +1102,12 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
 #+END_SRC
 
 2019-08-09: Add ivy-posframe support.
+2020-05-16: Haven't really been liking this for a long time, disabling
 #+begin_src emacs-lisp
   (use-package ivy-posframe
     :ensure t
     :defer 1
+    :disabled
     :diminish
     :config
     ;; Reference: https://github.com/tumashu/ivy-posframe
@@ -1121,7 +1125,7 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
             (t               . ivy-posframe-display-at-window-center))))
 
   ;; Turn on the mode.
-  (ivy-posframe-mode 1)
+  ;; (ivy-posframe-mode 1)
 #+end_src
 
 04/25/2020: Add ivy-rich support.
