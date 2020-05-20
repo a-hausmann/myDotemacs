@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-19 Tue 23:02>
+#+DATE: <2020-05-20 Wed 10:56>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1274,8 +1274,8 @@ Here is some documentation for the package:
       (evil-define-key 'normal neotree-mode-map (kbd "A") 'neotree-stretch-toggle)
       (evil-define-key 'normal neotree-mode-map (kbd "H") 'neotree-hidden-file-toggle)))
 #+end_src
-#
-*** Origami
+
+*** Origami 
 It took a *lot* of reading to find out that Origami does, in fact, support a Vim-style "fold-method=marker", This [[https://github.com/gregsexton/origami.el#can-i-override-the-folding-parser-for-an-individual-file][section]] indicates an Emacs tag can be placed in a file to indicate fold style, but that is the only mention of the variable. A Reddit [[https://www.reddit.com/r/emacs/comments/5ei7wa/awesome_vimlike_folding_for_evilmode_with_markers/][article]] showed that the variable can be used in a different way, being set in a "prog-mode-hook" instead. Note: I'm putting everything together here, so if it needs to be commented out, all the configuration is together.  I've attempted to put this with the rest of the packages, but this setup uses "evil-define-key", and always gets an error as it's loaded before Evil.  So, forced to put it here.
 
 NOTE: As *usual*, others configuration is incorrect, as they use ":config" instead of ":init" and the code is not executed correctly. I also found I needed to add several more bindings, as by default "origami-close-all-nodes" is not bound to any keys.
@@ -1305,15 +1305,21 @@ NOTE: As *usual*, others configuration is incorrect, as they use ":config" inste
               (origami-mode)
               (origami-close-all-nodes (current-buffer))))
 #+END_SRC
+
 *** Paradox
 This package has several improvements to the package menu, allowing better updating of existing packages.
 Ref: https://github.com/Malabarba/paradox
 #+begin_src emacs-lisp
-  (use-package paradox
-    :ensure t
-    :defer 2
-    :diminish
-    :config (paradox-enable))
+  ;; 2020-05-20: "spinner-1.7.3" not in MELPA, latest upgrade butchered code and
+  ;; paradox fails with error without it. Works in Linux (somehow), but need to
+  ;; remove from Windows config for the time being.
+  (if (not (string-equal system-type "windows-nt"))
+      (use-package paradox
+        :ensure t
+        :defer 2
+        :diminish
+        :config (paradox-enable)))
+
 #+end_src
 *** Projectile
  Projectile is an excellent project manager because it automatically recognizes directories with a ".git" directory as *projects* and treats them as a "whole", so searching for/jumping to another file in the project is simple. It can be greatly enhanced by other packages as well.
