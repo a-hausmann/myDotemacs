@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-16 Sat 17:01>
+#+DATE: <2020-05-19 Tue 23:02>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1363,9 +1363,9 @@ I usually want *any* type of programming buffer to show line numbers, and I've b
 
 2018-12-02: Research into slowness in large SQL files in Origami kept leading back to use of "linum" with Origami, and of course Relative Linum uses linum. Initially, I removed all fold marker lines from the Rule Engine, had no problems with Origami then, but had no relative line numbers, which is *also* a bad thing. The Issues page for Origami said linum is a problem, testing the folded file *without* relative linum was also successful, so the issue is definitely linum.
 
-However, the documentation shows [[https://github.com/coldnew/linum-relative#backends][this]], which says with version 0.6 of linum-relative, I can set variable "linum-relative-backend" to "display-line-number-mode" which is implemented in C which gives *MUCH* better performance. However, this *ALSO* requires Emacs 26.1+, available for Linux/Mac/Windows since its release (5/28/2018); I may need to upgrade both Mac and work installations--Linux is already 26.1.
+However, the documentation shows [[https://github.com/coldnew/linum-relative#backends][this]], which says with version 0.6 of linum-relative, I can set variable "linum-relative-backend" to "display-line-numbers-mode" which is implemented in C which gives *MUCH* better performance. However, this *ALSO* requires Emacs 26.1+, available for Linux/Mac/Windows since its release (5/28/2018); I may need to upgrade both Mac and work installations--Linux is already 26.1.
 
-2019-08-22: Stopped using linum-relative, using display-line-number-mode exclusively, set to "visual"; this works well with folding.
+2019-08-22: Stopped using linum-relative, using display-line-numbers-mode exclusively, set "display-line-numbers-type" to "visual"; this works well with folding.
 
 *** Rainbow-mode
 Very useful if working web or game development--or theme development--when this minor mode is active, it will automatically display the appropriate color for each hexadecimal code which resembles a color code, i.e. "#CF6A4C".
@@ -1386,6 +1386,8 @@ Will try out Smartparens for a while, from 2019-04-14.
     :defer 1
     :diminish
     :config
+    ;; Stop pairing single quotes in elisp
+    (sp-local-pair 'emacs-lisp-mode "'" nil :actions nil)
     (smartparens-global-mode 1))
 #+end_src
 
