@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-20 Wed 10:56>
+#+DATE: <2020-05-21 Thu 10:57>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1644,6 +1644,9 @@ This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] fo
     :defer 1
     :config
     (setq yas-snippet-dirs '("~/.emacs.d/private/snippets"))
+    ;; 2020-05-21: latest yasnippet update getting warnings for updating via backquoted code
+    ;; this suppresses that warning
+    (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
     (setq yas-indent-line 'fixed)
     (yas-global-mode 1))
   (use-package yasnippet-snippets
