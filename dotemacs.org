@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-21 Thu 10:57>
+#+DATE: <2020-05-21 Thu 17:55>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1643,10 +1643,13 @@ This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] fo
     :diminish 'yas-minor-mode
     :defer 1
     :config
-    (setq yas-snippet-dirs '("~/.emacs.d/private/snippets"))
     ;; 2020-05-21: latest yasnippet update getting warnings for updating via backquoted code
     ;; this suppresses that warning
-    (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
+    ;; 2020-05-21 17:54:38: did NOT work on Linux, but found that using "push" DOES work.
+    (unless (boundp 'warning-suppress-types)
+      (setq warning-suppress-types nil))
+    (push '(yasnippet backquote-change) warning-suppress-types)
+    (setq yas-snippet-dirs '("~/.emacs.d/private/snippets"))
     (setq yas-indent-line 'fixed)
     (yas-global-mode 1))
   (use-package yasnippet-snippets
