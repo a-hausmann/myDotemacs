@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-05-21 Thu 17:55>
+#+DATE: <2020-06-12 Fri 12:25>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -580,27 +580,27 @@ Documentation reference: https://agel.readthedocs.io/en/latest/index.html
 Downloaded/installed this somewhen, but never included in the dotemacs.org file till now (2019-07-22). At this point, am certain that the display of the hex value of the icon is 100% Windows-based problem.  I don't have this issue in Linux--the icons display properly.
 #+begin_src emacs-lisp
   ;; 2020-05-14: load for non-Windows only.
-  (if (not (string-equal system-type "windows-nt"))
-      (progn
-        (use-package all-the-icons
-          :ensure t
-          :diminish
-          :defer 0.5)
-        (use-package all-the-icons-dired
-          :ensure t
-          :diminish
-          :defer 1
-          :hook ((dired-mode . all-the-icons-dired-mode)
-                 (dired-async-mode . all-the-icons-dired-mode)))
-        (use-package all-the-icons-ivy
-          :ensure t
-          :diminish
-          :defer 1
-          :custom (all-the-icons-ivy-buffer-commands '(ivy-switch-buffer-other-window ivy-switch-buffer))
-          :config
-          (add-to-list 'all-the-icons-ivy-file-commands 'counsel-dired-jump)
-          (add-to-list 'all-the-icons-ivy-file-commands 'counsel-find-library)
-          (all-the-icons-ivy-setup))))
+  ;; 2020-06-12: ran M-x all-the-icons-install-fonts, and installed in Windows. This now works!
+  ;; Ref: https://github.com/domtronn/all-the-icons.el
+  (use-package all-the-icons
+    :ensure t
+    :diminish
+    :defer 0.5)
+  (use-package all-the-icons-dired
+    :ensure t
+    :diminish
+    :defer 1
+    :hook ((dired-mode . all-the-icons-dired-mode)
+           (dired-async-mode . all-the-icons-dired-mode)))
+  (use-package all-the-icons-ivy
+    :ensure t
+    :diminish
+    :defer 1
+    :custom (all-the-icons-ivy-buffer-commands '(ivy-switch-buffer-other-window ivy-switch-buffer))
+    :config
+    (add-to-list 'all-the-icons-ivy-file-commands 'counsel-dired-jump)
+    (add-to-list 'all-the-icons-ivy-file-commands 'counsel-find-library)
+    (all-the-icons-ivy-setup))
 #+end_src
 *** Amx (2020-01-22)
 Amx is the newer alternative to smex (aka smart M-x).
@@ -1061,6 +1061,7 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
     (setq ivy-initial-inputs-alist nil)
     :bind (("C-c v" . ivy-push-view)
            ("C-c V" . ivy-switch-view)
+           ("C-x b" . ivy-switch-buffer)
            ("<f6>"  . ivy-resume)))
   ;; By default ivy starts filters with ^. I don't normally want that and can easily type it manually when I do.
 
@@ -1072,7 +1073,7 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
            ("C-c g" . 'counsel-git)
            ("C-c j" . 'counsel-git-grep)
            ("C-c k" . 'counsel-ag)
-           ("C-x b" . 'counsel-ibuffer)
+           ;; ("C-x b" . 'counsel-ibuffer)
            ("C-x l" . 'counsel-locate)
            ("C-x C-f" . 'counsel-find-file)
            ("<f1> f" . 'counsel-describe-function)
@@ -1091,7 +1092,7 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
   ;; Hydra presents menus for ivy commands.
   ;; 2019-10-02: Change Swiper binding to "C-S-s"
   (use-package ivy-hydra
-    :ensure
+    :ensure t
     :after ivy
     :defer 1)
 
@@ -1130,14 +1131,23 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
 
 04/25/2020: Add ivy-rich support.
 #+begin_src emacs-lisp
+  ;; Ref: https://github.com/Yevgnen/ivy-rich
   (use-package ivy-rich
     :ensure
     :after ivy
+    :init
+    (ivy-rich-mode 1)
     :config
     (setq ivy-rich-path-style 'abbreviate)
-    (setcdr (assq t ivy-format-functions-alist)
-            #'ivy-format-function-line)
-    (ivy-rich-mode 1))
+    (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
+    )
+
+  ;; 2020-06-12: add all-the-icons-ivy-rich
+  ;; Ref: https://github.com/seagle0128/all-the-icons-ivy-rich
+  (use-package all-the-icons-ivy-rich
+    :ensure t
+    :after ivy
+    :init (all-the-icons-ivy-rich-mode 1))
 #+end_src
 
 *** Kill-ring setup
@@ -1856,6 +1866,7 @@ Same kind of thing for ibuffer-mode as well, same link.
     (kbd "M-g") 'ibuffer-jump-to-buffer
     (kbd "M-s a C-s") 'ibuffer-do-isearch
     (kbd "M-s a M-C-s") 'ibuffer-do-isearch-regexp)
+  (defalias 'list-buffers 'ibuffer) ; make ibuffer default
 #+END_SRC
 
 *** Origami
