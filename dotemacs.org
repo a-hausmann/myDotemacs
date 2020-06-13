@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-06-12 Fri 12:25>
+#+DATE: <2020-06-12 Fri 23:09>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1235,7 +1235,7 @@ The configuration below is an amalgamation of Uncle Dave's original mark-multipl
 #+BEGIN_SRC emacs-lisp
   (use-package multiple-cursors
     :ensure t
-    ;; :disabled
+    :disabled
     :bind
     ("C-c m c" . 'mc/edit-lines)
     ("C->" . 'mc/mark-next-like-this)
