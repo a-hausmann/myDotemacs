@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-06-12 Fri 23:09>
+#+DATE: <2020-07-06 Mon 11:29>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -219,6 +219,7 @@ Here is where I put languages configurations: Lisp, etc.
     :delight lisp-mode "Lisp")
   (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 #+END_SRC
+
 
 *** Themes
 **** ZeroDark
@@ -942,15 +943,68 @@ Look into [[https://github.com/wasamasa/eyebrowse][Eyebrowse]] mode; Mike Zamans
     :diminish)
 #+END_SRC
 
-*** Flycheck
+*** Flycheck and elpy
 Flycheck does syntax checking for multiple languages.
-#+BEGIN_SRC emacs-lisp
+2020-06-18: Begin to add Python support.
+2020-06-23: Move Elpy into this section.
+#+begin_src emacs-lisp
+  ;; Ref: https://emacs.stackexchange.com/questions/39241/flycheck-on-windows-python-pycompile-output-contained-no-errors
+  (defun aeh/flycheck-parse-output (output checker buffer)
+    "Strip carriage return characters from flycheck output"
+    (let ((sanitized-output (replace-regexp-in-string "\r" "" output))
+          )
+      (funcall (flycheck-checker-get checker 'error-parser) sanitized-output checker buffer)))
+  ;; Ref: https://www.flycheck.org/en/latest/languages.html#python
+  ;; "Flycheck checks Python with python-flake8 or python-pylint,
+  ;; and falls back to python-pycompile if neither of those is available."
   (use-package flycheck
     :ensure t
     :defer 2
     :diminish
-    :hook (shell-mode . flycheck-mode))
-#+END_SRC
+    :hook
+    (shell-mode . flycheck-mode)
+    (python-mode . flycheck-mode)
+    :config
+    ;; 2020-06-18: Work laptop has only python 3.7.7 as "python", Linux needs "python3"
+    ;; 2020-06-23: Found that while Windows can "python", Flycheck still needs defined as "python3"
+    (setq flycheck-python-pylint-executable "python3")
+    (when (string-equal system-type "windows-nt")
+      (advice-add #'flycheck-parse-output :override #'aeh/flycheck-parse-output))
+    )
+
+  ;; Move elpy to this section.
+  ;; Ref:  https://github.com/jorgenschaefer/elpy
+  (use-package elpy
+    :ensure t
+    :defer 1
+    :hook ((python-mode . company-mode))
+    :init
+    (advice-add 'python-mode :before 'elpy-enable))
+  ;; Ref: https://elpy.readthedocs.io/en/latest/ide.html#interactive-python
+  (setq
+   ;; python-shell-interpreter "python"
+   python-shell-interpreter "C:\\Users\\frst6889\\AppData\\Local\\Programs\\Python\\Python37\\python"
+   ;; Ref: https://github.com/jorgenschaefer/elpy/issues/1674 add "--simple-prompt"
+   python-shell-interpreter-args "-i --simple-prompt"
+   python-indent-guess-indent-offset t
+   python-indent-guess-indent-offset-verbose t
+   )
+  (if (string-equal system-type "windows-nt")
+      (progn
+        (setq
+         elpy-rpc-pythonpath (file-name-directory (locate-library "elpy"))
+         ;; flycheck-flake8rc "C:\\Users\\frst6889\\AppData\\Roaming\\Python\\Python37\\site-packages"
+         ;; flycheck-flake8rc "C:\\Users\\frst6889\\AppData\\Roaming\\Python\\Python37\\Scripts"
+         flycheck-flake8rc "~/.flake8"
+         ;; flycheck-python-flake8-executable "flake8"
+         python-check-command (executable-find "flake8")
+         flycheck-python-flake8-executable (executable-find "flake8")
+         ;; 2020-06-24: stop trying pylintfor right now-attempt to get flake8 working first.
+         ;; flycheck-pylintrc "C:\\Users\\frst6889\\AppData\\Roaming\\Python\\Python37\\site-packages"
+         ;; flycheck-pylintrc "C:\\Users\\frst6889\\AppData\\Roaming\\Python\\Python37\\Scripts"
+         ;; flycheck-python-pylint-executable "pylint.exe"
+         )))
+#+end_src
 
 *** Frog-jump-buffer
 This actually beats iBuffer and counsel-ibuffer with Swiper; use General for bindings.
@@ -1297,6 +1351,14 @@ NOTE: As *usual*, others configuration is incorrect, as they use ":config" inste
 2019-05-22: Chased down an issue with Origami fold markers affecting Emacs 'query-replace' function (which Evil substitution translates into). If a file is opened in prog-mode (and I have a prog-mode-hook for origami-mode) and there are fold markers, substitution fails. I have fold markers in TXT files, which do NOT open in prog-mode, and no errors--unless I set prog-mode before the substitution.  Weirdly, I found that if I toggle off origami-mode, and toggle it back on again, no errors.  Naturally, if I get the error, I can toggle off and redo the substitution (which then works), and I can toggle back on.  So, I move the Origami config up to the packages section; tried to get rid of the defun but cannot at this time--it seems 'orgiami-toggle-node' requires the two arguments to work.
 
 #+BEGIN_SRC emacs-lisp
+  ;; 2020-06-26: create new function
+  (defun ah--set-origami-fold-style-braces ()
+    "Set origami fold-style to triple braces
+  "
+    (interactive)
+    (setq-local origami-fold-style 'triple-braces)
+    (origami-mode)
+    (origami-close-all-nodes (current-buffer)))
   ;; Step 1, define a "wrapper" function.
   (defun aeh/origami-toggle-node ()
     (interactive)
@@ -1873,6 +1935,7 @@ Same kind of thing for ibuffer-mode as well, same link.
 Now do Origami keys.
 #+begin_src emacs-lisp
   (evil-define-key 'normal prog-mode-map (kbd "TAB") 'aeh/origami-toggle-node)
+  (evil-define-key 'normal origami-mode-map (kbd "TAB") 'aeh/origami-toggle-node)
   (define-key evil-normal-state-map "za" 'origami-forward-toggle-node)
   (define-key evil-normal-state-map "zR" 'origami-close-all-nodes)
   (define-key evil-normal-state-map "zM" 'origami-open-all-nodes)
@@ -1895,12 +1958,6 @@ The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow,
   (bind-key "C-c d" 'dired-jump)
 #+end_src
 
-*** Capitalize region
-2019-07-23: Had to "initcap" some text today, but function "capitalize-region" has no key binding, so give it one:
-#+begin_src emacs-lisp 
-(bind-key "C-x M-c" 'capitalize-region)
-#+end_src
-
 *** Scale text
 2019-07-29: It's a PITA to have to remember the Windows hydra to increase/decrease text size, so here are some misc. global key bindings.
 #+begin_src emacs-lisp
@@ -1921,10 +1978,18 @@ The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow,
 
 *** Dwimming case
 2019-11-05: Some dwim chords for region-based case.
+2020-07-06: Move "capitalize-region" binding to here.
 #+begin_src emacs-lisp
   (global-set-key (kbd "C-c u") 'upcase-dwim)
   (global-set-key (kbd "C-c l") 'downcase-dwim)
   (global-set-key (kbd "C-c t") 'capitalize-dwim)
+  (global-set-key (kbd "C-x M-c") 'capitalize-region)
+#+end_src
+
+*** Isearch symbol-at-point
+2020-07-06: added this chord, similar to Vim's "*". Can always use "C-r" after first found to search backward.
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c *") 'isearch-forward-symbol-at-point)
 #+end_src
 
 ** Org mode stuff
