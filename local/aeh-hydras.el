@@ -1,6 +1,6 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Wed May 06, 2020 23:44:49
+;; Last modified: Wed Jun 24, 2020 17:37:34
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
@@ -16,6 +16,7 @@
 (defconst aeh/day-format "%a %b %d, %Y" "English date as: Day Mon Date, Year")
 (defconst aeh/day-time-format "%a %b %d, %Y %-H:%M:%S" "English Date Time as: Day Mon Date, Year HH24:MI:SS")
 (defconst aeh/full-day-format "%A, %B %d, %Y" "English date as: Day, Month Date, Year")
+(defconst aeh/full-day-date-format "%A, %Y-%m-%d" "English date as: Day, YYYY-MM-DD")
 (defconst aeh/full-day-time-format "%A, %B %d, %Y %-H:%M:%S %p" "English Date Time as: Day, Month Date, Year HH:MI:SS PM")
 
 ;; 2019-06-06: NEW! This is the place to add Inserts of whatever I dream up.
@@ -35,6 +36,7 @@ _f_: YYYYMMDD
 _t_: YYYY-MM-DD HH24:MI:SS
 _D_: DD Mon Date, Year
 _T_: DD Mon Date, Year HH24:MI:SS
+_A_: Day, YYYY-MM-DD
 _e_: Day, Month Day, Year
 _E_: Day, Month Day, Year HH:MI:SS PM
  "
@@ -45,6 +47,7 @@ _E_: Day, Month Day, Year HH:MI:SS PM
   ("t" (insert (format-time-string aeh/date-time-format)))
   ("D" (insert (format-time-string aeh/day-format)))
   ("T" (insert (format-time-string aeh/day-time-format)))
+  ("A" (insert (format-time-string aeh/full-day-date-format)))
   ("e" (insert (format-time-string aeh/full-day-format)))
   ("E" (insert (format-time-string aeh/full-day-time-format))))
 
@@ -144,7 +147,7 @@ _E_: Day, Month Day, Year HH:MI:SS PM
 (defvar aeh/hydras/toggles/vdiff nil)
 (defhydra aeh/hydra-toggles (:hint nil :exit t)
   "
-   toggle:  _z_ → origami-mode        _c_ → column-enforce _p_ → which-key-posframe
+   toggle:  _z_ → origami-mode        _c_ → column-enforce
             _a_ → aggressive indent   _s_ → flycheck       _r_ → read only      _t_ → truncate lines   _e_ → debug on error
             _f_ → auto-fill           _S_ → flyspell       _C_ → completion     _W_ → word wrap        _g_ → debug on quit
             _w_ → whitespace          _E_ → electric-pairs _l_ → linum-relative _b_ → page break       _d_ → ediff/vdiff
@@ -152,7 +155,6 @@ _E_: Day, Month Day, Year HH:MI:SS PM
 "
   ("z" origami-mode)
   ("c" column-enforce-mode)
-  ("p" which-key-posframe-mode)
   ("a" aggressive-indent-mode)
   ("b" page-break-lines-mode)
   ("C" company-mode)

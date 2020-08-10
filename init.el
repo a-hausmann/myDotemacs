@@ -99,7 +99,7 @@
 
 ;; Install dependencies
 (unless (and (package-installed-p 'delight)
-             (package-installed-p 'use-package))
+          (package-installed-p 'use-package))
   (package-refresh-contents)
   (package-install 'delight t)
   (package-install 'use-package t))
