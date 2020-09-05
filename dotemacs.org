@@ -7,11 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-<<<<<<< HEAD
-#+DATE: <2020-07-06 Mon 11:29>
-=======
-#+DATE: <2020-07-22 Wed 20:44>
->>>>>>> Changes for Python and Hydra
+#+DATE: <2020-09-04 Fri 23:21>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -958,7 +954,7 @@ seem to want TAB as trigger...do not know how that will work.
         (setq elpy-rpc-python-command "python3"
               python-shell-interpreter "python3"
               python-shell-interpreter-args "-i"
-              yas/indent-line nil)
+              yas-indent-line nil)
         ))
 #+end_src
 
@@ -2014,12 +2010,8 @@ Same kind of thing for ibuffer-mode as well, same link.
 Now do Origami keys.
 #+begin_src emacs-lisp
   (evil-define-key 'normal prog-mode-map (kbd "TAB") 'aeh/origami-toggle-node)
-<<<<<<< HEAD
-  (evil-define-key 'normal origami-mode-map (kbd "TAB") 'aeh/origami-toggle-node)
-=======
   ;; 2020-06-14: allow origami in text mode; use file Local Variables...
   (evil-define-key 'normal text-mode-map (kbd "TAB") 'aeh/origami-toggle-node)
->>>>>>> Changes for Python and Hydra
   (define-key evil-normal-state-map "za" 'origami-forward-toggle-node)
   (define-key evil-normal-state-map "zR" 'origami-close-all-nodes)
   (define-key evil-normal-state-map "zM" 'origami-open-all-nodes)

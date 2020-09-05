@@ -122,6 +122,10 @@
 ;; Follow symlinks for version controlled files
 (setq vc-follow-symlinks t)
 
+;; 2020-08-26: Add following to prevent "cl is deprecated" messages.
+;; Ref: https://github.com/kiwanami/emacs-epc/issues/35
+(setq byte-compile-warnings '(cl-functions))
+
 ;; Use latest Org
 (use-package org :ensure org-plus-contrib)
 
@@ -147,9 +151,9 @@
 
 ;; 2019-09-05: put startup elapsed time with GC counter to *Messages* buffer.
 (add-hook 'emacs-startup-hook
-          (lambda ()
-            (message "Emacs ready in %s with %d garbage collections."
-                     (format "%.2f seconds"
-                             (float-time
-                              (time-subtract after-init-time before-init-time)))
-                     gcs-done)))
+  (lambda ()
+    (message "Emacs ready in %s with %d garbage collections."
+      (format "%.2f seconds"
+        (float-time
+          (time-subtract after-init-time before-init-time)))
+      gcs-done)))
