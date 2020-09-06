@@ -1,5 +1,5 @@
 ;; File name:     aeh-useful.el
-;; Last modified: Sat Sep 05, 2020 1:14:57
+;; Last modified: Sun Sep 06, 2020 17:22:55
 ;; Author:        Arnold Hausmann
 ;; Why:           This is where I will keep useful code fragments/functions.
 
@@ -37,14 +37,10 @@
           (message (format "Made %d changes." change-count)))))))
 
 (defun aeh/prettify-rule-dwim ()
-  ""
+  "The dwim will allow for prettifying by either region or full buffer."
   (interactive)
-  (save-match-data
-    (save-excursion
-      (save-restriction
-        (let ((remove-count 0))
-          (cond ((region-active-p)
-                  (aeh/make-pretty (region-beginning) (region-end)))
-            (t (aeh/make-pretty (point-min) (point-max)))))))))
+  (cond ((region-active-p)
+          (aeh/make-pretty (region-beginning) (region-end)))
+    (t (aeh/make-pretty (point-min) (point-max)))))
 
 (provide 'aeh-useful)
