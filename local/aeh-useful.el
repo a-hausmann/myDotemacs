@@ -1,5 +1,6 @@
+;; aeh-useful.el  --- -*- lexical-binding: t -*-
 ;; File name:     aeh-useful.el
-;; Last modified: Sun Sep 06, 2020 17:22:55
+;; Last modified: Sun Sep 06, 2020 18:27:01
 ;; Author:        Arnold Hausmann
 ;; Why:           This is where I will keep useful code fragments/functions.
 
@@ -42,5 +43,25 @@
   (cond ((region-active-p)
           (aeh/make-pretty (region-beginning) (region-end)))
     (t (aeh/make-pretty (point-min) (point-max)))))
+
+(defun aeh/delete-carriage-return-dwim ()
+  "The dwim will delete carriage return by either region or full buffer."
+  (interactive)
+  (cond ((region-active-p)
+          (aeh/strip-ctl-m (region-beginning) (region-end)))
+    (t (aeh/strip-ctl-m (point-min) (point-max)))))
+
+(defun aeh/strip-ctl-m (p-from p-thru)
+  "Replace carriage returns (^M) with nil"
+  (interactive)
+  (save-match-data
+    (save-excursion
+      (save-restriction
+        (let ((remove-count 0))
+          (goto-char (p-from))
+          (while (re-search-forward (concat (char-to-string 13) "$") (p-thru) t)
+            (setq remove-count (+ remove-count 1))
+            (replace-match "" nil nil))
+          (message (format "%d ^M removed from buffer." remove-count)))))))
 
 (provide 'aeh-useful)
