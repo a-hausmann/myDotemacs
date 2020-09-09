@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-09-04 Fri 23:21>
+#+DATE: <2020-09-08 Tue 23:32>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1112,7 +1112,7 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
     :bind ("C-<f3>" . highlight-thing-mode))
 #+end_src
 
-*** Htmlize
+*** Htmlize and more
  *Ensure "htmlize" is available for Org mode*
  This is a package not available when Emacs is compiled from source (mine), but is required by Org mode to export to HTML.
 #+BEGIN_SRC emacs-lisp
@@ -1120,6 +1120,11 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
     :ensure t
     :defer 2
     :diminish)
+
+  ;; 2020-09-07: adding custom package; 2020-09-08: make non-Windows (not work)
+  (cond ((not (string-equal system-type "windows-nt")))
+        (load "aeh-html-stuff")
+        (add-hook 'html-mode-hook 'aeh-html-stuff-mode))
 #+END_SRC
 
 *** Hungry-delete
