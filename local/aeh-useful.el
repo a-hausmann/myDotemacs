@@ -1,11 +1,17 @@
 ;; aeh-useful.el  --- -*- lexical-binding: t -*-
 ;; File name:     aeh-useful.el
-;; Last modified: Sun Sep 06, 2020 18:27:01
+;; Last modified: Tue Sep 08, 2020 23:26:19
 ;; Author:        Arnold Hausmann
 ;; Why:           This is where I will keep useful code fragments/functions.
 
+(defun aeh-ff ()
+  "Display positions at begin and end of a region."
+  (interactive)
+  (message "begin at %s; end at %s" (region-beginning) (region-end)))
 
-(defun aeh/narrow-dwim ()
+(defalias 'ff 'aeh-ff)
+
+(defun aeh-narrow-dwim ()
   "Toggle narrowing."
   (interactive)
   (cond ((region-active-p)
@@ -22,14 +28,13 @@
       (call-interactively #'narrow-to-defun))))
 (global-set-key (kbd "C-c C-n") 'aeh/narrow-dwim)
 
-(defun aeh/make-pretty (p-from p-thru)
+(defun aeh-make-pretty (p-from p-thru)
   "Prettify Rule code by moving all and/or conjunctions to a new line"
   (interactive "r")
   (save-match-data
     (save-excursion
       (save-restriction
         (let ((change-count 0))
-          (ff)
           (goto-char p-from)
           (while (re-search-forward "\\( and \\| or \\)" p-thru t )
             (setq change-count (+ change-count 1))
@@ -37,29 +42,29 @@
 \\1" nil nil))
           (message (format "Made %d changes." change-count)))))))
 
-(defun aeh/prettify-rule-dwim ()
+(defun aeh-prettify-rule-dwim ()
   "The dwim will allow for prettifying by either region or full buffer."
   (interactive)
   (cond ((region-active-p)
-          (aeh/make-pretty (region-beginning) (region-end)))
-    (t (aeh/make-pretty (point-min) (point-max)))))
+          (aeh-make-pretty (region-beginning) (region-end)))
+    (t (aeh-make-pretty (point-min) (point-max)))))
 
-(defun aeh/delete-carriage-return-dwim ()
+(defun aeh-delete-carriage-return-dwim ()
   "The dwim will delete carriage return by either region or full buffer."
   (interactive)
   (cond ((region-active-p)
-          (aeh/strip-ctl-m (region-beginning) (region-end)))
-    (t (aeh/strip-ctl-m (point-min) (point-max)))))
+          (aeh-strip-ctl-m (region-beginning) (region-end)))
+    (t (aeh-strip-ctl-m (point-min) (point-max)))))
 
-(defun aeh/strip-ctl-m (p-from p-thru)
+(defun aeh-strip-ctl-m (p-from p-thru)
   "Replace carriage returns (^M) with nil"
   (interactive)
   (save-match-data
     (save-excursion
       (save-restriction
         (let ((remove-count 0))
-          (goto-char (p-from))
-          (while (re-search-forward (concat (char-to-string 13) "$") (p-thru) t)
+          (goto-char p-from)
+          (while (re-search-forward (concat (char-to-string 13) "$") p-thru t)
             (setq remove-count (+ remove-count 1))
             (replace-match "" nil nil))
           (message (format "%d ^M removed from buffer." remove-count)))))))
