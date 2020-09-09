@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-09-08 Tue 23:32>
+#+DATE: <2020-09-09 Wed 10:04>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -50,8 +50,11 @@ Set the size of the frame. Some UI elements are best left unused. 2019-10-09: Se
   (when window-system
     (if (string-equal system-type "windows-nt")
         (progn
-          (add-to-list 'default-frame-alist '(height . 45))
-          (add-to-list 'default-frame-alist '(width . 150)))
+          ;; 2020-07-14: while I'm on laptop-only, less size.
+          ;; (add-to-list 'default-frame-alist '(height . 45))
+          ;; (add-to-list 'default-frame-alist '(width . 150))
+          (add-to-list 'default-frame-alist '(height . 40))
+          (add-to-list 'default-frame-alist '(width . 140)))
       (progn
         (add-to-list 'default-frame-alist '(height . 38))
         (add-to-list 'default-frame-alist '(width . 140))))
@@ -735,7 +738,8 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
     (setq company-idle-delay nil)
     ;; (global-set-key (kbd "<M-f2>") 'company-complete-common)
     ;; 2020-05-16: <M-f2> doesn't work in Linux, so remap to <C-f12>
-    (global-set-key (kbd "<C-f12>") 'company-complete-common)
+    ;; 2020-07-08: change this from <C-f12> to "C-M-."
+    (global-set-key (kbd "C-M-.") 'company-complete-common)
     (setq company-minimum-prefix-length 5)
     (setq company-dabbrev-ignore-case t))
   (add-hook 'after-init-hook 'global-company-mode)
@@ -785,6 +789,41 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
     :config
     (require 'company)
     (add-hook 'shell-mode-hook 'shell-mode-company-init))
+
+  ;; 2020-07-08, adding support for Elpy
+  ;; Ref: ref: https://medium.com/analytics-vidhya/managing-a-python-development-environment-in-emacs-43897fd48c6a
+  (use-package company-statistics
+    :ensure t
+    :init
+    (company-statistics-mode))
+  (use-package company-web
+    :ensure t)
+  (use-package company-try-hard
+    :ensure t
+    :bind
+    ;; Change from C-<tab> to "C-." and "C-M-."
+    (("C-." . company-try-hard)
+     ("C-M-." . company-try-hard)
+     :map company-active-map
+     ("C-." . company-try-hard)
+     ("C-M-." . company-try-hard)))
+  (use-package company-quickhelp
+    :ensure t
+    :config
+    (company-quickhelp-mode))
+
+  (setq company-backends
+        '((company-files          ; files & directory
+           company-keywords       ; keywords
+           company-capf)          ; completion-at-point-functions
+          (company-abbrev company-dabbrev)))
+
+  ;; 2020-07-08, adding company-jedi, which uses jedi-core, but made for Company users
+  (defun aeh/python-mode-hook ()
+    (add-to-list 'company-backends 'company-jedi))
+  (use-package company-jedi
+    :ensure t
+    :hook (python-mode-map . aeh/python-mode-hook))
 #+END_SRC
 
 *Company Improvements*
@@ -923,41 +962,6 @@ Note, the documentation states the package "requires a Core program", then goes 
     (setq editorconfig-trim-whitespaces-mode 'ws-butler-mode))
 #+end_src
 
-*** Elpy
-Elpy is an Emacs Python IDE with completion, navigation, syntax checking, folding, snippets, etc.
-Had the hardest time getting python snippets to work correctly; needed to add "yasnippet-snippets-dirs"
-to "yas-snippets-dirs" (see yasnippet section), then load elpy AFTER yasnippet/yasnippet-snippets, plus
-set key binding and add hook to reload all snippets after entering elpy-mode. Whew!!!
-
-Commenting binding for now as still do not have code completion working; both Yasnippets and completion
-seem to want TAB as trigger...do not know how that will work.
-#+begin_src emacs-lisp
-  ;; 2020-06-12: install elpy, initially for Linux only
-  ;; Ref: https://github.com/jorgenschaefer/elpy
-  ;; Ref: https://elpy.readthedocs.io/en/latest/index.html
-  ;; Ref: https://github.com/jabbalaci/dotfiles/blob/master/.emacs.d/subconfigs/init-python.el
-  (if (not (string-equal system-type "windows-nt"))
-      (progn
-        (use-package elpy
-          :ensure t
-          :disabled
-          :after (yasnippet yasnippet-snippets)
-          :init
-          (elpy-enable)
-          :hook (elpy-mode . yas-reload-all)
-          )
-        (use-package pyvenv
-          :ensure t
-          :disabled
-          :after elpy
-          :hook (elpy-mode . pyvenv-mode))
-        (setq elpy-rpc-python-command "python3"
-              python-shell-interpreter "python3"
-              python-shell-interpreter-args "-i"
-              yas-indent-line nil)
-        ))
-#+end_src
-
 *** Expand-region
 With this [[https://github.com/magnars/expand-region.el][simple package]] from Magnar Sveen of [[http://emacsrocks.com][Emacs Rocks]] fame, a quick key-chord can select an ever expanding region; use "C-=" to access this function.
 
@@ -978,7 +982,7 @@ Look into [[https://github.com/wasamasa/eyebrowse][Eyebrowse]] mode; Mike Zamans
     :diminish)
 #+END_SRC
 
-*** Flycheck and elpy
+*** Flycheck, jedi, and elpy
 Flycheck does syntax checking for multiple languages.
 2020-06-18: Begin to add Python support.
 2020-06-23: Move Elpy into this section.
@@ -1002,43 +1006,69 @@ Flycheck does syntax checking for multiple languages.
     :config
     ;; 2020-06-18: Work laptop has only python 3.7.7 as "python", Linux needs "python3"
     ;; 2020-06-23: Found that while Windows can "python", Flycheck still needs defined as "python3"
-    (setq flycheck-python-pylint-executable "python3")
+    ;; 2020-07-06: Reinstalled Python 3.7.7 as 32 bit, only executes as "python"
+    (setq flycheck-python-pylint-executable "python")
     (when (string-equal system-type "windows-nt")
       (advice-add #'flycheck-parse-output :override #'aeh/flycheck-parse-output))
     )
 
   ;; Move elpy to this section.
   ;; Ref:  https://github.com/jorgenschaefer/elpy
+  ;; 2020-07-08: setup elpy for using company; see company section for additions.
+  ;; Ref: https://medium.com/analytics-vidhya/managing-a-python-development-environment-in-emacs-43897fd48c6a
+  ;; 2020-07-14: disable to try lsp-mode
   (use-package elpy
     :ensure t
     :defer 1
+    :diminish
     :hook ((python-mode . company-mode))
-    :init
-    (advice-add 'python-mode :before 'elpy-enable))
-  ;; Ref: https://elpy.readthedocs.io/en/latest/ide.html#interactive-python
-  (setq
-   ;; python-shell-interpreter "python"
-   python-shell-interpreter "C:\\Users\\frst6889\\AppData\\Local\\Programs\\Python\\Python37\\python"
-   ;; Ref: https://github.com/jorgenschaefer/elpy/issues/1674 add "--simple-prompt"
-   python-shell-interpreter-args "-i --simple-prompt"
-   python-indent-guess-indent-offset t
-   python-indent-guess-indent-offset-verbose t
-   )
-  (if (string-equal system-type "windows-nt")
-      (progn
-        (setq
-         elpy-rpc-pythonpath (file-name-directory (locate-library "elpy"))
-         ;; flycheck-flake8rc "C:\\Users\\frst6889\\AppData\\Roaming\\Python\\Python37\\site-packages"
-         ;; flycheck-flake8rc "C:\\Users\\frst6889\\AppData\\Roaming\\Python\\Python37\\Scripts"
-         flycheck-flake8rc "~/.flake8"
-         ;; flycheck-python-flake8-executable "flake8"
-         python-check-command (executable-find "flake8")
-         flycheck-python-flake8-executable (executable-find "flake8")
-         ;; 2020-06-24: stop trying pylintfor right now-attempt to get flake8 working first.
-         ;; flycheck-pylintrc "C:\\Users\\frst6889\\AppData\\Roaming\\Python\\Python37\\site-packages"
-         ;; flycheck-pylintrc "C:\\Users\\frst6889\\AppData\\Roaming\\Python\\Python37\\Scripts"
-         ;; flycheck-python-pylint-executable "pylint.exe"
-         )))
+    :config
+    (advice-add 'python-mode :before 'elpy-enable)
+    ;; Ref: https://elpy.readthedocs.io/en/latest/ide.html#interactive-python
+    (setq
+     ;; 2020-07-06: Reinstalled Python, now in C:/Python/Python37-32. The rest looks OK.
+     ;; 2020-07-08: Ref: https://linuxhint.com/configuring_emacs_python/
+     ;; This led to installing ipython, which also installed jedi. The ipython changes the
+     ;; shell-interpreter% variables.
+     ;; python-shell-interpreter "python"
+     ;; python-shell-interpreter-args "-i"
+     python-shell-interpreter "ipython"
+     python-shell-interpreter-args "-i --simple-prompt"
+     python-indent-guess-indent-offset t
+     python-indent-guess-indent-offset-verbose t)
+    ;; 2020-07-08: as now not specifying Windows paths/executables, can make generic.
+    (setq
+     elpy-rpc-pythonpath (file-name-directory (locate-library "elpy"))
+     ;; 2020-07-09: set elpy to use jedi in backend
+     elpy-rpc-backend "jedi"
+     flycheck-flake8rc "~/.flake8"
+     python-check-command (executable-find "flake8")
+     flycheck-python-flake8-executable (executable-find "flake8")))
+
+  ;; 2020-07-14: Trying lsp-mode
+  ;; Ref: https://emacs-lsp.github.io/lsp-mode/page/installation/
+  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+  ;; (setq lsp-keymap-prefix "C-c C-c l")
+  (setq lsp-keymap-prefix "C-l")
+
+  (use-package lsp-mode
+    :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+           (python-mode . lsp-deferred)
+           ;; if you want which-key integration
+           (lsp-mode . lsp-enable-which-key-integration))
+    :commands lsp lsp-deferred)
+
+  ;; optionally
+  (use-package lsp-ui
+    :ensure t
+    :commands lsp-ui-mode)
+  ;; if you are ivy user
+  (use-package lsp-ivy
+    :ensure t
+    :commands lsp-ivy-workspace-symbol)
+  (use-package lsp-treemacs
+    :ensure t
+    :commands lsp-treemacs-errors-list)
 #+end_src
 
 *** Frog-jump-buffer
@@ -1277,40 +1307,6 @@ This setup is translated from or taken from [[https://github.com/abo-abo/lispy#c
     (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1))))
 #+END_SRC
 
-*** lsp
-2020-07-14: installing lsp-mode plus others. Ref.: https://github.com/FredeEB/.emacs.d/blob/master/config.org#lsp
-#+begin_src emacs-lisp
-  (use-package lsp-mode
-    :ensure t
-    :hook
-    ((c++-mode c-mode rust-mode go-mode csharp-mode python-mode cmake-mode) . lsp)
-    :custom
-    (lsp-diagnostic-package :flymake)
-    (lsp-prefer-capf t)
-    (read-process-output-max (* 1024 1024))
-    (lsp-rust-server 'rust-analyzer))
-
-  (use-package lsp-ui
-    :ensure t
-    :custom
-    (lsp-ui-doc-max-width 80)
-    (lsp-ui-doc-position 'top))
-  ;; (use-package ivy-lsp :ensure t)   ; unavailable on MELPA at this time.
-  (use-package dap-mode
-    :ensure t)
-  (use-package lsp-treemacs
-    :ensure t)
-  ;; Don't THINK I need this, believe just for Java or C.
-  ;; (use-package dap-mode
-  ;;   :ensure t
-  ;;   :config
-  ;;   (require 'dap-gdb-lldb)
-  ;;   (require 'dap-go)
-  ;;   ;;download debuggers, REQUIRES unzip
-  ;;   (dap-gdb-lldb-setup)
-  ;;   (dap-go-setup))
-#+end_src
-
 *** Magit
 Obviously, no one using Emacs can live without having Magit, so here's where we will install and configure it.
 
@@ -1430,6 +1426,9 @@ NOTE: As *usual*, others configuration is incorrect, as they use ":config" inste
     "Set origami fold-style to triple braces
   "
     (interactive)
+    (if (bound-and-true-p display-line-numbers-mode)
+        (message "Already displaying line numbers")
+      (display-line-numbers-mode))
     (setq-local origami-fold-style 'triple-braces)
     (origami-mode)
     (origami-close-all-nodes (current-buffer)))
@@ -1439,19 +1438,17 @@ NOTE: As *usual*, others configuration is incorrect, as they use ":config" inste
     (save-excursion ;; leave point where it is
       (goto-char (point-at-eol))             ;; then go to the end of line
       (origami-toggle-node (current-buffer) (point))))                 ;; and try to fold
-  (defun aeh/setup-origami ()
-    (setq-local origami-fold-style 'triple-braces)
-    (origami-mode)
-    (origami-close-all-nodes (current-buffer)))
   ;; ;; Step 2, install Origami.
   (use-package origami
     :ensure t
     :defer 1
     :diminish)
-  (add-hook 'prog-mode-hook 'aeh/setup-origami)
-  ;; 2020-06-14: added function/hook to allow text-mode files use origami with file local variables
-  ;; to eval (prog-mode 1), completing origami setup.
-  (add-hook 'text-mode-hook 'aeh/setup-origami)
+  (add-hook 'prog-mode-hook
+            (lambda ()
+              (setq-local origami-fold-style 'triple-braces)
+              ;; (setq origami-fold-style 'triple-braces)
+              (origami-mode)
+              (origami-close-all-nodes (current-buffer))))
 #+END_SRC
 
 *** Paradox
@@ -1531,6 +1528,30 @@ Very useful if working web or game development--or theme development--when this 
     :hook ((prog-mode . rainbow-mode)
            (org-mode . rainbow-mode)))
 #+END_SRC
+
+*** Scratch
+2020-08-04: yesterday saw a new Protesilaos Stavrou video which had a number of misc. functions, and this was part of it all.
+Ref: https://protesilaos.com/codelog/2020-08-03-emacs-custom-functions-galore/
+Copying all directly from this site (this site code will NOT change):
+#+begin_src emacs-lisp
+  ;; Package by Ian Eure (ieure on GitHub)
+  (use-package scratch
+    :ensure
+    :config
+    (defun prot/scratch-buffer-setup ()
+      "Add contents to `scratch' buffer and name it accordingly."
+      (let* ((mode (format "%s" major-mode))
+             (string (concat "Scratch buffer for: " mode "\n\n")))
+        (when scratch-buffer
+          (save-excursion
+            (insert string)
+            (goto-char (point-min))
+            (comment-region (point-at-bol) (point-at-eol)))
+          (forward-line 2))
+        (rename-buffer (concat "*Scratch for " mode "*") t)))
+    :hook (scratch-create-buffer-hook . prot/scratch-buffer-setup)
+    :bind ("C-c s" . scratch))
+#+end_src
 
 *** Smartparens
 Will try out Smartparens for a while, from 2019-04-14.
@@ -1800,13 +1821,9 @@ This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] fo
     (setq yas-snippet-dirs '("~/.emacs.d/private/snippets"))
     (setq yas-indent-line 'fixed)
     (yas-global-mode 1))
-  ;; 2020-06-13: add-to-list for yasnippet-snippets-dir
   (use-package yasnippet-snippets
     :ensure t
-    :after yasnippet
-    :defer 1
-    :config
-    (add-to-list 'yas-snippet-dirs yasnippet-snippets-dir))
+    :defer 1)
 #+END_SRC
 
 ** Hydras
@@ -2015,8 +2032,7 @@ Same kind of thing for ibuffer-mode as well, same link.
 Now do Origami keys.
 #+begin_src emacs-lisp
   (evil-define-key 'normal prog-mode-map (kbd "TAB") 'aeh/origami-toggle-node)
-  ;; 2020-06-14: allow origami in text mode; use file Local Variables...
-  (evil-define-key 'normal text-mode-map (kbd "TAB") 'aeh/origami-toggle-node)
+  (evil-define-key 'normal origami-mode-map (kbd "TAB") 'aeh/origami-toggle-node)
   (define-key evil-normal-state-map "za" 'origami-forward-toggle-node)
   (define-key evil-normal-state-map "zR" 'origami-close-all-nodes)
   (define-key evil-normal-state-map "zM" 'origami-open-all-nodes)
@@ -2394,16 +2410,6 @@ These functions are copied from here:
 
   (define-key package-menu-mode-map "s" #'package-menu-filter-by-status)
   (define-key package-menu-mode-map "a" #'package-menu-find-marks)
-#+end_src
-
-**** Delete carriage returns from buffer
-#+begin_src emacs-lisp
-  (defun aeh/delete-carrage-returns ()
-    (interactive)
-    (save-excursion
-      (goto-char 0)
-      (while (search-forward "\r" nil :noerror)
-        (replace-match ""))))
 #+end_src
 
 ** Diminish
