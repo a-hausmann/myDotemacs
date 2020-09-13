@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-09-09 Wed 10:04>
+#+DATE: <2020-09-12 Sat 23:13>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1152,9 +1152,9 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
     :diminish)
 
   ;; 2020-09-07: adding custom package; 2020-09-08: make non-Windows (not work)
-  (cond ((not (string-equal system-type "windows-nt")))
-        (load "aeh-html-stuff")
-        (add-hook 'html-mode-hook 'aeh-html-stuff-mode))
+  (cond ((not (string-equal system-type "windows-nt"))
+         (load "aeh-html-stuff")
+         (add-hook 'html-mode-hook 'aeh-html-stuff-mode)))
 #+END_SRC
 
 *** Hungry-delete
