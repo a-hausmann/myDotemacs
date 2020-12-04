@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-12-02 Wed 16:03>
+#+DATE: <2020-12-03 Thu 19:16>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -339,7 +339,10 @@ Here is where I put languages configurations: Lisp, etc.
 
 **** Finally--Load This Theme.
 #+begin_src emacs-lisp
-  ;; (load-theme 'reverse t nil)
+  (use-package reverse-theme
+    :ensure t
+    :init
+    (load-theme 'reverse t nil))
 #+end_src
 
 *** Enable narrowing
@@ -1733,9 +1736,10 @@ See Reddit: https://www.reddit.com/r/emacs/comments/epehfg/rfc_undohist_updated/
     :defer 1
     :bind ((:map evil-normal-state-map ("u" . undo-fu-only-undo))
            (:map evil-normal-state-map ("C-r" . undo-fu-only-redo))
-           (:map evil-normal-state-map ("C-c C-r" . isearch-backward)))   ; don't want to lose isearch-backward
-    :config
-    (global-undo-tree-mode -1))
+           (:map evil-normal-state-map ("C-c C-r" . isearch-backward))) ; don't want to lose isearch-backward
+    ;; :config
+    ;; (global-undo-tree-mode -1)
+    )
   (use-package undo-fu-session
     :ensure t
     :after evil
