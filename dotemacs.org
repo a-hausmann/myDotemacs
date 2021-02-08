@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2020-12-03 Thu 19:16>
+#+DATE: <2021-02-08 Mon 09:08>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1057,6 +1057,7 @@ Flycheck does syntax checking for multiple languages.
   (setq lsp-keymap-prefix "C-l")
 
   (use-package lsp-mode
+    :diminish
     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
            (python-mode . lsp-deferred)
            ;; if you want which-key integration
@@ -1065,13 +1066,16 @@ Flycheck does syntax checking for multiple languages.
 
   ;; optionally
   (use-package lsp-ui
+    :diminish
     :ensure t
     :commands lsp-ui-mode)
   ;; if you are ivy user
   (use-package lsp-ivy
+    :diminish
     :ensure t
     :commands lsp-ivy-workspace-symbol)
   (use-package lsp-treemacs
+    :diminish
     :ensure t
     :commands lsp-treemacs-errors-list)
 #+end_src
@@ -2019,6 +2023,13 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
     )
 #+END_SRC
 
+*** Magit
+2021-02-01: Adding weird one for Magit, "C-c M-g" as prefixes.
+#+begin_src emacs-lisp
+  ;; Use to get log for buffer being visited.
+  (bind-key "C-c M-g l" 'magit-log-buffer-file)
+#+end_src
+
 *** Ibuffer
 Same kind of thing for ibuffer-mode as well, same link.
 #+BEGIN_SRC emacs-lisp
@@ -2426,6 +2437,8 @@ Diminish will remove or abbreviate minor mode names on the modeline. Although "u
     :defer 1
     :config
     (diminish 'which-key-mode)
+    (diminish 'flymake-mode)
+    (diminish 'highlight-indentation-mode)
     (diminish 'org-indent-mode)
     (diminish 'smartparens-mode)
     (diminish 'linum-relative-mode)
@@ -2465,6 +2478,8 @@ This is the place to put "final" steps, like visiting common files, etc.
         (find-file "c:/_work/org/todo.org")
         ;; 2020-04-27: Created acts.org, load with todo.org
         (find-file "c:/_work/org/acts.org")
+        ;; 2020-09-09: Add back in jira.org file.
+        (find-file "c:/_work/org/jira.org")
         ;; 2020-02-28: add x12-mode autoload plus file extensions
         (progn
           (autoload 'x12-mode "x12-mode" "" t)
