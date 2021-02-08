@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-02-08 Mon 09:08>
+#+DATE: <2021-02-08 Mon 10:20>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -339,10 +339,7 @@ Here is where I put languages configurations: Lisp, etc.
 
 **** Finally--Load This Theme.
 #+begin_src emacs-lisp
-  (use-package reverse-theme
-    :ensure t
-    :init
-    (load-theme 'reverse t nil))
+  (load-theme 'reverse t nil)
 #+end_src
 
 *** Enable narrowing
@@ -449,7 +446,6 @@ I really, *really* like visual-line-mode, so set globally.
  2019-01-11: change code to Chrome on Windows, else Opera. Code appears fine and evaluates, but doesn't work in Winders.  Shoot!
 
 2019-06-08: So, will try using the native Emacs EWW instead of attempting to use Chrome as the external browser.
-2020-12-02: On Meerkat now, and have switch to Brave as default browser.
  #+BEGIN_SRC emacs-lisp
    (defun aeh/browse-url-chrome (url &optional new-window)
      ;; (shell-command (concat "C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe" url)))
@@ -461,8 +457,7 @@ I really, *really* like visual-line-mode, so set globally.
      ;; (setq browse-url-browser-function 'browse-url-generic
      ;;       browse-url-generic-program 'aeh/browse-url-chrome)
      (setq browse-url-browser-function 'browse-url-generic
-           ;; browse-url-generic-program "opera")
-           browse-url-generic-program "brave-browser"))
+           browse-url-generic-program "opera"))
  #+END_SRC
  
 Use electric-pair-mode globally. 2018-12-27: turned off Autopair, turned on Electric-pair.
@@ -1740,10 +1735,9 @@ See Reddit: https://www.reddit.com/r/emacs/comments/epehfg/rfc_undohist_updated/
     :defer 1
     :bind ((:map evil-normal-state-map ("u" . undo-fu-only-undo))
            (:map evil-normal-state-map ("C-r" . undo-fu-only-redo))
-           (:map evil-normal-state-map ("C-c C-r" . isearch-backward))) ; don't want to lose isearch-backward
-    ;; :config
-    ;; (global-undo-tree-mode -1)
-    )
+           (:map evil-normal-state-map ("C-c C-r" . isearch-backward)))   ; don't want to lose isearch-backward
+    :config
+    (global-undo-tree-mode -1))
   (use-package undo-fu-session
     :ensure t
     :after evil
