@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-02-08 Mon 10:20>
+#+DATE: <2021-02-08 Mon 10:43>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1319,7 +1319,6 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
 #+BEGIN_SRC emacs-lisp
   (use-package magit
     :ensure t
-    :defer 1
     :diminish
     :commands (magit-status)
     :bind ("M-g" . magit-status))
@@ -1328,7 +1327,6 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
   (use-package magit-gitflow
     :ensure t
     :after magit
-    :defer 1
     :diminish
     :hook (magit-mode . turn-on-magit-gitflow))
 #+END_SRC
@@ -1814,7 +1812,6 @@ This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] fo
   (use-package yasnippet
     :ensure t
     :diminish 'yas-minor-mode
-    :defer 1
     :config
     ;; 2020-05-21: latest yasnippet update getting warnings for updating via backquoted code
     ;; this suppresses that warning
@@ -1827,7 +1824,7 @@ This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] fo
     (yas-global-mode 1))
   (use-package yasnippet-snippets
     :ensure t
-    :defer 1)
+    :after yasnippet)
 #+END_SRC
 
 ** Hydras
@@ -1955,8 +1952,7 @@ Native Magit: h=magit-dispatch, j=Prefix, k=magit-delete-thing, l=magit-log. Evi
   ;; 2018-12-16: Adding evil-magit
   (use-package evil-magit
     :ensure t
-    :defer 2
-    :after evil
+    :after (evil magit)
     :config
     (setq evil-magit-state 'normal)
     (setq evil-magit-use-y-for-yank nil)
