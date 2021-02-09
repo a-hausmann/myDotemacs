@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-02-08 Mon 10:43>
+#+DATE: <2021-02-09 Tue 16:25>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1812,6 +1812,10 @@ This is the "Snippets" [[https://www.emacswiki.org/emacs/Yasnippet][package]] fo
   (use-package yasnippet
     :ensure t
     :diminish 'yas-minor-mode
+    ;; 2021-02-09: add hooks to (hopefully) invoke autoloads when modes entered.
+    :hook ((prog-mode . yas-minor-mode)
+           (text-mode . yas-minor-mode)
+           )
     :config
     ;; 2020-05-21: latest yasnippet update getting warnings for updating via backquoted code
     ;; this suppresses that warning
