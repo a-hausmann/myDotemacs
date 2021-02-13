@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-02-09 Tue 16:25>
+#+DATE: <2021-02-13 Sat 01:17>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1724,7 +1724,7 @@ The try package allows one to "try" other packages without really installing the
     :diminish)
 #+end_src
 
-*** Undo-fu
+*** COMMENT Undo-fu
 See Reddit: https://www.reddit.com/r/emacs/comments/epehfg/rfc_undohist_updated/ for details, his undo-fu looks promising.
 #+begin_src emacs-lisp
   (use-package undo-fu
@@ -1733,9 +1733,10 @@ See Reddit: https://www.reddit.com/r/emacs/comments/epehfg/rfc_undohist_updated/
     :defer 1
     :bind ((:map evil-normal-state-map ("u" . undo-fu-only-undo))
            (:map evil-normal-state-map ("C-r" . undo-fu-only-redo))
-           (:map evil-normal-state-map ("C-c C-r" . isearch-backward)))   ; don't want to lose isearch-backward
-    :config
-    (global-undo-tree-mode -1))
+           (:map evil-normal-state-map ("C-c C-r" . isearch-backward))) ; don't want to lose isearch-backward
+    ;; :config
+    ;; (global-undo-tree-mode -1)
+    )
   (use-package undo-fu-session
     :ensure t
     :after evil
