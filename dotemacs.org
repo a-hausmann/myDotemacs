@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-02-13 Sat 01:17>
+#+DATE: <2021-02-16 Tue 01:18>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -202,10 +202,9 @@ See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for mor
   (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 #+end_src
 *** Languages
-
 Here is where I put languages configurations: Lisp, etc.
-
-**** Lisp
+***** Lisp
+- State "DONE"       from "ONGOING"    [2021-02-16 Tue 00:43]
 #+BEGIN_SRC emacs-lisp
   (use-package emacs-lisp-mode
     :ensure nil
@@ -222,8 +221,6 @@ Here is where I put languages configurations: Lisp, etc.
     :delight lisp-mode "Lisp")
   (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 #+END_SRC
-
-
 *** Themes
 **** ZeroDark
  One so far: ZeroDark--but I found one much better for me. So, use "disabled" to kill zerodark without losing the code.
@@ -441,9 +438,18 @@ I really, *really* like visual-line-mode, so set globally.
   (global-visual-line-mode 1)
 #+END_SRC
 *** Functionality
- Default browser
- According to the [[https://www.emacswiki.org/emacs/BrowseUrl][BrowseUrl wiki]], there is already support for Opera, Firefox, and Chromium, even Edge, but not Internet Exploder. Looking at most of the documentation on the Wiki page, it seems that both must variables must be set, and there is no way out of that.  Oh well.
- 2019-01-11: change code to Chrome on Windows, else Opera. Code appears fine and evaluates, but doesn't work in Winders.  Shoot!
+2021-02-16: Ref: http://pragmaticemacs.com/emacs/use-your-digits-and-a-personal-key-map-for-super-shortcuts/
+Will now use C-1...10 and M-1...10 however I see fit, they can now be reassigned.
+#+begin_src emacs-lisp
+  (dotimes (n 10)
+    (global-unset-key (kbd (format "C-%d" n)))
+    (global-unset-key (kbd (format "M-%d" n)))
+    )
+#+end_src
+
+Default browser
+According to the [[https://www.emacswiki.org/emacs/BrowseUrl][BrowseUrl wiki]], there is already support for Opera, Firefox, and Chromium, even Edge, but not Internet Exploder. Looking at most of the documentation on the Wiki page, it seems that both must variables must be set, and there is no way out of that.  Oh well.
+2019-01-11: change code to Chrome on Windows, else Opera. Code appears fine and evaluates, but doesn't work in Winders.  Shoot!
 
 2019-06-08: So, will try using the native Emacs EWW instead of attempting to use Chrome as the external browser.
  #+BEGIN_SRC emacs-lisp
@@ -517,7 +523,7 @@ This is copied from the https://github.com/abo-abo/ace-window.
     (scroll-other-window-down 1))
   (use-package ace-window
     :ensure t
-    :defer 1
+    :commands ace-window
     :diminish
     :config
     (set-face-attribute
@@ -575,7 +581,7 @@ Documentation reference: https://agel.readthedocs.io/en/latest/index.html
 #+begin_src emacs-lisp
   (use-package ag
     :ensure t
-    :defer 2
+    :commands ag
     :config
     (setq ag-group-matches nil))
 #+end_src
@@ -593,13 +599,12 @@ Downloaded/installed this somewhen, but never included in the dotemacs.org file 
   (use-package all-the-icons-dired
     :ensure t
     :diminish
-    :defer 1
     :hook ((dired-mode . all-the-icons-dired-mode)
            (dired-async-mode . all-the-icons-dired-mode)))
   (use-package all-the-icons-ivy
     :ensure t
     :diminish
-    :defer 1
+    :commands (ivy-switch-buffer ivy-switch-buffer-other-window)
     :custom (all-the-icons-ivy-buffer-commands '(ivy-switch-buffer-other-window ivy-switch-buffer))
     :config
     (add-to-list 'all-the-icons-ivy-file-commands 'counsel-dired-jump)
@@ -615,7 +620,7 @@ https://github.com/raxod502/prescient.el
 #+begin_src emacs-lisp
   (use-package amx
     :ensure t
-    :defer 1
+    :commands (amx amx-major-mode-commands execute-extended-command)
     :diminish
     :config
     (amx-mode t)   ; always in amx-mode
@@ -634,7 +639,7 @@ Found a trick; instead of binding to "avy-goto-char", use "avy-goto-char-timer".
 #+BEGIN_SRC emacs-lisp
   (use-package avy
     :ensure t
-    :defer 1
+    :commands avy-goto-char-timer
     :diminish
     :bind
     ("M-s" . avy-goto-char-timer))
@@ -652,12 +657,16 @@ Found [[https://github.com/Malabarba/aggressive-indent-mode][here]], aggressive-
 #+END_SRC
 
 *** Async
- This will allow asynchronous processing wherever possible...pretty nice.
+ This will allow asynchronous processing wherever possible...pretty nice.  Mostly useful in dired, so load after dired.
  #+BEGIN_SRC emacs-lisp
    (use-package async
      :ensure t
-     :defer 1
-     :config (dired-async-mode 1))
+     ;; :defer 1
+     :after dired
+     :config
+        (dired-async-mode 1)
+        (message "async got loaded")
+      )
  #+END_SRC
 *** Autopair
 [[https://github.com/joaotavora/autopair][Autopair]] is one of several alternatives to Vim's auto-pairs. There is also [[https://github.com/Fuco1/smartparens][Smartparens]], and Electric Pair, which appears to be built into Emacs at this point.
@@ -732,7 +741,8 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
 #+BEGIN_SRC emacs-lisp
   (use-package company
     :ensure t
-    :defer 1
+    ;; :defer 1
+    :commands company-complete-common
     :diminish
     :config
     (setq company-idle-delay nil)
@@ -978,8 +988,16 @@ Look into [[https://github.com/wasamasa/eyebrowse][Eyebrowse]] mode; Mike Zamans
 #+BEGIN_SRC emacs-lisp
   (use-package eyebrowse
     :ensure t
-    :defer 1
-    :diminish)
+    :defer 5
+    :diminish
+    :config (progn
+              (define-key eyebrowse-mode-map (kbd "M-1") 'eyebrowse-switch-to-window-config-1)
+              (define-key eyebrowse-mode-map (kbd "M-2") 'eyebrowse-switch-to-window-config-2)
+              (define-key eyebrowse-mode-map (kbd "M-3") 'eyebrowse-switch-to-window-config-3)
+              (define-key eyebrowse-mode-map (kbd "M-4") 'eyebrowse-switch-to-window-config-4)
+              (eyebrowse-mode t)
+              (setq eyebrowse-new-workspace t)
+              (message "Eyebrowse loaded")))
 #+END_SRC
 
 *** Flycheck, jedi, and elpy
@@ -1953,11 +1971,15 @@ OK, I forgot to add this until now...and setting up this configuration in git ma
 2019-09-05: This takes too long to start up 15+ seconds usually. Tweaked with ":after evil" which helped some, but still too long. Disabled then and tested Magit; the only change I noticed is that I could not use "hjkl" as usual. 
 
 Native Magit: h=magit-dispatch, j=Prefix, k=magit-delete-thing, l=magit-log. Evil-magit sets variable "evil-magit-mode-map-bindings", when condition "evil-magit-want-horizontal-movement" section to reset keys: "h" -> "H", "l" -> "L", etc. I would be hard-pressed to get the same, so should get used to using "n" and "p" for vertical movement, or maybe arrows.
+
+2021-02-16: After changing Magit to load on command 'magit-status', needed to set up hook for magit mode to correctly initialize evil-magit and get it to load correctly.
 #+BEGIN_SRC emacs-lisp
   ;; 2018-12-16: Adding evil-magit
   (use-package evil-magit
     :ensure t
     :after (evil magit)
+    :diminish
+    :hook (magit-mode . evil-magit-set-initial-states)
     :config
     (setq evil-magit-state 'normal)
     (setq evil-magit-use-y-for-yank nil)

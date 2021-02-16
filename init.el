@@ -128,7 +128,8 @@
 (setq byte-compile-warnings '(cl-functions))
 
 ;; Use latest Org
-(use-package org :ensure org-plus-contrib)
+(use-package org
+  :ensure org-plus-contrib)
 
 ;; Set Custom file location and if it exists, load it...then start tangling.
 (setq custom-file (concat user-emacs-directory "custom.el"))
