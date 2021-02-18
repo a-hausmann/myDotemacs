@@ -34,25 +34,22 @@
 ;; Just setting at beginning and end did little, still around 20 seconds with 5-6 garbage collections.
 ;; The most-positive-fixnum about the same.
 
-;; (setq gc-cons-threshold 402653184
-;;       gc-cons-percentage 0.6)
+;; (setq gc-cons-threshold most-positive-fixnum
+;;       gc-cons-percentage 0.6
+;;       )
 
-(setq gc-cons-threshold most-positive-fixnum
-      gc-cons-percentage 0.6
-      )
+;; (defvar startup/file-name-handler-alist file-name-handler-alist)
+;; (setq file-name-handler-alist nil)
 
-(defvar startup/file-name-handler-alist file-name-handler-alist)
-(setq file-name-handler-alist nil)
+;; (defun startup/revert-file-name-handler-alist ()
+;;   (setq file-name-handler-alist startup/file-name-handler-alist))
 
-(defun startup/revert-file-name-handler-alist ()
-  (setq file-name-handler-alist startup/file-name-handler-alist))
+;; (defun startup/reset-gc ()
+;;   (setq gc-cons-threshold 16777216
+;;         gc-cons-percentage 0.1))
 
-(defun startup/reset-gc ()
-  (setq gc-cons-threshold 16777216
-        gc-cons-percentage 0.1))
-
-(add-hook 'emacs-startup-hook 'startup/revert-file-name-handler-alist)
-(add-hook 'emacs-startup-hook 'startup/reset-gc)
+;; (add-hook 'emacs-startup-hook 'startup/revert-file-name-handler-alist)
+;; (add-hook 'emacs-startup-hook 'startup/reset-gc)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -69,20 +66,23 @@
 ;; Variable w32-get-true-file-attributes with non-nil issues extra system calls to determine accurate link counts.
 ;; Said to be more useful for NTFS over FAT, but u/zsome sets this to nil, and gets better results (along with
 ;; changing the buffer size.
-(when (boundp 'w32-pipe-read-delay)
-  (setq w32-pipe-read-delay 0)
-  (setq w32-pipe-buffer-size (* 64 1024))
-  (setq w32-get-true-file-attributes nil)
-  )
-;; (when (boundp 'w32-pipe-buffer-size)
-;;   (setq w32-pipe-buffer-size (* 64 1024)))
+;; (when (boundp 'w32-pipe-read-delay)
+;;   (setq w32-pipe-read-delay 0)
+;;   (setq w32-pipe-buffer-size (* 64 1024))
+;;   (setq w32-get-true-file-attributes nil)
+;;   )
+;; ;; (when (boundp 'w32-pipe-buffer-size)
+;; ;;   (setq w32-pipe-buffer-size (* 64 1024)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Set message to mark Emacs startup timestamp.
+(message "init.el started.")
 
 ;; Set repositories
 (require 'package)
-(setq-default
- load-prefer-newer t
- package-enable-at-startup nil)
+;; (setq-default
+;;  load-prefer-newer t
+;;  package-enable-at-startup nil)
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/") t)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 ;; 2018-12-27: Added the line below, had to look up correct URL, ref: https://emacsredux.com/blog/2014/05/16/melpa-stable/
@@ -90,6 +90,7 @@
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 (package-initialize)
+(message "After package-initialize")
 
 ;; Again, taking a hint from Uncle Dave, just in case "use-package" in not installed...
 ;; Bootstrapping use-package
@@ -100,10 +101,12 @@
 
 ;; Install dependencies
 (unless (and (package-installed-p 'delight)
-          (package-installed-p 'use-package))
+             (package-installed-p 'use-package))
   (package-refresh-contents)
   (package-install 'delight t)
   (package-install 'use-package t))
+(message "After install dependencies")
+
 (setq-default
  use-package-always-defer t
  use-package-always-ensure t
@@ -118,6 +121,7 @@
   (add-hook 'after-init-hook 'benchmark-init/deactivate)
   )
 (benchmark-init/activate)
+(message "After benchmark-init/activate")
 
 ;; 2018-12-16: migrate code from dotemacs.org file to here as it deals with version controlled files.
 ;; Follow symlinks for version controlled files
@@ -127,35 +131,52 @@
 ;; Ref: https://github.com/kiwanami/emacs-epc/issues/35
 (setq byte-compile-warnings '(cl-functions))
 
+;; 2021-02-17: don't think this is really needed, not sure where it came from, commenting for now.
 ;; Use latest Org
-(use-package org
-  :ensure org-plus-contrib)
+;; (use-package org
+;;   :ensure org-plus-contrib)
 
-;; Set Custom file location and if it exists, load it...then start tangling.
-(setq custom-file (concat user-emacs-directory "custom.el"))
-(when (file-exists-p custom-file)
-  (load custom-file))
 ;; Tangle configuration
 ;; Now using UD trick of only tangling file if it exists, so if not exists, Emacs will still launch.
-(when (file-readable-p "~/.emacs.d/dotemacs.org")
-  (org-babel-load-file (expand-file-name "dotemacs.org" user-emacs-directory)))
+;; Takes about 25 seconds to tangle dotemacs. This is a huge problem.
+;; Takes 10 seconds from "start tangle" to "(Shell command succeeded with no output)", which is next message.
+;; Is that the process that writes that? even if not tangling? ANSWER: shell command message comes from
+;; tangling. Without having to tangle, no message, but still 7 seconds from "start tangle" message to
+;; next, "Loading...dotemacs.el". Essentially, this is 7 seconds to figure out no tangling needed.
+;; That's a BIG chunk right there.
+;; Got the tangle on save to work, sort of; tried to remove the org-bable-load-file which tangles only
+;; when new org file and just load most recent tangled file, got some org errors on load, something else not right.
+;; Live with this for another day or so, work on this weekend? Weirdly, got unusual org errors, and org-bullets
+;; was not loaded, but when NO CHANGE in org file and restarted with org-babel-load-file instead of load, it
+;; worked normally again.
+;; NOTE: tangle on save produced a "dotemacs." file in .emacs.d directory which cannot be removed. Great!
+(message "Start tangle or load dotemacs.el")
+(load "~/.emacs.d/dotemacs")
+;; (when (file-readable-p "~/.emacs.d/dotemacs.org")
+;;   (org-babel-load-file (expand-file-name "dotemacs.org" user-emacs-directory))
+;;   (message "dotemacs.org tangled or loaded!"))
 (garbage-collect)
+(message "Manually collected garbage in init.el")
 
 ;; 2019-06-29: After loading dotemacs.el (after babel), display statistics of load in
 ;; buffer "*use-package statistics*"; this will split the dashboard automatically, which we
 ;; do NOT want, so  delete-other-windows (point remains in dashboard) to retain buffer unseen.
 (use-package-report)
+(message "Generated use-package-report in init.el")
 (delete-other-windows)
-;;; init.el ends here
 
 (put 'narrow-to-region 'disabled nil)
 (put 'dired-find-alternate-file 'disabled nil)
 
 ;; 2019-09-05: put startup elapsed time with GC counter to *Messages* buffer.
 (add-hook 'emacs-startup-hook
-  (lambda ()
-    (message "Emacs ready in %s with %d garbage collections."
-      (format "%.2f seconds"
-        (float-time
-          (time-subtract after-init-time before-init-time)))
-      gcs-done)))
+          (lambda ()
+            (message "Emacs ready in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))
+
+(message "init.el completed.")
+
+;;; init.el ends here
