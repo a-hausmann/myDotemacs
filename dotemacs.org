@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-02-18 Thu 17:15>
+#+DATE: <2021-02-20 Sat 21:23>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1753,7 +1753,8 @@ See Reddit: https://www.reddit.com/r/emacs/comments/epehfg/rfc_undohist_updated/
            (:map evil-normal-state-map ("C-r" . undo-fu-only-redo))
            (:map evil-normal-state-map ("C-c C-r" . isearch-backward))) ; don't want to lose isearch-backward
     :config
-    (global-undo-tree-mode -1)
+    (message "Loaded Undo-fu.")
+    ;; (global-undo-tree-mode -1)
     )
   (use-package undo-fu-session
     :ensure t
@@ -2133,7 +2134,6 @@ The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow,
   ;; 2019-12-16: add to template-alist.
   (require 'org-tempo)
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  (setq org-ellipsis " ")
   ;; 2019-06-08: After loading ONE of MANY themes, the "fontify-natively" non-nil started
   ;; throwing code between source markers into horrid light colors regardless of theme used.
   ;; Setting the variable to nil gets rid of that tendency.
