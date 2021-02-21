@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-02-20 Sat 21:23>
+#+DATE: <2021-02-21 Sun 17:11>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -46,17 +46,6 @@ These are items I still need to create, or fix.
 First line of dotemacs.el should be comment for lexical binding.
 #+begin_src emacs-lisp
 ;; -*- lexical-binding: t -*-
-#+end_src
-** Show startup message
-#+begin_src emacs-lisp
-(message "Start tangle or load dotemacs.el")
-#+end_src
-** Automatically tangle
-Ref: https://raw.githubusercontent.com/frap/emacs-literate/master/readme.org
-This tells emacs to automatically tangle all code blocks unless told not to on #+begin_src line like the below does.
-Still doesn't seem to work with "C-c C-v t"
-#+begin_src :tangle no
-header-args :tangle yes
 #+end_src
 ** Window system and more
 *** Set the size of the frame
@@ -222,121 +211,26 @@ See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for mor
 Here is where I put languages configurations: Lisp, etc.
 ***** Lisp
 #+BEGIN_SRC emacs-lisp
+  ;; 2021-02-21: think this is circular reference, remove hook and set to load on command.
   (use-package emacs-lisp-mode
     :ensure nil
-    :defer 2
+    ;; :defer 2
+    :commands emacs-lisp-mode
     :delight emacs-lisp-mode "Emacs Lisp"
     :config (delight 'lisp-interaction-mode "Lisp Interaction"))
+  ;; 2021-02-21: Package ielm is a repl for emacs lisp, so ONLY load when commanded in.
   (use-package ielm
     :ensure nil
-    :defer 2
+    :commands ielm
     :hook (ielm-mode . (lambda () (setq-local scroll-margin 0))))
   (use-package lisp-mode
     :ensure nil
-    :defer 2
+    :hook (emacs-lisp-mode . lisp-mode)
+    ;; :defer 2
     :delight lisp-mode "Lisp")
   (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 #+END_SRC
 *** Themes
-**** ZeroDark
- One so far: ZeroDark--but I found one much better for me. So, use "disabled" to kill zerodark without losing the code.
-
- I've been watching a number of "Uncle Dave's" [[http://www.youtube.com/channel/UCDEtZ7AKmwS0_GNJog01D2g][videos]], quite instructive, and rather like the theme he uses, "zerodark".  He uses the following to ensure the theme package and also customize it.
-
- #+BEGIN_SRC emacs-lisp
-   (use-package zerodark-theme
-     :ensure t
-     :disabled
-     :init
-     (load-theme 'zerodark t)
-     (let ((class '((class color) (min-colors 89)))
-           (default (if (true-color-p) "#abb2bf" "#afafaf"))
-           (light (if (true-color-p) "#ccd4e3" "#d7d7d7"))
-           (background (if (true-color-p) "#282c34" "#333333"))
-           (background-dark (if (true-color-p) "#24282f" "#222222"))
-           (background-darker (if (true-color-p) "#22252c" "#222222"))
-           (mode-line-inactive (if "#1c2129" "#222222"))
-           (mode-line-active (if (true-color-p) "#6f337e" "#875f87"))
-           (background-lighter (if (true-color-p) "#3a3f4b" "#5f5f5f"))
-           (background-red (if (true-color-p) "#4c3840" "#5f5f5f"))
-           (bright-background-red (if (true-color-p) "#744a5b" "#744a5b"))
-           (background-purple (if (true-color-p) "#48384c" "#5f5f5f"))
-           (background-blue (if (true-color-p) "#38394c" "#444444"))
-           (bright-background-blue (if (true-color-p) "#4e5079" "#4e5079"))
-           (background-green (if (true-color-p) "#3d4a41" "#5f5f5f"))
-           (bright-background-green (if (true-color-p) "#3f6d54" "#3f6d54"))
-           (background-orange (if (true-color-p) "#4a473d" "#5f5f5f"))
-           (hl-line (if (true-color-p) "#2c323b" "#333333"))
-           (grey (if (true-color-p) "#cccccc" "#cccccc"))
-           (grey-dark (if (true-color-p) "#666666" "#666666"))
-           (highlight (if (true-color-p) "#3e4451" "#5f5f5f"))
-           (comment (if (true-color-p) "#687080" "#707070"))
-           (orange (if (true-color-p) "#da8548" "#d7875f"))
-           (orange-light (if (true-color-p) "#ddbd78" "#d7af87"))
-           (red (if (true-color-p) "#ff6c6b" "#ff5f5f"))
-           (purple (if (true-color-p) "#c678dd" "#d787d7"))
-           (purple-dark (if (true-color-p) "#64446d" "#5f5f5f"))
-           (blue (if (true-color-p) "#61afef" "#5fafff"))
-           (blue-dark (if (true-color-p) "#1f5582" "#005f87"))
-           (green (if (true-color-p) "#98be65" "#87af5f"))
-           (green-light (if (true-color-p) "#9eac8c" "#afaf87"))
-           (peach "PeachPuff3")
-           (diff-added-background (if (true-color-p) "#284437" "#284437"))
-           (diff-added-refined-background (if (true-color-p) "#1e8967" "#1e8967"))
-           (diff-removed-background (if (true-color-p) "#583333" "#580000"))
-           (diff-removed-refined-background (if (true-color-p) "#b33c49" "#b33c49"))
-           (diff-current-background (if (true-color-p) "#29457b" "#29457b"))
-           (diff-current-refined-background (if (true-color-p) "#4174ae" "#4174ae")))
-       (custom-theme-set-faces
-        'zerodark
-        `(fancy-battery-charging ((,class (:background ,background-blue :height 1.0 :bold t))))
-        `(fancy-battery-discharging ((,class (:background ,background-blue :height 1.0))))
-        `(fancy-battery-critical ((,class (:background ,background-blue :height 1.0))))
-        ;; mode line stuff
-        `(mode-line ((,class (:background ,background-blue :height 1.0 :foreground ,blue
-                                          :distant-foreground ,background-blue
-                                          :box ,(when zerodark-use-paddings-in-mode-line
-                                                  (list :line-width 6 :color background-blue))))))
-        `(mode-line-inactive ((,class (:background ,background-blue :height 1.0 :foreground ,default
-                                                   :distant-foreground ,background-blue
-                                                   :box ,(when zerodark-use-paddings-in-mode-line
-                                                           (list :line-width 6 :color background-blue))))))
-        `(header-line ((,class (:inherit mode-line-inactive))))
-        `(powerline-active0 ((,class (:height 1.0 :foreground ,blue :background ,background-blue
-                                              :distant-foreground ,background-blue))))
-        `(powerline-active1 ((,class (:height 1.0 :foreground ,blue :background ,background-blue
-                                              :distant-foreground ,background-blue))))
-        `(powerline-active2 ((,class (:height 1.0 :foreground ,blue :background ,background-blue
-                                              :distant-foreground ,background-blue))))
-        `(powerline-inactive0 ((,class (:height 1.0 :foreground ,blue :background ,background-blue
-                                                :distant-foreground ,background-blue))))
-        `(powerline-inactive1 ((,class (:height 1.0 :foreground ,blue :background ,background-blue
-                                                distant-foreground ,background-blue))))
-        `(powerline-inactive2 ((,class (:height 1.0 :foreground ,blue :background ,background-blue
-                                                :distant-foreground ,background-blue))))
-        `(dashboard-heading-face ((,class (:background ,background :foreground ,blue
-                                                       :bold t :height 1.2))))
-        `(dashboard-banner-logo-title-face ((,class (:background ,background :foreground ,blue
-                                                                 :bold t :height 1.2))))
-        `(widget-button ((,class (:background ,background :foreground ,default :bold nil
-                                              :underline t :height 0.9))))
-        ;; erc stuff
-        `(erc-nick-default-face ((,class :foreground ,blue :background ,background :weight bold)))
-        ;; org stuff
-        `(outline-1 ((,class (:foreground ,blue :weight bold :height 1.8 :bold nil))))
-        `(outline-2 ((,class (:foreground ,purple :weight bold :height 1.7 :bold nil))))
-        `(outline-3 ((,class (:foreground ,peach :weight bold :height 1.6 :bold nil))))
-        `(outline-4 ((,class (:foreground ,green-light :weight bold :height 1.5 :bold nil))))
-        `(outline-5 ((,class (:foreground ,blue :weight bold :height 1.4 :bold nil))))
-        `(outline-6 ((,class (:foreground ,purple :weight bold :height 1.3 :bold nil))))
-        `(outline-7 ((,class (:foreground ,peach :weight bold :height 1.2 :bold nil))))
-        `(outline-8 ((,class (:foreground ,green-light :weight bold :height 1.1 :bold nil))))
-        `(org-block-begin-line ((,class (:background ,background-blue :foreground ,blue
-                                                     :bold t :height 1.0))))
-        `(org-block-end-line ((,class (:background ,background-blue :foreground ,blue
-                                                   :bold t :height 1.0)))))))
- #+END_SRC
-
 **** SanityInc-tomorrow-bright
 [[https://github.com/purcell/color-theme-sanityinc-tomorrow][SanityInc-Tomorrow]] is a collection of five variations: day, night, blue, *bright* (my favorite), and eighties.
 
@@ -490,39 +384,46 @@ Use electric-pair-mode globally. 2018-12-27: turned off Autopair, turned on Elec
 #+END_SRC
 
 ** Packages
+NOTE: The following use-package variables set True in init.el: =use-package-always-defer=, =use-package-always-ensure=.
+
 *** General
 2018-11-10: Have decided to try [[https://github.com/noctuid/general.el][General.el]] as a replacement for Evil-leader. Evil-leader does not appear to be able to allow an "alias" for a command, instead displaying the entire command.  This, I'm sure, has to do with Which-key in combination with Evil-leader, but I'd like to see something more like the menu options that Bailey Ling displays in his config. 
 
 Thus far, this has worked well. The key here is that the function paired to the key binding *must* be a quoted list consisting of the command called, the ":which-key" property, ending with the text string to be displayed.  This is EXACTLY what I wanted to get from Evil-leader, but could not figure out. Note too that I can have multiple keymaps defined for keybindings; "b" is defined in normal, insert, and emacs modes to call the buffers hydra. Note yet again that I have defined a "leader" key of "SPC", and can also define a "local-leader" as another key, in this case, "C-M-;" (I would have loved to use "\" but that takes over the key completely and it cannot be used otherwise). Creating these variables, I can bind individual keys chords to these leaders by keymaps; General Rocks!
 #+BEGIN_SRC emacs-lisp
+  ;; 2021-02-21: used to just ensure and end use-package; everything else outside block.
+  ;; Now put all prefix into config, and demand in general.
   (use-package general
-  :ensure t)
-  ;; Prefix keybindings
-  (general-create-definer aeh-leader-def
-  :prefix "SPC")
-  (general-create-definer aeh-local-leader-def
-  :prefix "C-;")
-  ;; Global keybindings
-  (aeh-leader-def
-    :keymaps '(normal visual emacs)
-    ";" '(frog-jump-buffer :which-key "Frog jump buffer")
-    "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
-    "b" '(aeh/hydra-buffers/body :which-key "buffers")
-    "c" '(aeh/hydra-counsel/body :which-key "counsel")
-    "f" '(aeh/hydra-files/body :which-key "files")
-    "m" '(aeh/hydra-modes/body :which-key "modes")
-    "M" '(aeh/hydra-magit/body :which-key "Magit")
-    "r" '(aeh/hydra-rectangle/body :which-key "rectangle")
-    "t" '(aeh/hydra-toggles/body :which-key "toggles")
-    "y" '(aeh/hydra-yasnippet/body :which-key "snippets")
-    "w" '(aeh/hydra-windows/body :which-key "windows"))
-  (aeh-local-leader-def
-    :keymaps 'insert
-    ";" '(frog-jump-buffer :which-key "Frog jump buffer")
-    "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
-    "c" '(aeh/hydra-counsel/body :which-key "counsel")
-    "d" '(aeh/hydra-insert-date-menu/body :which-key "dates")
-    "i" '(aeh/hydra-insert-stuff-menu/body :which-key "insert stuff"))
+    :ensure t
+    :demand t
+    :config
+    ;; Prefix keybindings
+    (general-create-definer aeh-leader-def
+      :prefix "SPC")
+    (general-create-definer aeh-local-leader-def
+      :prefix "C-;")
+    ;; Global keybindings
+    (aeh-leader-def
+      :keymaps '(normal visual emacs)
+      ";" '(frog-jump-buffer :which-key "Frog jump buffer")
+      "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
+      "b" '(aeh/hydra-buffers/body :which-key "buffers")
+      "c" '(aeh/hydra-counsel/body :which-key "counsel")
+      "f" '(aeh/hydra-files/body :which-key "files")
+      "m" '(aeh/hydra-modes/body :which-key "modes")
+      "M" '(aeh/hydra-magit/body :which-key "Magit")
+      "r" '(aeh/hydra-rectangle/body :which-key "rectangle")
+      "t" '(aeh/hydra-toggles/body :which-key "toggles")
+      "y" '(aeh/hydra-yasnippet/body :which-key "snippets")
+      "w" '(aeh/hydra-windows/body :which-key "windows"))
+    (aeh-local-leader-def
+      :keymaps 'insert
+      ";" '(frog-jump-buffer :which-key "Frog jump buffer")
+      "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
+      "c" '(aeh/hydra-counsel/body :which-key "counsel")
+      "d" '(aeh/hydra-insert-date-menu/body :which-key "dates")
+      "i" '(aeh/hydra-insert-stuff-menu/body :which-key "insert stuff"))
+    )
 #+END_SRC
 
 *** Ace-Window
@@ -610,13 +511,7 @@ Downloaded/installed this somewhen, but never included in the dotemacs.org file 
   ;; Ref: https://github.com/domtronn/all-the-icons.el
   (use-package all-the-icons
     :ensure t
-    :diminish
-    :defer 0.5)
-  (use-package all-the-icons-dired
-    :ensure t
-    :diminish
-    :hook ((dired-mode . all-the-icons-dired-mode)
-           (dired-async-mode . all-the-icons-dired-mode)))
+    :diminish)
   (use-package all-the-icons-ivy
     :ensure t
     :diminish
@@ -677,12 +572,9 @@ Found [[https://github.com/Malabarba/aggressive-indent-mode][here]], aggressive-
  #+BEGIN_SRC emacs-lisp
    (use-package async
      :ensure t
-     ;; :defer 1
      :after dired
      :config
-        (dired-async-mode 1)
-        (message "async got loaded")
-      )
+        (dired-async-mode 1))
  #+END_SRC
 *** Beacon
 Shine a light on the point position whenever the window scrolls to you can find the point.
@@ -691,7 +583,7 @@ Ref: https://github.com/Malabarba/beacon
   (use-package beacon
     :ensure t
     :diminish
-    :defer 2
+    :demand
     :config
     (beacon-mode 1))
 #+end_src
@@ -734,6 +626,8 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
     :ensure t
     :commands company-complete-common
     :diminish
+    :hook ((emacs-lisp-mode . company-mode)
+           (shell-mode . company-mode))
     :config
     (setq company-idle-delay 2)
     ;; (global-set-key (kbd "<M-f2>") 'company-complete-common)
@@ -741,47 +635,28 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
     ;; 2020-07-08: change this from <C-f12> to "C-M-."
     (global-set-key (kbd "C-M-.") 'company-complete-common)
     (setq company-minimum-prefix-length 5)
-    (setq company-dabbrev-ignore-case t))
-  (add-hook 'after-init-hook 'global-company-mode)
+    (setq company-dabbrev-ignore-case t)
+    (with-eval-after-load 'company
+      (define-key company-active-map (kbd "M-n") nil)
+      (define-key company-active-map (kbd "M-p") nil)
+      (define-key company-active-map (kbd "C-j") #'company-select-next)
+      (define-key company-active-map (kbd "C-k") #'company-select-previous))
+    ;; (define-key company-active-map (kbd "SPC") #'company-abort))
+    )
+  ;; 2021-02-21: Did this LONG ago, but setting the after-init-hook loads company mode after Emacs initialization.
+  ;; (add-hook 'after-init-hook 'global-company-mode)
   (add-hook 'sql-mode-hook
             #'(lambda ()
                 (setq-default company-minimum-prefix-length 4)
                 (setq-default company-dabbrev-code-ignore-case t)
                 (setq-default completion-ignore-case t)))
 
-  (with-eval-after-load 'company
-    (define-key company-active-map (kbd "M-n") nil)
-    (define-key company-active-map (kbd "M-p") nil)
-    (define-key company-active-map (kbd "C-j") #'company-select-next)
-    (define-key company-active-map (kbd "C-k") #'company-select-previous))
-  ;; (define-key company-active-map (kbd "SPC") #'company-abort))
-
-  ;; emacs-lisp company additions, including slime
-  (add-hook 'emacs-lisp-mode-hook 'company-mode)
-
-  (use-package slime
-    :ensure t
-    :disabled
-    :config
-    (setq inferior-lisp-program "/usr/bin/sbcl")
-    (setq slime-contribs '(slime-fancy)))
-
-  (use-package slime-company
-    :ensure t
-    :disabled
-    :after company
-    :init
-      (slime-setup '(slime-fancy slime-company)))
-
-  ;; bash company additions
-  (add-hook 'shell-mode-hook 'company-mode)
 
   (defun shell-mode-company-init ()
     (setq-local company-backends '((company-shell
                                     company-shell-env
                                     company-etags
                                     company-dabbrev-code))))
-
   (use-package company-shell
     :ensure t
     :after company
@@ -813,18 +688,34 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
     :config
     (company-quickhelp-mode))
 
+  ;; 2020-07-08, adding company-jedi, which uses jedi-core, but made for Company users
+  (defun aeh/python-mode-hook ()
+    (add-to-list 'company-backends 'company-jedi))
+  (use-package company-jedi
+    :ensure t
+    :after company
+    :hook (python-mode-map . aeh/python-mode-hook))
+
   (setq company-backends
         '((company-files          ; files & directory
            company-keywords       ; keywords
            company-capf)          ; completion-at-point-functions
           (company-abbrev company-dabbrev)))
 
-  ;; 2020-07-08, adding company-jedi, which uses jedi-core, but made for Company users
-  (defun aeh/python-mode-hook ()
-    (add-to-list 'company-backends 'company-jedi))
-  (use-package company-jedi
+  ;; 2021-02-21: move all the slime stuff to end of block.
+  (use-package slime
     :ensure t
-    :hook (python-mode-map . aeh/python-mode-hook))
+    :disabled
+    :config
+    (setq inferior-lisp-program "/usr/bin/sbcl")
+    (setq slime-contribs '(slime-fancy)))
+
+  (use-package slime-company
+    :ensure t
+    :disabled
+    :after company
+    :init
+    (slime-setup '(slime-fancy slime-company)))
 #+END_SRC
 
 *Company Improvements*
@@ -873,74 +764,102 @@ This is the *NEW* startup screen, and together with Projectile, can provide with
  #+BEGIN_SRC emacs-lisp
    (use-package dashboard
      :ensure t
-     :defer 1
+     :demand
      :diminish
-     :config (message "Dashboard loaded."))
-   (dashboard-setup-startup-hook)
-   ;; Disable shortcut "jump" indicators for each section, set
-   (setq dashboard-show-shortcuts nil)
-   (if (string-equal system-type "windows-nt")
-       (setq dashboard-startup-banner "~/.emacs.d/img/dont-tread-on-emacs-150.png")
-     (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png"))
-   (setq dashboard-banner-logo-title "My Startup Page - Get Hacking!")
-   (setq dashboard-items '((recents  . 15)
-                           ;; (projects . 5)
-                           ;; (bookmarks . 5)
-                           ))
-   ;; 2019-07-20: updated package, new info, ref: https://github.com/emacs-dashboard/emacs-dashboard
-   (setq dashboard-set-init-info 1)
-   (setq dashboard-set-footer 1)
-   (setq dashboard-footer-icon (all-the-icons-octicon "zap"
-                                                      :height 1.1
-                                                      :v-adjust -0.05
-                                                      :face 'font-lock-keyword-face))
+     :config
+     ;; (message "Dashboard loaded.")
+     (dashboard-setup-startup-hook)
+     ;; Disable shortcut "jump" indicators for each section, set
+     (setq dashboard-show-shortcuts nil)
+     (if (string-equal system-type "windows-nt")
+         (setq dashboard-startup-banner "~/.emacs.d/img/dont-tread-on-emacs-150.png")
+       (setq dashboard-startup-banner "~/.emacs.d/img/dashLogo.png"))
+     (setq dashboard-banner-logo-title "My Startup Page - Get Hacking!")
+     (setq dashboard-items '((recents  . 15)
+                             ;; (projects . 5)
+                             ;; (bookmarks . 5)
+                             ))
+     ;; 2019-07-20: updated package, new info, ref: https://github.com/emacs-dashboard/emacs-dashboard
+     (setq dashboard-set-init-info 1)
+     (setq dashboard-footer-icon (all-the-icons-octicon "zap"
+                                                        :height 1.1
+                                                        :v-adjust -0.05
+                                                        :face 'font-lock-keyword-face))
+     (setq dashboard-set-footer 1))
  #+END_SRC
 
-*** Dired-git-info 
-Learned about this one from Reddit, ref: http://xenodium.com/showhide-emacs-dired-details-in-style/, and looked at the repo: https://github.com/clemera/dired-git-info.
+*** Dired stuff 
+2021-02-21: Decided to put dired into use-package macro, ref: https://github.com/daviwil/dotfiles/blob/master/Emacs.org#dired. Will also collect all the dired-related packages here.
 
-This works OK in Windows, but is very slow as it appears to send a "git log" command string to Git for each file...probably best to narrow the dired buffer before invoking this mode.
+Package dired-git-info:
+Learned about this one from Reddit, ref: http://xenodium.com/showhide-emacs-dired-details-in-style/, and looked at the repo: https://github.com/clemera/dired-git-info. This works OK in Windows, but is very slow as it appears to send a "git log" command string to Git for each file...probably best to narrow the dired buffer before invoking this mode.
 
-#+begin_src emacs-lisp
-  (use-package dired-git-info
-    :ensure t
-    :defer 1
-    :diminish
-    :after dired
-    :config (message "Loaded dired-git-info"))
-  (with-eval-after-load 'dired
-    (define-key dired-mode-map ")" 'dired-git-info-mode))
-#+end_src
-
-*** Dired-narrow
+Dired-narrow: 
 From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.org#dired
 2019-06-28: better config from Pragmaticemacs: http://pragmaticemacs.com/emacs/dynamically-filter-directory-listing-with-dired-narrow/
-#+begin_src emacs-lisp
-  (use-package dired-narrow
-    :ensure t
-    :commands (dired-narrow dired-narrow-fuzzy dired-narrow-regexp)
-    :diminish
-    :config (message "Loded dired-narrow")
-    :bind
-    (:map dired-mode-map ("C-c C-n" . dired-narrow))
-    (:map dired-mode-map ("C-c C-f" . dired-narrow-fuzzy))
-    (:map dired-mode-map ("C-x C-n" . dired-narrow-regexp)))
-#+end_src
 
-*** Dired-subtree
+Dired-subtree:
 From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.org#dired
 2019-06-29: Mike's config methodology for keybindings is not good. Better to use the :bind macro instead.
+
 #+begin_src emacs-lisp
-  (use-package dired-subtree
+  (use-package all-the-icons-dired
     :ensure t
-    :after dired
-    :commands (dired-subtree-toggle dired-subtree-cydle)
-    :config (message "Loaded dired-subtree")
-    :defer 1
     :diminish
-    :bind
-    (:map dired-mode-map ("<tab>" . dired-subtree-toggle))
-    (:map dired-mode-map ("<backtab>" . dired-subtree-cycle)))
+    ;; :hook ((dired-mode . all-the-icons-dired-mode)
+    ;;        (dired-async-mode . all-the-icons-dired-mode))
+    )
+  (use-package dired
+    :ensure nil
+    :defer 1
+    :commands (dired dired-jump)
+    :config
+    (setq dired-listing-switches "-agho --group-directories-first"
+          dired-omit-files "^\\.[^.].*"
+          dired-omit-verbose nil)
+    (autoload 'dired-omit-mode "dired-x")
+    (add-hook 'dired-load-hook
+              (lambda ()
+                (interactive)
+                (dired-collapse)))
+    (add-hook 'dired-mode-hook
+              (lambda ()
+                (interactive)
+                (dired-omit-mode 1)
+                (dired-hide-details-mode 1)
+                (all-the-icons-dired-mode 1)
+                (hl-line-mode 1)))
+    (use-package dired-single
+      :defer t)
+    (use-package dired-collapse
+      :defer t)
+    (use-package dired-git-info
+      :ensure t
+      :defer 1
+      :diminish
+      :after dired)
+    (use-package dired-narrow
+      :ensure t
+      :commands (dired-narrow dired-narrow-fuzzy dired-narrow-regexp)
+      :diminish
+      :config (message "Loded dired-narrow")
+      :bind
+      (:map dired-mode-map ("C-c C-n" . dired-narrow))
+      (:map dired-mode-map ("C-c C-f" . dired-narrow-fuzzy))
+      (:map dired-mode-map ("C-x C-n" . dired-narrow-regexp)))
+    (use-package dired-subtree
+      :ensure t
+      :after dired
+      :commands (dired-subtree-toggle dired-subtree-cydle)
+      :defer 1
+      :diminish
+      :bind
+      (:map dired-mode-map ("<tab>" . dired-subtree-toggle))
+      (:map dired-mode-map ("<backtab>" . dired-subtree-cycle)))
+    )
+
+  (with-eval-after-load 'dired
+    (define-key dired-mode-map ")" 'dired-git-info-mode))
 #+end_src
 
 *** Drag-stuff
@@ -949,10 +868,8 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
   (use-package drag-stuff
     :ensure t
     :diminish
-    :defer 1
     :bind ("M-<f3>" . drag-stuff-mode)
     :config
-    (message "Loaded drag-stuff")
     (drag-stuff-define-keys))
 #+end_src
 
@@ -962,7 +879,6 @@ Note, the documentation states the package "requires a Core program", then goes 
 #+begin_src emacs-lisp
   (use-package editorconfig
     :ensure t
-    :defer 2
     :diminish
     :config
     (editorconfig-mode 1)
@@ -975,26 +891,26 @@ With this [[https://github.com/magnars/expand-region.el][simple package]] from M
 #+BEGIN_SRC emacs-lisp
   (use-package expand-region
     :ensure t
-    :defer 2
     :diminish
     :bind ("C-=" . er/expand-region))
 #+END_SRC
 
 *** Eyebrowse
 Look into [[https://github.com/wasamasa/eyebrowse][Eyebrowse]] mode; Mike Zamansky did a [[https://www.youtube.com/watch?v=s6IXj0bS7L8][demo]] of it, pretty good window manager, it tracks window/buffer splits well within one session, though there seems no way to save over sessions. Though on the blog page, Vadim notes that searching for "persist" in the README shows how to save using "built-in desktop.el" package.
+2021-02-21: Tried using =:commands= to trigger load, but doesn't work as no windows configured automatically; finally, just demand.
 #+BEGIN_SRC emacs-lisp
   (use-package eyebrowse
     :ensure t
-    :defer 5
     :diminish
+    :demand
     :config (progn
               (define-key eyebrowse-mode-map (kbd "M-1") 'eyebrowse-switch-to-window-config-1)
               (define-key eyebrowse-mode-map (kbd "M-2") 'eyebrowse-switch-to-window-config-2)
               (define-key eyebrowse-mode-map (kbd "M-3") 'eyebrowse-switch-to-window-config-3)
               (define-key eyebrowse-mode-map (kbd "M-4") 'eyebrowse-switch-to-window-config-4)
               (eyebrowse-mode t)
-              (setq eyebrowse-new-workspace t)
-              (message "Eyebrowse loaded")))
+              (setq eyebrowse-new-workspace t))
+    )
 #+END_SRC
 
 *** Flycheck, jedi, and elpy
@@ -1013,7 +929,6 @@ Flycheck does syntax checking for multiple languages.
   ;; and falls back to python-pycompile if neither of those is available."
   (use-package flycheck
     :ensure t
-    :defer 2
     :diminish
     :hook
     (shell-mode . flycheck-mode)
@@ -1034,7 +949,6 @@ Flycheck does syntax checking for multiple languages.
   ;; 2020-07-14: disable to try lsp-mode
   (use-package elpy
     :ensure t
-    :defer 1
     :diminish
     :hook ((python-mode . company-mode))
     :config
@@ -1095,7 +1009,6 @@ This actually beats iBuffer and counsel-ibuffer with Swiper; use General for bin
 #+begin_src emacs-lisp
   (use-package frog-jump-buffer
     :ensure t
-    :defer 1
     :diminish)
 #+end_src
 
@@ -1316,7 +1229,7 @@ This setup is translated from or taken from [[https://github.com/abo-abo/lispy#c
 #+BEGIN_SRC emacs-lisp
   (use-package lispy
     :ensure t
-    :defer 2
+    :disabled
     :diminish
     :config
     ;; One can use "M-:" - eval-expression to use lispy in the mini-buffer during eval-expression
@@ -1333,7 +1246,6 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
 2018-12-21: Added magit-gitflow to the config, [[https://gitlab.com/buildfunthings/emacs-config/blob/master/loader.org][ref.]]
 2018-12-24: Added property "commands".
 #+BEGIN_SRC emacs-lisp
-  (message "Start Magit loads")
   (use-package magit
     :ensure t
     :diminish
@@ -1346,7 +1258,6 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
     :after magit
     :diminish
     :hook (magit-mode . turn-on-magit-gitflow))
-  (message "End Magit loads")
 #+END_SRC
 
 *** Modus vivendi
@@ -1752,8 +1663,8 @@ See Reddit: https://www.reddit.com/r/emacs/comments/epehfg/rfc_undohist_updated/
     :bind ((:map evil-normal-state-map ("u" . undo-fu-only-undo))
            (:map evil-normal-state-map ("C-r" . undo-fu-only-redo))
            (:map evil-normal-state-map ("C-c C-r" . isearch-backward))) ; don't want to lose isearch-backward
-    :config
-    (message "Loaded Undo-fu.")
+    ;; :config
+    ;; (message "Loaded Undo-fu.")
     ;; (global-undo-tree-mode -1)
     )
   (use-package undo-fu-session
@@ -2526,3 +2437,12 @@ This is the place to put "final" steps, like visiting common files, etc.
   ;; 2019-12-10: Created ~/.emacs.d/private/local/aeh-useful.el, so load it
   (load "aeh-useful")
 #+end_src
+
+This last piece sets local variables for this file,
+Ref: https://www.reddit.com/r/orgmode/comments/jy8fuc/orgbabeltangle_on_save/
+Ref: https://github.com/joseph8th/literatemacs
+
+Local Variables: 
+eval: (add-hook 'after-save-hook (lambda ()(if (y-or-n-p "Reload?")(load-file user-init-file))) nil t) 
+eval: (add-hook 'after-save-hook (lambda ()(if (y-or-n-p "Tangle?")(org-babel-tangle))) nil t) 
+End:

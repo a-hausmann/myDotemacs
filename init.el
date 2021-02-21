@@ -107,6 +107,12 @@
   (package-install 'use-package t))
 (message "After install dependencies")
 
+;; 2021-02-21: Missed actually requiring use-package, looking at System Crafters videos.
+;; Ref: https://github.com/daviwil/dotfiles/blob/master/Emacs.org
+(require 'use-package)
+;; Uncomment this to get a reading on packages that get loaded at startup
+(setq use-package-verbose t)
+
 (setq-default
  use-package-always-defer t
  use-package-always-ensure t
@@ -150,7 +156,7 @@
 ;; was not loaded, but when NO CHANGE in org file and restarted with org-babel-load-file instead of load, it
 ;; worked normally again.
 ;; NOTE: tangle on save produced a "dotemacs." file in .emacs.d directory which cannot be removed. Great!
-(message "Start tangle or load dotemacs.el")
+(message "Start load dotemacs.el")
 (load "~/.emacs.d/dotemacs")
 ;; (when (file-readable-p "~/.emacs.d/dotemacs.org")
 ;;   (org-babel-load-file (expand-file-name "dotemacs.org" user-emacs-directory))
@@ -176,6 +182,9 @@
                              (float-time
                               (time-subtract after-init-time before-init-time)))
                      gcs-done)))
+
+;; 2021-02-21: add setup for showing backtrace on errors.
+(setq debug-on-error t)
 
 (message "init.el completed.")
 
