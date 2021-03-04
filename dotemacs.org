@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-02-21 Sun 17:11>
+#+DATE: <2021-03-04 Thu 10:39>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -320,28 +320,6 @@ Can set any of these from -1 (FALSE as it is not 1) to 1 (TRUE) if they are desi
  (show-paren-mode 1)
  #+END_SRC
 
-**** This makes things look nicer; it replaces asterisks with nicer looking bullets.  
-I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/configurations-for-beautifying-emacs-org-mode/][here]].
-#+BEGIN_SRC emacs-lisp
-  (use-package org-bullets
-    :ensure t
-    :defer 2
-    :config
-    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-    ;; make available "org-bullet-face" such that I can control the font size individually
-    (setq org-bullets-face-name (quote org-bullet-face))
-    (setq org-bullets-bullet-list '("✙" "♱" "♰" "☥" "✞" "✟" "✝" "†" "✠" "✚" "✜" "✛" "✢" "✣" "✤" "✥"))
-    ;; (setq org-ellipsis "⚡⚡⚡")
-    (setq org-ellipsis "▼▼▼")
-    (custom-set-faces
-     '(org-level-1 ((t (:inherit outline-1 :height 1.3))))
-     '(org-level-2 ((t (:inherit outline-2 :height 1.2))))
-     '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
-     '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
-     '(org-level-5 ((t (:inherit outline-5 :height 1.0)))))
-    )
-#+END_SRC
-
 **** Global mode settings
 I really, *really* like visual-line-mode, so set globally.
 #+BEGIN_SRC emacs-lisp
@@ -571,8 +549,9 @@ Found [[https://github.com/Malabarba/aggressive-indent-mode][here]], aggressive-
  This will allow asynchronous processing wherever possible...pretty nice.  Mostly useful in dired, so load after dired.
  #+BEGIN_SRC emacs-lisp
    (use-package async
-     :ensure t
-     :after dired
+     :diminish
+     :demand
+     ;:after dired
      :config
         (dired-async-mode 1))
  #+END_SRC
@@ -582,7 +561,7 @@ Ref: https://github.com/Malabarba/beacon
 #+begin_src emacs-lisp
   (use-package beacon
     :ensure t
-    :diminish
+    :diminish (beacon-mode)
     :demand
     :config
     (beacon-mode 1))
@@ -693,6 +672,7 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
     (add-to-list 'company-backends 'company-jedi))
   (use-package company-jedi
     :ensure t
+    :disabled
     :after company
     :hook (python-mode-map . aeh/python-mode-hook))
 
@@ -801,10 +781,11 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
 Dired-subtree:
 From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.org#dired
 2019-06-29: Mike's config methodology for keybindings is not good. Better to use the :bind macro instead.
-
+2021-03-04: 'dired-listing-switches' doesn't seem to work for grouping directories first, so remove it as
+that seemed to affect the date values--they were wrong.  Could be mix of dired sub-packages messing with
+it, but leave that for another day.
 #+begin_src emacs-lisp
   (use-package all-the-icons-dired
-    :ensure t
     :diminish
     ;; :hook ((dired-mode . all-the-icons-dired-mode)
     ;;        (dired-async-mode . all-the-icons-dired-mode))
@@ -814,9 +795,11 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
     :defer 1
     :commands (dired dired-jump)
     :config
-    (setq dired-listing-switches "-agho --group-directories-first"
-          dired-omit-files "^\\.[^.].*"
-          dired-omit-verbose nil)
+    ;; (setq dired-listing-switches "-alh --group-directories-first")
+    ;; (setq dired-listing-switches "-al --group-directories-first")
+    (setq dired-listing-switches "-al")
+    (setq dired-omit-files "^\\.[^.].*")
+    (setq dired-omit-verbose nil)
     (autoload 'dired-omit-mode "dired-x")
     (add-hook 'dired-load-hook
               (lambda ()
@@ -826,20 +809,20 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
               (lambda ()
                 (interactive)
                 (dired-omit-mode 1)
-                (dired-hide-details-mode 1)
+                ;; (dired-hide-details-mode 1)
                 (all-the-icons-dired-mode 1)
                 (hl-line-mode 1)))
     (use-package dired-single
+      :after dired
       :defer t)
     (use-package dired-collapse
+      :after dired
       :defer t)
     (use-package dired-git-info
-      :ensure t
       :defer 1
       :diminish
       :after dired)
     (use-package dired-narrow
-      :ensure t
       :commands (dired-narrow dired-narrow-fuzzy dired-narrow-regexp)
       :diminish
       :config (message "Loded dired-narrow")
@@ -848,7 +831,6 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
       (:map dired-mode-map ("C-c C-f" . dired-narrow-fuzzy))
       (:map dired-mode-map ("C-x C-n" . dired-narrow-regexp)))
     (use-package dired-subtree
-      :ensure t
       :after dired
       :commands (dired-subtree-toggle dired-subtree-cydle)
       :defer 1
@@ -912,97 +894,6 @@ Look into [[https://github.com/wasamasa/eyebrowse][Eyebrowse]] mode; Mike Zamans
               (setq eyebrowse-new-workspace t))
     )
 #+END_SRC
-
-*** Flycheck, jedi, and elpy
-Flycheck does syntax checking for multiple languages.
-2020-06-18: Begin to add Python support.
-2020-06-23: Move Elpy into this section.
-#+begin_src emacs-lisp
-  ;; Ref: https://emacs.stackexchange.com/questions/39241/flycheck-on-windows-python-pycompile-output-contained-no-errors
-  (defun aeh/flycheck-parse-output (output checker buffer)
-    "Strip carriage return characters from flycheck output"
-    (let ((sanitized-output (replace-regexp-in-string "\r" "" output))
-          )
-      (funcall (flycheck-checker-get checker 'error-parser) sanitized-output checker buffer)))
-  ;; Ref: https://www.flycheck.org/en/latest/languages.html#python
-  ;; "Flycheck checks Python with python-flake8 or python-pylint,
-  ;; and falls back to python-pycompile if neither of those is available."
-  (use-package flycheck
-    :ensure t
-    :diminish
-    :hook
-    (shell-mode . flycheck-mode)
-    (python-mode . flycheck-mode)
-    :config
-    ;; 2020-06-18: Work laptop has only python 3.7.7 as "python", Linux needs "python3"
-    ;; 2020-06-23: Found that while Windows can "python", Flycheck still needs defined as "python3"
-    ;; 2020-07-06: Reinstalled Python 3.7.7 as 32 bit, only executes as "python"
-    (setq flycheck-python-pylint-executable "python")
-    (when (string-equal system-type "windows-nt")
-      (advice-add #'flycheck-parse-output :override #'aeh/flycheck-parse-output))
-    )
-
-  ;; Move elpy to this section.
-  ;; Ref:  https://github.com/jorgenschaefer/elpy
-  ;; 2020-07-08: setup elpy for using company; see company section for additions.
-  ;; Ref: https://medium.com/analytics-vidhya/managing-a-python-development-environment-in-emacs-43897fd48c6a
-  ;; 2020-07-14: disable to try lsp-mode
-  (use-package elpy
-    :ensure t
-    :diminish
-    :hook ((python-mode . company-mode))
-    :config
-    (advice-add 'python-mode :before 'elpy-enable)
-    ;; Ref: https://elpy.readthedocs.io/en/latest/ide.html#interactive-python
-    (setq
-     ;; 2020-07-06: Reinstalled Python, now in C:/Python/Python37-32. The rest looks OK.
-     ;; 2020-07-08: Ref: https://linuxhint.com/configuring_emacs_python/
-     ;; This led to installing ipython, which also installed jedi. The ipython changes the
-     ;; shell-interpreter% variables.
-     ;; python-shell-interpreter "python"
-     ;; python-shell-interpreter-args "-i"
-     python-shell-interpreter "ipython"
-     python-shell-interpreter-args "-i --simple-prompt"
-     python-indent-guess-indent-offset t
-     python-indent-guess-indent-offset-verbose t)
-    ;; 2020-07-08: as now not specifying Windows paths/executables, can make generic.
-    (setq
-     elpy-rpc-pythonpath (file-name-directory (locate-library "elpy"))
-     ;; 2020-07-09: set elpy to use jedi in backend
-     elpy-rpc-backend "jedi"
-     flycheck-flake8rc "~/.flake8"
-     python-check-command (executable-find "flake8")
-     flycheck-python-flake8-executable (executable-find "flake8")))
-
-  ;; 2020-07-14: Trying lsp-mode
-  ;; Ref: https://emacs-lsp.github.io/lsp-mode/page/installation/
-  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-  ;; (setq lsp-keymap-prefix "C-c C-c l")
-  (setq lsp-keymap-prefix "C-l")
-
-  (use-package lsp-mode
-    :diminish
-    :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-           (python-mode . lsp-deferred)
-           ;; if you want which-key integration
-           (lsp-mode . lsp-enable-which-key-integration))
-    :commands lsp lsp-deferred)
-
-  ;; optionally
-  (use-package lsp-ui
-    :diminish
-    :ensure t
-    :commands lsp-ui-mode)
-  ;; if you are ivy user
-  (use-package lsp-ivy
-    :diminish
-    :ensure t
-    :commands lsp-ivy-workspace-symbol)
-  (use-package lsp-treemacs
-    :diminish
-    :ensure t
-    :commands lsp-treemacs-errors-list)
-#+end_src
 
 *** Frog-jump-buffer
 This actually beats iBuffer and counsel-ibuffer with Swiper; use General for bindings.
@@ -1107,8 +998,7 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
 
 #+BEGIN_SRC emacs-lisp
   (use-package ivy
-    :ensure t
-    :defer 1
+    :demand
     :diminish ivy-mode
     :config
     (ivy-mode t)
@@ -1124,8 +1014,7 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
 
   ;; Counsel is a collection of ivy enhanced versions of common Emacs commands. I haven't bound much as ivy-mode takes care of most things.
   (use-package counsel
-    :ensure
-    :defer 1
+    :demand
     :bind (("M-x" . counsel-M-x)
            ("C-c g" . 'counsel-git)
            ("C-c j" . 'counsel-git-grep)
@@ -1142,14 +1031,12 @@ Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dot
 
   ;; Swiper is an ivy enhanced version of isearch.
   (use-package swiper
-    :ensure t
-    :defer 1
+    :demand
     :bind ("C-S-s" . swiper))
 
   ;; Hydra presents menus for ivy commands.
   ;; 2019-10-02: Change Swiper binding to "C-S-s"
   (use-package ivy-hydra
-    :ensure t
     :after ivy
     :defer 1)
 
@@ -1240,6 +1127,107 @@ This setup is translated from or taken from [[https://github.com/abo-abo/lispy#c
     (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1))))
 #+END_SRC
 
+*** LSP, Flycheck, jedi, and elpy
+Flycheck does syntax checking for multiple languages.
+2020-06-18: Begin to add Python support.
+2020-06-23: Move Elpy into this section.
+2021-02-22: Disabled Elpy as using LSP only, save code but move to end of section.
+#+begin_src emacs-lisp
+  ;; Ref: https://emacs.stackexchange.com/questions/39241/flycheck-on-windows-python-pycompile-output-contained-no-errors
+  (defun aeh/flycheck-parse-output (output checker buffer)
+    "Strip carriage return characters from flycheck output"
+    (let ((sanitized-output (replace-regexp-in-string "\r" "" output))
+          )
+      (funcall (flycheck-checker-get checker 'error-parser) sanitized-output checker buffer)))
+  ;; Ref: https://www.flycheck.org/en/latest/languages.html#python
+  ;; "Flycheck checks Python with python-flake8 or python-pylint,
+  ;; and falls back to python-pycompile if neither of those is available."
+  (use-package flycheck
+    :ensure t
+    :diminish
+    :hook
+    (shell-mode . flycheck-mode)
+    (python-mode . flycheck-mode)
+    :config
+    ;; 2020-06-18: Work laptop has only python 3.7.7 as "python", Linux needs "python3"
+    ;; 2020-06-23: Found that while Windows can "python", Flycheck still needs defined as "python3"
+    ;; 2020-07-06: Reinstalled Python 3.7.7 as 32 bit, only executes as "python"
+    (setq flycheck-python-pylint-executable "python")
+    (when (string-equal system-type "windows-nt")
+      (advice-add #'flycheck-parse-output :override #'aeh/flycheck-parse-output))
+    )
+
+  ;; 2020-07-14: Trying lsp-mode
+  ;; Ref: https://emacs-lsp.github.io/lsp-mode/page/installation/
+  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+  ;; (setq lsp-keymap-prefix "C-c C-c l")
+  ;; 2021-02-22: Ref: https://github.com/daviwil/emacs-from-scratch/blob/6d078217a41134cc667f969430d150c50d03f448/Emacs.org
+  ;; 2021-03-02: Ref: https://emacs-lsp.github.io/lsp-mode/page/installation/
+
+  ;; (defun aeh--lsp-mode-setup ()
+  ;;   (interactive)
+  ;;   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  ;;   (lsp-headerline-breadcrumb-mode))
+
+  (use-package lsp-mode
+    :diminish
+    :init ;; set prefix for lsp-command-keymap
+    (setq lsp-keymap-prefix "C-l")
+    :custom (lsp-headerline-breadcrumb-enable t)
+    :hook  (python-mode . lsp-deferred)
+           (lsp-mode . lsp-enable-which-key-integration)
+    :commands lsp)
+
+  ;; 2021-02-22: update config from "daviwil"
+  (use-package lsp-ui
+    :diminish
+    :hook (lsp-mode . lsp-ui-mode)
+    :custom (lsp-ui-doc-position 'bottom))
+
+  ;; 2021-02-22: update config from "daviwil"
+  (use-package lsp-ivy
+    :diminish
+    :after lsp)
+
+  ;; 2021-02-22: update config from "daviwil"
+  (use-package lsp-treemacs
+    :diminish
+    :after lsp)
+
+  ;; Move elpy to this section.
+  ;; Ref:  https://github.com/jorgenschaefer/elpy
+  ;; 2020-07-08: setup elpy for using company; see company section for additions.
+  ;; Ref: https://medium.com/analytics-vidhya/managing-a-python-development-environment-in-emacs-43897fd48c6a
+  ;; 2020-07-14: disable to try lsp-mode
+  (use-package elpy
+    :diminish
+    :disabled
+    :hook ((python-mode . company-mode))
+    :config
+    (advice-add 'python-mode :before 'elpy-enable)
+    ;; Ref: https://elpy.readthedocs.io/en/latest/ide.html#interactive-python
+    (setq
+     ;; 2020-07-06: Reinstalled Python, now in C:/Python/Python37-32. The rest looks OK.
+     ;; 2020-07-08: Ref: https://linuxhint.com/configuring_emacs_python/
+     ;; This led to installing ipython, which also installed jedi. The ipython changes the
+     ;; shell-interpreter% variables.
+     ;; python-shell-interpreter "python"
+     ;; python-shell-interpreter-args "-i"
+     python-shell-interpreter "ipython"
+     python-shell-interpreter-args "-i --simple-prompt"
+     python-indent-guess-indent-offset t
+     python-indent-guess-indent-offset-verbose t)
+    ;; 2020-07-08: as now not specifying Windows paths/executables, can make generic.
+    (setq
+     elpy-rpc-pythonpath (file-name-directory (locate-library "elpy"))
+     ;; 2020-07-09: set elpy to use jedi in backend
+     elpy-rpc-backend "jedi"
+     flycheck-flake8rc "~/.flake8"
+     python-check-command (executable-find "flake8")
+     flycheck-python-flake8-executable (executable-find "flake8")))
+
+#+end_src
+
 *** Magit
 Obviously, no one using Emacs can live without having Magit, so here's where we will install and configure it.
 
@@ -1250,7 +1238,7 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
     :ensure t
     :diminish
     :commands (magit-status)
-    :bind ("M-g" . magit-status))
+    :bind ("C-x g" . magit-status))
   (setq magit-push-always-verify nil)
   (setq git-commit-summary-max-length 50)
   (use-package magit-gitflow
@@ -1320,7 +1308,7 @@ Here is some documentation for the package:
 
 #+begin_src emacs-lisp
   (use-package neotree
-    :ensure t
+    :disabled
     :after evil
     :defer 2
     :diminish
@@ -1490,7 +1478,7 @@ Will try out Smartparens for a while, from 2019-04-14.
   (use-package smartparens
     :ensure t
     :defer 1
-    :diminish
+    :diminish (smartparens-mode)
     :config
     ;; Stop pairing single quotes in elisp
     (sp-local-pair 'emacs-lisp-mode "'" nil :actions nil)
@@ -1567,7 +1555,7 @@ Found Reddit page noting icons for treemacs, found new package to assist: https:
 #+BEGIN_SRC emacs-lisp
   (use-package treemacs
     :ensure t
-    :disabled
+    ;; :disabled
     :defer t
     :commands (treemacs)
     :bind (("M-<f2>" . treemacs))
@@ -1611,7 +1599,7 @@ Found Reddit page noting icons for treemacs, found new package to assist: https:
 
       ;; The default width and height of the icons is 22 pixels. If you are
       ;; using a Hi-DPI display, uncomment this to double the icon size.
-      ;;(treemacs-resize-icons 44)
+      (treemacs-resize-icons 44)
 
       (treemacs-follow-mode t)
       (treemacs-filewatch-mode t)
@@ -1627,18 +1615,18 @@ Found Reddit page noting icons for treemacs, found new package to assist: https:
 
   (use-package treemacs-evil
     :after treemacs evil
-    :disabled
+    ;; :disabled
     :ensure t)
 
   (use-package treemacs-projectile
     :after treemacs projectile
-    :disabled
+    ;; :disabled
     :ensure t)
 
   ;; 2019-10-16: added package
   (use-package treemacs-icons-dired
     :after treemacs dired
-    :disabled
+    ;; :disabled
     :ensure t
     :config (treemacs-icons-dired-mode))
 #+END_SRC
@@ -1702,10 +1690,10 @@ This is one of the best packages in Emacs, and takes advantage of the self-docum
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
     :ensure t
-    :defer 1
-    :diminish
+    :init (which-key-mode)
+    :diminish (which-key-mode)
     :config
-    (which-key-mode))
+    (setq which-key-idle-delay 1))
 #+END_SRC
 
 *** Which-key-posframe
@@ -1783,7 +1771,8 @@ Note that Evil Mode is a minor mode, and like all minor modes, minor modes loade
 #+BEGIN_SRC emacs-lisp
   (use-package evil
     :ensure t
-    :defer 1
+    :init (setq evil-want-keybinding nil)
+    :demand
     :config
     (evil-mode 1)
 
@@ -1885,17 +1874,24 @@ OK, I forgot to add this until now...and setting up this configuration in git ma
 Native Magit: h=magit-dispatch, j=Prefix, k=magit-delete-thing, l=magit-log. Evil-magit sets variable "evil-magit-mode-map-bindings", when condition "evil-magit-want-horizontal-movement" section to reset keys: "h" -> "H", "l" -> "L", etc. I would be hard-pressed to get the same, so should get used to using "n" and "p" for vertical movement, or maybe arrows.
 
 2021-02-16: After changing Magit to load on command 'magit-status', needed to set up hook for magit mode to correctly initialize evil-magit and get it to load correctly.
+2021-03-04: As of 11/24/2020, evil-magit is NO LONGER MAINTAINED, use evil-collection instead. 
+Ref: https://github.com/emacs-evil/evil-magit
 #+BEGIN_SRC emacs-lisp
+ (use-package evil-collection
+    :after evil
+    :demand
+    :config (evil-collection-init))
+
+
   ;; 2018-12-16: Adding evil-magit
-  (use-package evil-magit
-    :ensure t
-    :after (evil magit)
-    :diminish
-    :hook (magit-mode . evil-magit-set-initial-states)
-    :config
-    (setq evil-magit-state 'normal)
-    (setq evil-magit-use-y-for-yank nil)
-    )
+  ;; 2021-03-04: Comment out evil-magit as it is defunct
+  ;; (use-package evil-magit
+  ;;   :after magit
+  ;;   :diminish
+  ;;   :hook (magit-mode . evil-magit-set-initial-states)
+  ;;   :config
+  ;;   (setq evil-magit-state 'normal)
+  ;;   (setq evil-magit-use-y-for-yank nil))
 #+END_SRC
 
 ** Evil-mc 
@@ -2037,8 +2033,36 @@ The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow,
 
 ** Org mode stuff
  Org mode is such an important part of Emacs it is now part of the "core" software. As such, there is no need for a "use-package" setup, but some common settings are good.
+ 2021-02-22: Put all the Org mode code together in one place.
  2019-01-07: Org templates are NOT working in Windows version. This is due to Org version 9.2, see "org-plus-contrib-20181230/org-version.el".
  Original code: '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC")
+
+2021-02-23: Some weird things happened in the Jira org doc, the properties table display got displayed with larger font size, and I suspect it might be because the org-bullets block got moved before the org-temp block (which sets org-src-fontify-natively). Let's test by moving things around a bit.
+2021-02-23: AND, the answer is: it has nothing to do with config, but changes to "org-plus-contrib" package. I ALSO did a package upgrade across the board, and went from 'org-plus-contrib-20200713' to 'org-plus-contrib-2021022'. After the upgrade I ended up with both in "elpa" directory; moved 2/22 version to 'archive' and it worked, swapped the two so 2/22 was active and got the same results, back to 7/13 and it works again. Updates to config does nothing, it's the version.
+
+I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/configurations-for-beautifying-emacs-org-mode/][here]].
+#+BEGIN_SRC emacs-lisp
+  ;; 2021-02-23: Key to org starting collapsed is org-startup-folded, never set before, doing it here.
+  (setq org-startup-folded t)
+
+  (use-package org-bullets
+    :defer 2
+    :config
+    (message "HEY! Org-bullets configured!")
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+    ;; make available "org-bullet-face" such that I can control the font size individually
+    (setq org-bullets-face-name (quote org-bullet-face))
+    (setq org-bullets-bullet-list '("✙" "♱" "♰" "☥" "✞" "✟" "✝" "†" "✠" "✚" "✜" "✛" "✢" "✣" "✤" "✥"))
+    ;; (setq org-ellipsis "⚡⚡⚡")
+    (setq org-ellipsis "▼▼▼")
+    (custom-set-faces
+     '(org-level-1 ((t (:inherit outline-1 :height 1.3))))
+     '(org-level-2 ((t (:inherit outline-2 :height 1.2))))
+     '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+     '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
+     '(org-level-5 ((t (:inherit outline-5 :height 1.0)))))
+    )
+#+END_SRC
 
  These are from UncleDavesEmacs: 
 #+BEGIN_SRC emacs-lisp
@@ -2053,13 +2077,14 @@ The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow,
   (setq org-confirm-babel-evaluate nil)
   (setq org-export-with-smart-quotes t)
   (setq org-src-window-setup 'current-window)                   ; Allows for "C-c '" to narrow to code being edited.
-  ;: 2018-10-22: Wow! Errors galore in Spacemacs UNTIL changing the simple "add-to-list" to an "eval-after-load" (see below).
   ;; 2019-01-07: Updated to Org 9.2, this method now invalid, using yas-snippet instead.
   (add-hook 'org-mode-hook
               '(lambda ()
                  (visual-line-mode 1)
                  (org-indent-mode 1)))
   (global-set-key (kbd "C-c '") 'org-edit-src-code)
+  ;; 2021-02-24: Adding SECOND org-ellipsis set after requiring org-tempo to see if this has effect.
+  (setq org-ellipsis "▼▼▼")
 #+END_SRC
 
 Some global key bindings for Org mode, as shown in the [[https://orgmode.org/orgguide.pdf][compact Org Guide]].
@@ -2108,23 +2133,24 @@ For TODO tasks and states, reference: [[http://doc.norang.ca/org-mode.html#Tasks
 
 2021-02-16: Tangle dotemacs.org on save, Ref: https://github.com/daviwil/emacs-from-scratch/blob/9388cf6ecd9b44c430867a5c3dad5f050fdc0ee1/init.el
 Unfortunately, this is not working correctly, cannot even 'org-babel-tangle', get "Tangled 0 blocks..."
+2021-02-23: don't think this matters anymore with the file variables at EOF, so commenting out.
 #+begin_src emacs-lisp
-  (defun aeh--org-babel-tangle-config()
-    "Stole this code from Emacs From Scratch; seemed like a good idea at the time.
-    Function will tangle ~/.emacs.d/dotemacs.org when executed.
-    Add a hook (`after-save-hook') to execute when in org mode."
-    (interactive)
-    (message (concat "buffer-file-name: " (buffer-file-name)))
-    (message (concat "to: " (expand-file-name "dotemacs.org" user-emacs-directory)))
-    (when (string-equal (buffer-file-name)
-                        (expand-file-name "dotemacs.org" user-emacs-directory))
-      (message "Strings equal, should tangle now.")
-      ;; Dynamic scoping to the rescue
-      (let ((org-confirm-babel-evaluate t))
-        (org-babel-tangle)
-      )
-      ))
-  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'aeh--org-babel-tangle-config)))
+  ;; (defun aeh--org-babel-tangle-config()
+  ;;   "Stole this code from Emacs From Scratch; seemed like a good idea at the time.
+  ;;   Function will tangle ~/.emacs.d/dotemacs.org when executed.
+  ;;   Add a hook (`after-save-hook') to execute when in org mode."
+  ;;   (interactive)
+  ;;   (message (concat "buffer-file-name: " (buffer-file-name)))
+  ;;   (message (concat "to: " (expand-file-name "dotemacs.org" user-emacs-directory)))
+  ;;   (when (string-equal (buffer-file-name)
+  ;;                       (expand-file-name "dotemacs.org" user-emacs-directory))
+  ;;     (message "Strings equal, should tangle now.")
+  ;;     ;; Dynamic scoping to the rescue
+  ;;     (let ((org-confirm-babel-evaluate t))
+  ;;       (org-babel-tangle)
+  ;;     )
+  ;;     ))
+  ;; (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'aeh--org-babel-tangle-config)))
 #+end_src
 
 ** Sane tabs-or-spaces
@@ -2385,11 +2411,9 @@ Diminish will remove or abbreviate minor mode names on the modeline. Although "u
     :ensure t
     :defer 1
     :config
-    (diminish 'which-key-mode)
     (diminish 'flymake-mode)
     (diminish 'highlight-indentation-mode)
     (diminish 'org-indent-mode)
-    (diminish 'smartparens-mode)
     (diminish 'linum-relative-mode)
     (diminish 'page-break-lines-mode)
     (diminish 'visual-line-mode)
@@ -2398,7 +2422,6 @@ Diminish will remove or abbreviate minor mode names on the modeline. Although "u
     (diminish 'company-mode)
     (diminish 'eldoc-mode)
     (diminish 'undo-tree-mode)
-    (diminish 'beacon-mode)
     (diminish 'subword-mode))
 #+END_SRC
 Diminish doesn't work for some minor modes as they are hard-coded into the minor mode. Instead, set custom variables to nil.

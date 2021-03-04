@@ -83,3 +83,6 @@
               (newline))
           (insert (format-time-string "[%F %T.%3N] "))))))
 (advice-add 'message :before 'aeh--ad-timestamp-message)
+
+;; 2021-02-22: Added below from ref: https://github.com/syl20bnr/spacemacs/issues/13866
+(setq package-check-signature nil)
