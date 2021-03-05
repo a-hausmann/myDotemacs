@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-03-04 Thu 10:39>
+#+DATE: <2021-03-05 Fri 13:04>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -784,23 +784,25 @@ From Mike Zamansky: https://github.com/zamansky/using-emacs/blob/master/myinit.o
 2021-03-04: 'dired-listing-switches' doesn't seem to work for grouping directories first, so remove it as
 that seemed to affect the date values--they were wrong.  Could be mix of dired sub-packages messing with
 it, but leave that for another day.
+2021-03-05: Saw video showing 'dired-listing-switches' is a customizable variable, so MUST be set in ":custom".
+However, seems to also need GNU Coreutils, so installed that, and added to %path%, but still doesn't seem to work.
+The "G" does eliminate group info, and "D" is supposed to "generate output designed for Emacs dired mode" according
+to the "ls" info-page, but that doesn't list "--group-directories-first", so that appears to be the end of it on Windows.
+It seems the best thing to do is set variable to the string to execute based on Windows or not.
 #+begin_src emacs-lisp
-  (use-package all-the-icons-dired
-    :diminish
-    ;; :hook ((dired-mode . all-the-icons-dired-mode)
-    ;;        (dired-async-mode . all-the-icons-dired-mode))
-    )
+  (use-package all-the-icons-dired :diminish)
+  (if (string-equal system-type "windows-nt")
+      (setq my/dired-string "-alG")
+      (setq my/dired-string "-alG --group-directories-first"))
   (use-package dired
     :ensure nil
     :defer 1
     :commands (dired dired-jump)
+    :custom (dired-listing-switches my/dired-string)
     :config
-    ;; (setq dired-listing-switches "-alh --group-directories-first")
-    ;; (setq dired-listing-switches "-al --group-directories-first")
-    (setq dired-listing-switches "-al")
-    (setq dired-omit-files "^\\.[^.].*")
-    (setq dired-omit-verbose nil)
-    (autoload 'dired-omit-mode "dired-x")
+    ;; (autoload 'dired-omit-mode "dired-x")     ;;dired-omit-mode hides dotfiles and more; bad toggle (C-x M-o)
+    ;; (setq dired-omit-files "^\\.[^.].*")
+    ;; (setq dired-omit-verbose nil)
     (add-hook 'dired-load-hook
               (lambda ()
                 (interactive)
@@ -808,7 +810,7 @@ it, but leave that for another day.
     (add-hook 'dired-mode-hook
               (lambda ()
                 (interactive)
-                (dired-omit-mode 1)
+                ;; (dired-omit-mode 1)
                 ;; (dired-hide-details-mode 1)
                 (all-the-icons-dired-mode 1)
                 (hl-line-mode 1)))
@@ -833,11 +835,13 @@ it, but leave that for another day.
     (use-package dired-subtree
       :after dired
       :commands (dired-subtree-toggle dired-subtree-cydle)
-      :defer 1
       :diminish
       :bind
       (:map dired-mode-map ("<tab>" . dired-subtree-toggle))
       (:map dired-mode-map ("<backtab>" . dired-subtree-cycle)))
+    (use-package dired-hide-dotfiles
+       :after dired
+       :diminish)
     )
 
   (with-eval-after-load 'dired
@@ -1925,9 +1929,13 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
     '(progn
        (evil-set-initial-state 'dired-mode 'normal)
        (evil-define-key 'normal dired-mode-map
+         (kbd "j") 'dired-next-line
+         (kbd "k") 'dired-previous-line
          (kbd "h") 'dired-up-directory
+         (kbd "H") 'dired-hide-dotfiles-mode
          (kbd "l") 'dired-find-alternate-file
-         (kbd "o") 'dired-sort-toggle-or-edit
+         (kbd "o") 'dired-find-file-other-window
+         (kbd "s") 'dired-sort-toggle-or-edit
          (kbd "v") 'dired-toggle-marks
          (kbd "m") 'dired-mark
          (kbd "u") 'dired-unmark
@@ -1940,8 +1948,8 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
          (kbd "B") 'evil-backward-WORD-begin
          (kbd "E") 'evil-forward-WORD-end
          (kbd ")") 'dired-git-info-mode
-         ;; (kbd "n") 'evil-search-next
-         ;; (kbd "N") 'evil-search-previous
+         (kbd "n") 'dired-next-line
+         (kbd "p") 'dired-previous-line
          )
        (define-key dired-mode-map (kbd "SPC") nil)
        )
