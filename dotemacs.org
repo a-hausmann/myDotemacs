@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-03-05 Fri 13:04>
+#+DATE: <2021-03-09 Tue 00:16>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1929,6 +1929,7 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
     '(progn
        (evil-set-initial-state 'dired-mode 'normal)
        (evil-define-key 'normal dired-mode-map
+         (kbd "(") 'dired-hide-details-mode
          (kbd "j") 'dired-next-line
          (kbd "k") 'dired-previous-line
          (kbd "h") 'dired-up-directory
