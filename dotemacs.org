@@ -7,11 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-<<<<<<< HEAD
-#+DATE: <2021-03-09 Tue 00:16>
-=======
-#+DATE: <2021-03-12 Fri 16:07>
->>>>>>> (Work-20210312) Add helpful package.
+#+DATE: <2021-03-12 Fri 17:08>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
