@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-03-12 Fri 17:08>
+#+DATE: <2021-04-15 Thu 17:17>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -42,10 +42,14 @@ These are items I still need to create, or fix.
 - Create Yasnippets for HTML editing that I frequently do in Vim.
 - Explore the Git functionality in my setup.
 * Stuff to do *before* Evil
-** Lexical binding
-First line of dotemacs.el should be comment for lexical binding.
+** Lexical binding, versioning
+First line of dotemacs.el should be comment for lexical binding.  Added File on 2021-03-26.
+Attempted multiple ways to create a line ";; Version: " followed by variable with version number in format YYYYMMDD.HHMM, but failed. Including another source block attempting to create global variable later used below, adding to local file variables at end of file to create global variable, using named block for named variable in below block, etc. Nothing panned out. Could not create global variable in tangled code, could not "import" variable into source code; every time I use =:var= tangle wraps block with a let, quotes the variable, and does NOTHING with the variable "ver" I'm trapping into.  Just doesn't work well.
+Tried this last: " :var ver='ver_nbr :exports results :results value raw" 
 #+begin_src emacs-lisp
-;; -*- lexical-binding: t -*-
+  ;; -*- lexical-binding: t -*-
+  ;; File: dotemacs.el
+  ;; Version: ver
 #+end_src
 ** Window system and more
 *** Set the size of the frame
@@ -1001,13 +1005,14 @@ Ref: David Wilson's Emacs From Scratch repo: https://github.com/daviwil/emacs-fr
 #+END_SRC
 
 *** Hungry-delete
+Had plain hungry-delete which didn't appear to allow for "normal" deletion, so tried this, which is crud as it prevents backspacing in the minibuffer during find-file operations; NOT GOOD!. Disabling all.
 #+begin_src emacs-lisp
-  (use-package hungry-delete
-    :ensure t
-    :defer 2
-    :diminish
-    :config
-    (global-hungry-delete-mode 1))
+  (use-package smart-hungry-delete
+    :disabled
+    :bind (("<backspace>" . smart-hungry-delete-backward-char)
+           ("M-d" . smart-hungry-delete-forward-char))
+    :defer nil ;; dont defer so we can add our functions to hooks 
+    :config (smart-hungry-delete-add-default-hooks))
 #+end_src
 *** Ivy, Counsel, Swiper
 Uncle Dave makes slight use of Ivy and other "abo-abo" packages, but from what I've seen in videos and blogs, the combo of Ivy/Swiper/Counsel beats everything else.
@@ -1938,6 +1943,15 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
 
 2019-06-28: Had revert-buffer set to "g" at some point, somehow, but lost that change. Still cannot seem to "override" the evil-commentary key-binding for "g", so change here to "C-c C-r", which is a least mnemonic for "revert-buffer".  This works OK.  I still like having dired in evil, so better typing "C-c C-r" than "revert-buffer". Found that evil-commentary.el defines "gc" and "gy" at a "global level" for normal evil-commentary-mode-map; map is two dimensional, so "g" map first/prefix key level, and "c" and "y" under that. Best yet, set to "gg" so "g" will prefix to both evil-commentary and revert-buffer.
 
+*** Global
+#+begin_src emacs-lisp
+  ;; 2021-03-29
+  ;; Default for bookmarks is "\C-xrl" and there IS NO default for list-registers.
+  ;; Give the lower-case "l" to list-registers and upper "L" to bookmarks
+  (global-set-key "\C-xrL" 'bookmark-bmenu-list)
+  (global-set-key "\C-xrl" 'list-registers)
+#+end_src
+
 *** Dired
 #+BEGIN_SRC emacs-lisp
   (eval-after-load 'dired
@@ -1982,15 +1996,30 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
 *** Ibuffer
 Same kind of thing for ibuffer-mode as well, same link.
 #+BEGIN_SRC emacs-lisp
-  (evil-define-key 'normal ibuffer-mode-map
-    (kbd "m") 'ibuffer-mark-forward
-    (kbd "t") 'ibuffer-toggle-marks
-    (kbd "u") 'ibuffer-unmark-forward
-    (kbd "=") 'ibuffer-diff-with-file
-    (kbd "j") 'ibuffer-jump-to-buffer
-    (kbd "M-g") 'ibuffer-jump-to-buffer
-    (kbd "M-s a C-s") 'ibuffer-do-isearch
-    (kbd "M-s a M-C-s") 'ibuffer-do-isearch-regexp)
+  ;; (evil-define-key 'normal ibuffer-mode-map
+  ;;   (kbd "m") 'ibuffer-mark-forward
+  ;;   (kbd "t") 'ibuffer-toggle-marks
+  ;;   (kbd "u") 'ibuffer-unmark-forward
+  ;;   (kbd "=") 'ibuffer-diff-with-file
+  ;;   (kbd "j") 'ibuffer-jump-to-buffer
+  ;;   (kbd "M-g") 'ibuffer-jump-to-buffer
+  ;;   (kbd "M-s a C-s") 'ibuffer-do-isearch
+  ;;   (kbd "M-s a M-C-s") 'ibuffer-do-isearch-regexp)
+  ;; Let's try doing the same with General:
+
+  ;; Don't think this--or the above--does anything at all. "t" doesn't work, "T" doesn't work, only "~" toggles.
+  ;; (general-define-key
+  ;;  :states 'normal
+  ;;  :keymaps 'ibuffer-mode-map
+  ;;   "m" 'ibuffer-mark-forward
+  ;;   "t" `ibuffer-toggle-marks
+  ;;   "u" 'ibuffer-unmark-forward
+  ;;   "=" 'ibuffer-diff-with-file
+  ;;   "j" 'ibuffer-jump-to-buffer
+  ;;   "M-g" 'ibuffer-jump-to-buffer
+  ;;   "M-s a C-s" 'ibuffer-do-isearch
+  ;;   "M-s a M-C-s" 'ibuffer-do-isearch-regexp)
+
   (defalias 'list-buffers 'ibuffer) ; make ibuffer default
 #+END_SRC
 
