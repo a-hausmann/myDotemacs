@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-04-15 Thu 17:17>
+#+DATE: <2021-05-22 Sat 20:08>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -390,7 +390,7 @@ Thus far, this has worked well. The key here is that the function paired to the 
       ";" '(frog-jump-buffer :which-key "Frog jump buffer")
       "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
       "b" '(aeh/hydra-buffers/body :which-key "buffers")
-      "c" '(aeh/hydra-counsel/body :which-key "counsel")
+      ;;"c" '(aeh/hydra-counsel/body :which-key "counsel")
       "f" '(aeh/hydra-files/body :which-key "files")
       "m" '(aeh/hydra-modes/body :which-key "modes")
       "M" '(aeh/hydra-magit/body :which-key "Magit")
@@ -494,9 +494,12 @@ Downloaded/installed this somewhen, but never included in the dotemacs.org file 
   (use-package all-the-icons
     :ensure t
     :diminish)
+
+  ;; 2021-05-22: disabled as of today, no longer using Ivy.
   (use-package all-the-icons-ivy
     :ensure t
     :diminish
+    :disabled
     :commands (ivy-switch-buffer ivy-switch-buffer-other-window)
     :custom (all-the-icons-ivy-buffer-commands '(ivy-switch-buffer-other-window ivy-switch-buffer))
     :config
@@ -535,7 +538,7 @@ Found a trick; instead of binding to "avy-goto-char", use "avy-goto-char-timer".
     :commands avy-goto-char-timer
     :diminish
     :bind
-    ("M-s" . avy-goto-char-timer))
+    ("C-M-z" . avy-goto-char-timer))
   (setq avy-timeout-seconds 1.0)
 #+END_SRC
 
@@ -742,6 +745,13 @@ I think that Company is acting a bit better now, and on 10/30/2018, I added some
     )
 #+END_SRC
 
+*** Completion framework
+Switching from Ivy/Counsel and Swiper to other alternatives which are lightweight and use native Emacs APIs.
+So, removing all the Ivy/Counsel sections and other code which uses that framework, and switching to a single completion file in my private/local directory.
+#+begin_src emacs-lisp
+  (message "Loading aeh-completion")
+  (load "aeh-completion")
+#+end_src
 *** Dashboard
 This is the *NEW* startup screen, and together with Projectile, can provide with a quick look into the latest used files and projects. The welcome message (logo-title) can be whatever you want, the startup-banner can be any image file (.png preferable?).
 2019-10-09: Using Projectile, I can easily do "C-c p f" to select a project and file-open from there--the same thing that the "projects" gets me in the dashboard; I prefer to regain some real estate and see only recent files.
@@ -1014,110 +1024,6 @@ Had plain hungry-delete which didn't appear to allow for "normal" deletion, so t
     :defer nil ;; dont defer so we can add our functions to hooks 
     :config (smart-hungry-delete-add-default-hooks))
 #+end_src
-*** Ivy, Counsel, Swiper
-Uncle Dave makes slight use of Ivy and other "abo-abo" packages, but from what I've seen in videos and blogs, the combo of Ivy/Swiper/Counsel beats everything else.
-
-Ref: [[https://github.com/jamiecollinson/dotfiles/blob/master/config.org/][Jamie Collinson Emacs config.org]]
-Ref: https://www.youtube.com/watch?v=kyllrQiNsyA and https://protesilaos.com/dotemacs/
-
-#+BEGIN_SRC emacs-lisp
-  (use-package ivy
-    :demand
-    :diminish ivy-mode
-    :config
-    (ivy-mode t)
-    (setq ivy-wrap t)
-    (setq ivy-count-format "(%d/%d) ")
-    (setq ivy-height-alist '((t lambda (_caller) (/ (window-height) 4))))
-    (setq ivy-initial-inputs-alist nil)
-    :bind (("C-c v" . ivy-push-view)
-           ("C-c V" . ivy-switch-view)
-           ("C-x b" . ivy-switch-buffer)
-           ("<f6>"  . ivy-resume)))
-  ;; By default ivy starts filters with ^. I don't normally want that and can easily type it manually when I do.
-
-  ;; Counsel is a collection of ivy enhanced versions of common Emacs commands. I haven't bound much as ivy-mode takes care of most things.
-  (use-package counsel
-    :demand
-    :bind (("M-x" . counsel-M-x)
-           ("C-c g" . 'counsel-git)
-           ("C-c j" . 'counsel-git-grep)
-           ("C-c k" . 'counsel-ag)
-           ;; ("C-x b" . 'counsel-ibuffer)
-           ("C-x l" . 'counsel-locate)
-           ("C-x C-f" . 'counsel-find-file)
-           ("<f1> f" . 'counsel-describe-function)
-           ("<f1> v" . 'counsel-describe-variable)
-           ("<f1> l" . 'counsel-find-library)
-           ("<f2> i" . 'counsel-info-lookup-symbol)
-           ("<f2> u" . 'counsel-unicode-char)
-           (:map minibuffer-local-map ("C-r" . counsel-minibuffer-history))))
-
-  ;; Swiper is an ivy enhanced version of isearch.
-  (use-package swiper
-    :demand
-    :bind ("C-S-s" . swiper))
-
-  ;; Hydra presents menus for ivy commands.
-  ;; 2019-10-02: Change Swiper binding to "C-S-s"
-  (use-package ivy-hydra
-    :after ivy
-    :defer 1)
-
-  ;; These are some key bindings for Ivy/Counsel/Swiper ref: https://github.com/abo-abo/swiper#small-config-example
-  ;; 2019-08-27: Some changes here, ref.: https://oremacs.com/swiper/
-  (setq ivy-use-virtual-buffers t)
-  (setq enable-recursive-minibuffers t)
-#+END_SRC
-
-2019-08-09: Add ivy-posframe support.
-2020-05-16: Haven't really been liking this for a long time, disabling
-#+begin_src emacs-lisp
-  (use-package ivy-posframe
-    :ensure t
-    :defer 1
-    :disabled
-    :diminish
-    :config
-    ;; Reference: https://github.com/tumashu/ivy-posframe
-    ;; The main display "style" is `ivy-posframe-style', but there are others; below is the list:
-    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
-    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
-    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
-    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
-    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
-    (setq ivy-posframe-display-functions-alist
-          '((swiper          . ivy-posframe-display-at-point)
-            (complete-symbol . ivy-posframe-display-at-point)
-            (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
-            (t               . ivy-posframe-display-at-window-center))))
-
-  ;; Turn on the mode.
-  ;; (ivy-posframe-mode 1)
-#+end_src
-
-04/25/2020: Add ivy-rich support.
-#+begin_src emacs-lisp
-  ;; Ref: https://github.com/Yevgnen/ivy-rich
-  (use-package ivy-rich
-    :ensure
-    :after ivy
-    :init
-    (ivy-rich-mode 1)
-    :config
-    (setq ivy-rich-path-style 'abbreviate)
-    (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
-    )
-
-  ;; 2020-06-12: add all-the-icons-ivy-rich
-  ;; Ref: https://github.com/seagle0128/all-the-icons-ivy-rich
-  (use-package all-the-icons-ivy-rich
-    :ensure t
-    :after ivy
-    :init (all-the-icons-ivy-rich-mode 1))
-#+end_src
-
 *** Kill-ring setup
 Change the limit (max) from 60 (default) to 100.
 #+BEGIN_SRC emacs-lisp
@@ -1207,11 +1113,6 @@ Flycheck does syntax checking for multiple languages.
     :diminish
     :hook (lsp-mode . lsp-ui-mode)
     :custom (lsp-ui-doc-position 'bottom))
-
-  ;; 2021-02-22: update config from "daviwil"
-  (use-package lsp-ivy
-    :diminish
-    :after lsp)
 
   ;; 2021-02-22: update config from "daviwil"
   (use-package lsp-treemacs
@@ -1449,7 +1350,9 @@ Ref: https://github.com/Malabarba/paradox
      (projectile-mode +1)
      ;; I do NOT need this right now, but someone might, someday.
      ;; (global-set-key (kbd "<f5>") 'projectile-compile-project)
-     (setq projectile-completion-system 'ivy))
+     ;; 2021-05-22: restructuring completion framework.
+     ;; (setq projectile-completion-system 'ivy)
+   )
  #+END_SRC
 
 *** Relative line numbering
@@ -1720,21 +1623,6 @@ This is one of the best packages in Emacs, and takes advantage of the self-docum
     (setq which-key-idle-delay 1))
 #+END_SRC
 
-*** Which-key-posframe
-This is a VERY neat package, putting the output of which-key to a posframe instead of the minibuffer. This is cool because the minibuffer is restricted to a specific number of rows, which then forces paging via C-h. Use =:demand= to force load and =:config= for configuration. I like the blue background and the center frame position seems pretty nice.  I wish I could find a way to set a border, but good enough. Add a toggle for the mode to aeh/hydra-toggles.
-2020-05-03: set to disabled, frame sometimes not sized correctly and lines cut off
-#+begin_src emacs-lisp
-  (use-package which-key-posframe
-    :ensure t
-    :disabled
-    :defer 1
-    :config
-    (which-key-posframe-mode)
-    )
-  (setq which-key-posframe-parameters '((background-color  . "blue")))
-  (setq which-key-posframe-poshandler 'posframe-poshandler-frame-center)
-#+end_src
-
 *** WS-Butler 
 This is a package suggested by EditorConfig, to trim trailing whitespace ONLY on changed lines.
 2019-10-28: Change prog-mode-hook to multiple hooks as do NOT want text mode butlered.
@@ -1921,7 +1809,7 @@ Ref: https://github.com/emacs-evil/evil-magit
 ** Evil-mc 
 2019-10-30: trying evil-mc (multiple cursors) again as this does work, after I understand it better.  Will need to create a new toggle.
 I do NOT want enable evil-mc globally, but only as needed. Mappings are:
-- "C-c m m" will toggle evil-mc-mode on and off
+- "C-c C-M-m" will toggle evil-mc-mode on and off
 - "C-n"/"C-p" mark next/previous occurrance as part of cursors
 - "M-n"/"M-p" cycle through cursors
 - "C-t" skip next occurrance of word
@@ -1932,7 +1820,7 @@ I do NOT want enable evil-mc globally, but only as needed. Mappings are:
 #+begin_src emacs-lisp
   (use-package evil-mc
     :ensure t
-    :bind (("C-c m m" . evil-mc-mode)))
+    :bind (("C-c C-M-m" . evil-mc-mode)))
 #+end_src
 
 * Final Stuff
@@ -2045,8 +1933,8 @@ Viewed a Xah Lee (see [[http://ergoemacs.org/emacs/emacs.html][Ergoemacs.org]] )
 The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow, and jump to the one selected. The "dired-jump" function uses the currently opened file as a starting point, opens a buffer to dired in the file's directory and places point on the current file.
 
 ***-10-11: "counsel-recentf" is MUCH better than "recentf-open-files", so deleting the latter code.
+2021-05-22: Beginning to use Consult in the Completions setups, so removing "bookmark-jump" from this setup.
 #+begin_src emacs-lisp
-  (bind-key "C-c m b" 'bookmark-jump)
   (bind-key "C-c d" 'dired-jump)
 #+end_src
 
@@ -2317,11 +2205,12 @@ This stuff is stolen code from Magnar Sveen, from his What The Emacs blog (http:
 **** Previous Buffer
 This is a rather well-known trick to switch to the previous buffer, well-suited to keep switching back and forth between two buffers.
 #+BEGIN_SRC emacs-lisp
-(defun aeh/switch-to-previous-buffer ()
-  "Switch to previously open buffer.
-Repeated invocations toggle between the two most recently open buffers."
-  (interactive)
-  (switch-to-buffer (other-buffer (current-buffer) 1)))
+  (defun aeh/switch-to-previous-buffer ()
+    "Switch to previously open buffer.
+  Repeated invocations toggle between the two most recently open buffers."
+    (interactive)
+    (switch-to-buffer (other-buffer (current-buffer) 1)))
+  (global-set-key (kbd "C-x p") 'aeh/switch-to-previous-buffer)
 #+END_SRC
 **** Delete current buffer file
 This is one of Bailey Ling's functions from "config-util.el".
@@ -2471,7 +2360,7 @@ Diminish will remove or abbreviate minor mode names on the modeline. Although "u
     (diminish 'page-break-lines-mode)
     (diminish 'visual-line-mode)
     (diminish 'projectile-mode)
-    (diminish 'ivy-mode)
+    ;; (diminish 'ivy-mode)
     (diminish 'company-mode)
     (diminish 'eldoc-mode)
     (diminish 'undo-tree-mode)

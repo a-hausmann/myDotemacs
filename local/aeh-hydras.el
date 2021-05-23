@@ -1,9 +1,10 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Wed Jun 24, 2020 17:37:34
+;; Last modified: Sat May 22, 2021 17:44:52
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
+;; 2021-05-22:    Removed/changed all counsel-related items as dropping Ivy/Counsel from my config.
 
 (require 'hydra)
 (autoload 'hydra-default-pre "hydra")
@@ -82,7 +83,8 @@ _E_: Day, Month Day, Year HH:MI:SS PM
               _R_ → rename uniquely      _g_ → revert buffer           _G_ → GOTO buffer
               _M_ → delete ^M
 "
-  ("b" #'counsel-ibuffer)
+  ;; ("b" #'counsel-ibuffer)
+  ("b" #'consult-buffer)
   ("i" #'ibuffer)
   ("k" #'kill-this-buffer)
   ("p" #'aeh/switch-to-previous-buffer)
@@ -127,19 +129,23 @@ _E_: Day, Month Day, Year HH:MI:SS PM
 (defhydra aeh/hydra-files (:hint nil :exit t)
   "
   files:
-  _f_ → find files      _D_ → delete    _y_ → copy filename   _E_ → edit as root   _z_ → fzf
+  _f_ → find files      _D_ → delete    _y_ → copy filename   _E_ → edit as root
   _r_ → recent files    _R_ → rename    _c_ → copy file       _C_ → convert        _b_ → bookmarks
   "
+  ;; _z_ → fzf
   ("D" aeh/delete-current-buffer-file)	;; OK
   ("R" aeh/rename-current-buffer-file)	;; OK
-  ("f" #'counsel-find-file)		;; OK
-  ("r" #'counsel-recentf)		;; OK
+  ;; ("f" #'counsel-find-file)		;; OK
+  ("f" #'find-file)		;; OK
+  ;; ("r" #'counsel-recentf)		;; OK
+  ("r" #'consult-recent-file)		;; OK
   ("y" aeh/copy-file-name-to-clipboard)	;; OK
   ("E" aeh/edit-file-as-root)		;; OK
   ("c" copy-file)			;; OK
   ("C" aeh/hydra-files-convert/body)	;; OK
   ("b" aeh/hydra-bookmarks/body)        ;; OK
-  ("z" #'counsel-fzf))                  ;; OK
+  ;; ("z" #'counsel-fzf))                 ;; OK
+)
 
 ;; Hydra for toggles
 ;; 2018-11-18: have installed "autopair" as pairing package; Bailey used to switch between smartparens and electric-pairs, but
