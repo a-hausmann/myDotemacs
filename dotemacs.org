@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-05-22 Sat 20:08>
+#+DATE: <2021-05-25 Tue 15:42>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -390,7 +390,7 @@ Thus far, this has worked well. The key here is that the function paired to the 
       ";" '(frog-jump-buffer :which-key "Frog jump buffer")
       "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
       "b" '(aeh/hydra-buffers/body :which-key "buffers")
-      ;;"c" '(aeh/hydra-counsel/body :which-key "counsel")
+      "c" '(aeh/hydra-consult/body :which-key "consult")
       "f" '(aeh/hydra-files/body :which-key "files")
       "m" '(aeh/hydra-modes/body :which-key "modes")
       "M" '(aeh/hydra-magit/body :which-key "Magit")
@@ -538,7 +538,7 @@ Found a trick; instead of binding to "avy-goto-char", use "avy-goto-char-timer".
     :commands avy-goto-char-timer
     :diminish
     :bind
-    ("C-M-z" . avy-goto-char-timer))
+    ("C-x C-h" . avy-goto-char-timer))
   (setq avy-timeout-seconds 1.0)
 #+END_SRC
 
@@ -1032,9 +1032,11 @@ Change the limit (max) from 60 (default) to 100.
 
 This is a package which is pretty simple, allowing you to browse the kill-ring like browsing autocompletion items; use C-n and C-p.
 #+BEGIN_SRC emacs-lisp
+  ;; 2021-05-25: Consult has a similar setup, likely better, and uses same binding.
   (use-package popup-kill-ring
     :ensure t
     :defer 1
+    :disabled
     :diminish
     :bind ("M-y" . popup-kill-ring))
 #+END_SRC
@@ -1989,7 +1991,6 @@ I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/c
   (use-package org-bullets
     :defer 2
     :config
-    (message "HEY! Org-bullets configured!")
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
     ;; make available "org-bullet-face" such that I can control the font size individually
     (setq org-bullets-face-name (quote org-bullet-face))
@@ -2138,11 +2139,12 @@ To edit the current ~/.emacs.d/dotemacs.org:
 **** Config-reload
 To *reload* a newly edited ~/.emacs.d/dotemacs.org:
 #+BEGIN_SRC emacs-lisp
-(defun aeh/config-reload ()
-"Reloads file ~/.emacs.d/dotemacs.org"
-  (interactive)
-  (org-babel-load-file (expand-file-name "~/.emacs.d/dotemacs.org")))
-(global-set-key (kbd "C-c r") 'aeh/config-reload)
+  ;; 2021-05-24: I never use this and can certainly reuse the key chord.
+  ;; (defun aeh/config-reload ()
+  ;; "Reloads file ~/.emacs.d/dotemacs.org"
+  ;;   (interactive)
+  ;;   (org-babel-load-file (expand-file-name "~/.emacs.d/dotemacs.org")))
+  ;; (global-set-key (kbd "C-c r") 'aeh/config-reload)
 #+END_SRC
 
 *** Miscellaneous functions

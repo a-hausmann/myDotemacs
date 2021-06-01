@@ -60,16 +60,17 @@ folder, otherwise delete a word"
 (use-package consult
   :ensure t
   :demand t
-  :bind (("C-S-s" . consult-line)
+  :bind (("C-s" . consult-isearch)
+         ("C-S-s" . consult-line)
          ("C-M-l" . consult-imenu)
-         ;; ("C-M-j" . persp-switch-to-buffer*)
          ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
          ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
          ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-         ("C-M-'" . consult-register-store)
-         ("M-'" . consult-register-load)
+         ("C-M-'" . consult-register-store)        ;; dwim register: store, append, prepend, optionally delete (prefix arg)
+         ("M-'" . consult-register-load)           ;; dwim register: insert, jump, or restore (window config)
          ("C-M-#" . consult-register)
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ("C-c r" . consult-recent-file)
          ("C-c g" . consult-goto-line)             ;; goto specified line
          ("C-c m" . consult-mark)                  ;; jump to marker in the mark-ring
          ("M-s f" . consult-find)

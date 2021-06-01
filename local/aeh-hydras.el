@@ -1,10 +1,11 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Sat May 22, 2021 17:44:52
+;; Last modified: Tue May 25, 2021 14:00:07
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
 ;; 2021-05-22:    Removed/changed all counsel-related items as dropping Ivy/Counsel from my config.
+;; 2021-05-25:    Create new Consult section to take the place of the Counsel hydra.
 
 (require 'hydra)
 (autoload 'hydra-default-pre "hydra")
@@ -260,6 +261,42 @@ _d_ describe table
   ("r" yas-reload-all)
   ("v" yas-visit-snippet-file)
   ("d" yas-describe-tables))
+
+
+;; 2021-05-25: Add hydra for Consult commands. copy from aeh/hydra-counsel.
+(defhydra aeh/hydra-consult (:color blue :hint nil)
+  "
+Consult^
+---------------------------------------------------------
+_q_ uit
+_a_ apropos
+_b_ bookmarks
+_i_ imenu
+_I_ project imenu
+_m_ mark ring
+_M_ global mark ring
+_r_ recent files
+_o_ outline headings
+_O_ multi occur
+_T_ load theme
+_c_ mode command
+_C_ minor mode menu
+"
+  ("q" nil :exit t)
+  ("a" consult-apropos)
+  ("b" consult-bookmark)
+  ("i" consult-imenu)
+  ("I" consult-project-imenu)
+  ("m" consult-mark)
+  ("M" consult-global-mark)
+  ("r" consult-recent-file)
+  ("o" consult-outline)
+  ("O" consult-multi-occur)
+  ("T" consult-theme)
+  ("c" consult-mode-command)
+  ("C" consult-minor-mode-menu)
+  )
+
 
 
 ;; 2018-12-31: Add hydra for Counsel commands
