@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-05-25 Tue 15:42>
+#+DATE: <2021-06-02 Wed 14:56>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -592,7 +592,7 @@ Command-log-mode creates buffer "*command-log*" which displays commands executed
     :bind ("C-c o" . clm/toggle-command-log-buffer))
 #+END_SRC
 
-*** Company
+*** COMMENT Company
 Company comes from "complete any" and is, naturally, a completion engine.  Unfortunately, one cannot use "j" and "k" as you can only really use Company when in *insert* mode, so will use the more "natural" "C-j" and "C-k".
 
 Company does seem to have a couple of goofy side-effects, such as somehow "turning off" the space key.  For example, if typing and word and Company pops up a listing, if as in the case of a short word ("short") I type through and hit SPC and the first letter of the next word, often the space "disappears" and I'm left with a run-on word. Of course, if I type any other character or Enter, either the drop-down changes or the default word selected, so this is literally only when I'm typing a word that is short but could be longer. An example would be, "short" which could be "shorter" or "shortcut", but if I want only "short" I would next type SPC, and nothing happens (no space is inserted).  This is goofy behavior.  I changed the minimum prefix length from 3 to 5, but this only helps a little; "the" is not a problem, but "space" is. LOL.
@@ -690,19 +690,20 @@ Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the
           (company-abbrev company-dabbrev)))
 
   ;; 2021-02-21: move all the slime stuff to end of block.
-  (use-package slime
-    :ensure t
-    :disabled
-    :config
-    (setq inferior-lisp-program "/usr/bin/sbcl")
-    (setq slime-contribs '(slime-fancy)))
+  ;; 2021-06-02: Although disabled, still getting slime-mode engaged when entering emacs-lisp-mode. Comment all.
+  ;; (use-package slime
+  ;;   :ensure t
+  ;;   :disabled
+  ;;   :config
+  ;;   (setq inferior-lisp-program "/usr/bin/sbcl")
+  ;;   (setq slime-contribs '(slime-fancy)))
 
-  (use-package slime-company
-    :ensure t
-    :disabled
-    :after company
-    :init
-    (slime-setup '(slime-fancy slime-company)))
+  ;; (use-package slime-company
+  ;;   :ensure t
+  ;;   :disabled
+  ;;   :after company
+  ;;   :init
+  ;;   (slime-setup '(slime-fancy slime-company)))
 #+END_SRC
 
 *Company Improvements*

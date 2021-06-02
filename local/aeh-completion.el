@@ -30,7 +30,7 @@ folder, otherwise delete a word"
          ("C-p" . vertico-previous)
          ("C-g" . vertico-exit)
          :map minibuffer-local-map
-         ("<backspace>" . dw/minibuffer-backward-kill))
+         ("<C-backspace>" . dw/minibuffer-backward-kill))
 )
 
 ;; Use the `orderless' completion style.
