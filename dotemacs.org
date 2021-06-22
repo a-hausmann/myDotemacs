@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-06-02 Wed 14:56>
+#+DATE: <2021-06-21 Mon 08:48>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -538,7 +538,7 @@ Found a trick; instead of binding to "avy-goto-char", use "avy-goto-char-timer".
     :commands avy-goto-char-timer
     :diminish
     :bind
-    ("C-x C-h" . avy-goto-char-timer))
+    ("C-x c" . avy-goto-char-timer))
   (setq avy-timeout-seconds 1.0)
 #+END_SRC
 
@@ -592,7 +592,7 @@ Command-log-mode creates buffer "*command-log*" which displays commands executed
     :bind ("C-c o" . clm/toggle-command-log-buffer))
 #+END_SRC
 
-*** COMMENT Company
+*** Company
 Company comes from "complete any" and is, naturally, a completion engine.  Unfortunately, one cannot use "j" and "k" as you can only really use Company when in *insert* mode, so will use the more "natural" "C-j" and "C-k".
 
 Company does seem to have a couple of goofy side-effects, such as somehow "turning off" the space key.  For example, if typing and word and Company pops up a listing, if as in the case of a short word ("short") I type through and hit SPC and the first letter of the next word, often the space "disappears" and I'm left with a run-on word. Of course, if I type any other character or Enter, either the drop-down changes or the default word selected, so this is literally only when I'm typing a word that is short but could be longer. An example would be, "short" which could be "shorter" or "shortcut", but if I want only "short" I would next type SPC, and nothing happens (no space is inserted).  This is goofy behavior.  I changed the minimum prefix length from 3 to 5, but this only helps a little; "the" is not a problem, but "space" is. LOL.
@@ -973,18 +973,20 @@ This is a version of git-gutter which works better with linum-mode, see [[https:
 
 *** Helpful help commands
 Ref: David Wilson's Emacs From Scratch repo: https://github.com/daviwil/emacs-from-scratch/blob/master/Emacs.org
-
+2021-06-21: Not using Counsel any more, and Consult doesn't have similar commands, remap straight Emacs to helpful.
 #+begin_src emacs-lisp
-(use-package helpful
-  :commands (helpful-callable helpful-variable helpful-command helpful-key)
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
+  (use-package helpful
+    :commands (helpful-callable helpful-variable helpful-command helpful-key)
+    ;; :custom
+    ;; (counsel-describe-function-function #'helpful-callable)
+    ;; (counsel-describe-variable-function #'helpful-variable)
+    :bind
+    ;; ([remap describe-function] . counsel-describe-function)
+    ([remap describe-function] . helpful-callable)
+    ([remap describe-command] . helpful-command)
+    ;; ([remap describe-variable] . counsel-describe-variable)
+    ([remap describe-variable] . helpful-variable)
+    ([remap describe-key] . helpful-key))
 #+end_src
 *** Highlight-thing
 - Highlights all occurrances of the "thing" under point.  Pretty useful in some cases, not all the time, so providing toggles. Can toggle with either "C-<f3>" or via Toggles menu.
@@ -2125,7 +2127,6 @@ Nice little guide [[https://dougie.io/emacs/indentation/#using-tabs-or-spaces-in
 
 ** Personal functions
 Here are a couple functions dealing with the configuration (org) file, to edit and reload.
-
 *** Configuration functions
 **** Config-edit
 To edit the current ~/.emacs.d/dotemacs.org:
@@ -2182,7 +2183,7 @@ This is a rather well-known trick to switch to the previous buffer, well-suited 
 This stuff is stolen code from Magnar Sveen, from his What The Emacs blog (http://whattheemacsd.com). It is pretty self explanatory. It could be pretty helpful (knowing how OCD I am about not using tabs or having trailing spaces.)
 
 #+begin_src emacs-lisp
-  (defun cleanup-buffer-safe ()
+  (defun ms/cleanup-buffer-safe ()
     "Perform a bunch of safe operations on the whitespace content of a buffer.
   Does not indent buffer, because it is used for a before-save-hook, and that
   might be bad."
@@ -2195,14 +2196,14 @@ This stuff is stolen code from Magnar Sveen, from his What The Emacs blog (http:
   ;; 2019-06-07: comment out the hook for now.
   ;; (add-hook 'before-save-hook 'cleanup-buffer-safe)
 
-  (defun cleanup-buffer ()
+  (defun ms/cleanup-buffer ()
     "Perform a bunch of operations on the whitespace content of a buffer.
   Including indent-buffer, which should not be called automatically on save."
     (interactive)
-    (cleanup-buffer-safe)
+    (ms/cleanup-buffer-safe)
     (indent-region (point-min) (point-max)))
 
-  (global-set-key (kbd "C-c n") 'cleanup-buffer)
+  ;; (global-set-key (kbd "C-c n") 'ms/cleanup-buffer)
 #+end_src
 
 **** Previous Buffer
@@ -2347,6 +2348,13 @@ These functions are copied from here:
 
   (define-key package-menu-mode-map "s" #'package-menu-filter-by-status)
   (define-key package-menu-mode-map "a" #'package-menu-find-marks)
+#+end_src
+
+**** Set JSON indentation setup
+#+begin_src emacs-lisp
+  (defun aeh/json-mode-hook ()
+     (setq-local js-indent-level 2))
+  (add-hook 'json-mode-hook 'aeh/js2-mode-hook)
 #+end_src
 
 ** Diminish

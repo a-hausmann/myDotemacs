@@ -32,6 +32,7 @@ folder, otherwise delete a word"
          :map minibuffer-local-map
          ("<C-backspace>" . dw/minibuffer-backward-kill))
 )
+(setq projectile-completion-system 'vertico)
 
 ;; Use the `orderless' completion style.
 ;; Enable `partial-completion' for files to allow path expansion.
