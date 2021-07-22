@@ -110,6 +110,11 @@ folder, otherwise delete a word"
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; (kbd "C-+")
+  (consult-customize
+   consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-file consult--source-project-file consult--source-bookmark
+   :preview-key (kbd "M-."))
 )
 
 ;; Ref: https://github.com/gagbo/consult-lsp

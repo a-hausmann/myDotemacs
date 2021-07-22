@@ -1,8 +1,14 @@
 ;; aeh-useful.el  --- -*- lexical-binding: t -*-
 ;; File name:     aeh-useful.el
-;; Last modified: Tue Sep 08, 2020 23:26:19
+;; Last modified: Mon Jun 14, 2021 11:19:16
 ;; Author:        Arnold Hausmann
 ;; Why:           This is where I will keep useful code fragments/functions.
+
+(defun aeh-new-untitled-buffer ()
+  "Create new buffer named \"untitled\""
+  (interactive)
+  (switch-to-buffer (generate-new-buffer "untitled")))
+(global-set-key (kbd "C-c n") 'aeh-new-untitled-buffer)
 
 (defun aeh-ff ()
   "Display positions at begin and end of a region."
@@ -26,7 +32,7 @@
     (t
       (message "Do not know what to narrow to.")
       (call-interactively #'narrow-to-defun))))
-(global-set-key (kbd "C-c C-n") 'aeh/narrow-dwim)
+(global-set-key (kbd "C-x n w") 'aeh-narrow-dwim)
 
 (defun aeh-make-pretty (p-from p-thru)
   "Prettify Rule code by moving all and/or conjunctions to a new line"
