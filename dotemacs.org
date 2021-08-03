@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-07-24 Sat 22:50>
+#+DATE: <2021-08-03 Tue 00:25>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -402,7 +402,7 @@ Thus far, this has worked well. The key here is that the function paired to the 
       :keymaps 'insert
       ";" '(frog-jump-buffer :which-key "Frog jump buffer")
       "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
-      "c" '(aeh/hydra-counsel/body :which-key "counsel")
+      ;; "c" '(aeh/hydra-counsel/body :which-key "counsel")
       "d" '(aeh/hydra-insert-date-menu/body :which-key "dates")
       "i" '(aeh/hydra-insert-stuff-menu/body :which-key "insert stuff"))
     )
@@ -977,14 +977,9 @@ Ref: David Wilson's Emacs From Scratch repo: https://github.com/daviwil/emacs-fr
 #+begin_src emacs-lisp
   (use-package helpful
     :commands (helpful-callable helpful-variable helpful-command helpful-key)
-    ;; :custom
-    ;; (counsel-describe-function-function #'helpful-callable)
-    ;; (counsel-describe-variable-function #'helpful-variable)
     :bind
-    ;; ([remap describe-function] . counsel-describe-function)
     ([remap describe-function] . helpful-callable)
     ([remap describe-command] . helpful-command)
-    ;; ([remap describe-variable] . counsel-describe-variable)
     ([remap describe-variable] . helpful-variable)
     ([remap describe-key] . helpful-key))
 #+end_src
@@ -1843,8 +1838,8 @@ Let's do some evil mappings for dired-mode, found [[https://nathantypanski.com/b
   ;; Give the lower-case "l" to list-registers and upper "L" to bookmarks
   (global-set-key "\C-xrL" 'bookmark-bmenu-list)
   (global-set-key "\C-xrl" 'list-registers)
+  (global-set-key "\C-xc" 'calendar)
 #+end_src
-
 *** Dired
 #+BEGIN_SRC emacs-lisp
   (eval-after-load 'dired
