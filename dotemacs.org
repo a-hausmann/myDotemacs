@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-08-04 Wed 00:50>
+#+DATE: <2021-08-04 Wed 00:54>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1181,19 +1181,6 @@ Prot's excellent themes.
     :pin gnu)
 #+end_src
 
-*** Move-text
-[[https://www.emacswiki.org/emacs/move-text.el][MoveText]] allows you to move the current line using M-up / M-down. If a region is marked, it will move the region instead.
-
-=2019-05-23: NOTE: Evil selection will NOT work, you *MUST* set Emacs mark (C-<SPC>) and move point to end of region to move.=
-2020-05-04: disabling in favor of drag-stuff, which can move regions horizontally, and do vertical lines better.
-#+BEGIN_SRC emacs-lisp
-  (use-package move-text
-    :ensure t
-    :disabled
-    :defer 2
-    :config
-    (move-text-default-bindings))
-#+END_SRC
 *** Multiple-cursors
 Magnar Sveen created package [[https://github.com/magnars/mark-multiple.el][mark-multiple]], which he himself superceded with [[https://github.com/magnars/multiple-cursors.el][multiple-cursors]]. This, to all appearances, is the better package (Magnar thinks so anyway). There should be more features, and the [[https://www.youtube.com/watch?time_continue=235&v=jNa3axo40qM][Youtube video on multiple-cursors]] is intriguing, and complex; take several times to watch that, and pay close attention to the keystrokes.
 
