@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-08-03 Tue 00:25>
+#+DATE: <2021-08-04 Wed 00:50>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -538,7 +538,7 @@ Found a trick; instead of binding to "avy-goto-char", use "avy-goto-char-timer".
     :commands avy-goto-char-timer
     :diminish
     :bind
-    ("C-x c" . avy-goto-char-timer))
+    ("C-x t c" . avy-goto-char-timer))
   (setq avy-timeout-seconds 1.0)
 #+END_SRC
 
