@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-12-23 Thu 12:43>
+#+DATE: <2021-12-23 Thu 13:20>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1055,7 +1055,7 @@ This setup is translated from or taken from [[https://github.com/abo-abo/lispy#c
     (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1))))
 #+END_SRC
 
-*** LSP, Flycheck, jedi, and elpy
+*** LSP, Flycheck, jedi and all things Python
 Flycheck does syntax checking for multiple languages.
 2020-06-18: Begin to add Python support.
 2020-06-23: Move Elpy into this section.
@@ -1099,18 +1099,17 @@ Flycheck does syntax checking for multiple languages.
 
   (use-package lsp-mode
     :diminish
-    :init ;; set prefix for lsp-command-keymap
-    (setq lsp-keymap-prefix "C-l")
-    :custom (lsp-headerline-breadcrumb-enable t)
+    :commands (lsp lsp-deferred)
     :hook  (python-mode . lsp-deferred)
-           (lsp-mode . lsp-enable-which-key-integration)
-    :commands lsp)
+    :init (setq lsp-keymap-prefix "C-l")
+    :custom (lsp-headerline-breadcrumb-enable t)
+    :config (lsp-enable-which-key-integration t))
 
   ;; 2021-02-22: update config from "daviwil"
   (use-package lsp-ui
     :diminish
     :hook (lsp-mode . lsp-ui-mode)
-    :custom (lsp-ui-doc-position 'bottom))
+    :custom (lsp-ui-doc-position 'right))  ;; original was at bottom
 
   ;; 2021-02-22: update config from "daviwil"
   (use-package lsp-treemacs
