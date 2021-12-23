@@ -79,7 +79,9 @@
 (message "init.el started.")
 
 ;; Set repositories
+(message "Before require of package")
 (require 'package)
+(message "After require of package")
 ;; (setq-default
 ;;  load-prefer-newer t
 ;;  package-enable-at-startup nil)
@@ -91,6 +93,7 @@
 ;; (add-to-list 'package-archives '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/") t)
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 ;; (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+(message "Before package-initialize")
 (package-initialize)
 (message "After package-initialize")
 

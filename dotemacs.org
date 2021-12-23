@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-12-17 Fri 10:43>
+#+DATE: <2021-12-23 Thu 12:43>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -434,41 +434,51 @@ This is copied from the https://github.com/abo-abo/ace-window.
      'aw-mode-line-face nil
      :inherit 'mode-line-buffer-id
      :foreground "lawn green")
-    (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l)
-          aw-dispatch-always nil
+    ;; Ref: https://github.com/abo-abo/ace-window
+    ;; 2021-10-19: going back to defaults, numbers for windows, recommended actions list.
+    ;; (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l)
+    ;;       aw-dispatch-always t)
+    (setq aw-dispatch-always nil)
+    (defvar
           aw-dispatch-alist
-          '((?x aw-delete-window "Ace - Delete Window")
-            (?c aw-swap-window "Ace - Swap Window")
-            (?n aw-flip-window)
-            (?v aw-split-window-vert "Ace - Split Vert Window")
-            (?h aw-split-window-horz "Ace - Split Horz Window")
-            (?m delete-other-windows "Ace - Maximize Window")
-            (?g delete-other-windows)
-            (?b balance-windows)
-            (?u (lambda ()
-                  (progn
-                    (winner-undo)
-                    (setq this-command 'winner-undo))))
-            (?r winner-redo)))
+          '((?x aw-delete-window "Delete Window")
+            (?m aw-swap-window "Swap Window")
+            (?M aw-move-window "Move Window")
+            (?c aw-copy-window "Copy Window")
+            (?j aw-switch-buffer-in-window "Select Buffer")
+            (?n aw-flip-window "Flip Window")
+            (?u aw-switch-buffer-other-window "Switch Buffer Other Window")
+            (?v aw-split-window-vert "Split Vert Window")
+            (?b aw-split-window-horz "Split Horz Window")
+            (?o delete-other-windows "Delete Other Windows")
+            ;; (?b balance-windows "Balance Windows")
+            ;; (?u (lambda ()
+            ;;       (progn
+            ;;         (winner-undo)
+            ;;         (setq this-command 'winner-undo))) "Winner Undo")
+            ;; (?r winner-redo "Winner Redo")
+            )
+          "List of actions for `aw-dispatch-default'.")
 
-    (when (package-installed-p 'hydra)
-      (defhydra aeh/hydra-window-size (:color red)
-        "Windows size"
-        ("h" shrink-window-horizontally "shrink horizontal")
-        ("j" shrink-window "shrink vertical")
-        ("k" enlarge-window "enlarge vertical")
-        ("l" enlarge-window-horizontally "enlarge horizontal"))
-      (defhydra aeh/hydra-window-frame (:color red)
-        "Frame"
-        ("f" make-frame "new frame")
-        ("x" delete-frame "delete frame"))
-      (defhydra aeh/hydra-window-scroll (:color red)
-        "Scroll other window"
-        ("n" aeh/scroll-other-window "scroll")
-        ("p" aeh/scroll-other-window-down "scroll down"))
-      (add-to-list 'aw-dispatch-alist '(?w aeh/hydra-window-size/body) t)
-      (add-to-list 'aw-dispatch-alist '(?o aeh/hydra-window-scroll/body) t)
-      (add-to-list 'aw-dispatch-alist '(?\; aeh/hydra-window-frame/body) t))
+    ;; (when (package-installed-p 'hydra)
+    ;;   (defhydra aeh/hydra-window-size (:color red)
+    ;;     "Windows size"
+    ;;     ("h" shrink-window-horizontally "shrink horizontal")
+    ;;     ("j" shrink-window "shrink vertical")
+    ;;     ("k" enlarge-window "enlarge vertical")
+    ;;     ("l" enlarge-window-horizontally "enlarge horizontal"))
+    ;;   (defhydra aeh/hydra-window-frame (:color red)
+    ;;     "Frame"
+    ;;     ("f" make-frame "new frame")
+    ;;     ("x" delete-frame "delete frame"))
+    ;;   (defhydra aeh/hydra-window-scroll (:color red)
+    ;;     "Scroll other window"
+    ;;     ("n" aeh/scroll-other-window "scroll")
+    ;;     ("p" aeh/scroll-other-window-down "scroll down"))
+    ;;   (add-to-list 'aw-dispatch-alist '(?w aeh/hydra-window-size/body) t)
+    ;;   (add-to-list 'aw-dispatch-alist '(?o aeh/hydra-window-scroll/body) t)
+    ;;   (add-to-list 'aw-dispatch-alist '(?\; aeh/hydra-window-frame/body) t)
+    ;;   )
     (ace-window-display-mode t)
     :bind
     ([remap other-window] . ace-window))
@@ -526,7 +536,7 @@ Found a trick; instead of binding to "avy-goto-char", use "avy-goto-char-timer".
     :commands avy-goto-char-timer
     :diminish
     :bind
-    ("C-x t c" . avy-goto-char-timer))
+    ("C-x C-t" . avy-goto-char-timer))
   (setq avy-timeout-seconds 1.0)
 #+END_SRC
 
@@ -1784,7 +1794,7 @@ Ref: https://github.com/emacs-evil/evil-magit
 ** Evil-mc 
 2019-10-30: trying evil-mc (multiple cursors) again as this does work, after I understand it better.  Will need to create a new toggle.
 I do NOT want enable evil-mc globally, but only as needed. Mappings are:
-- "C-c C-M-m" will toggle evil-mc-mode on and off
+- "C-c <f7>" will toggle evil-mc-mode on and off
 - "C-n"/"C-p" mark next/previous occurrance as part of cursors
 - "M-n"/"M-p" cycle through cursors
 - "C-t" skip next occurrance of word
@@ -1795,7 +1805,7 @@ I do NOT want enable evil-mc globally, but only as needed. Mappings are:
 #+begin_src emacs-lisp
   (use-package evil-mc
     :ensure t
-    :bind (("C-c C-M-m" . evil-mc-mode)))
+    :bind (("C-c <f7>" . evil-mc-mode)))
 #+end_src
 
 * Final Stuff
