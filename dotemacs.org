@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2021-12-23 Thu 13:20>
+#+DATE: <2022-06-17 Fri 15:14>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -250,7 +250,8 @@ Here is where I put languages configurations: Lisp, etc.
 
 **** Finally--Load This Theme.
 #+begin_src emacs-lisp
-  (load-theme 'reverse t nil)
+  ;; (load-theme 'reverse t nil)
+  (load "aeh-theme")
 #+end_src
 
 *** Enable narrowing
