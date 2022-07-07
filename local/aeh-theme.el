@@ -1,6 +1,6 @@
 ;; File:          aeh-theme.el  --- -*- lexical-binding: t -*-
 ;; Created:       2022-06-14
-;; Last modified: Fri Jun 17, 2022 15:55:06
+;; Last modified: Mon Jun 20, 2022 9:12:44
 ;; Purpose:       This file configures the default theme I want to use. Currently
 ;;                this is the Modus themes. https://protesilaos.com/emacs/modus-themes
 ;;
@@ -29,9 +29,9 @@
                                  (popup . (accented intense)))
       modus-themes-org-blocks 'tinted-background)
 (setq modus-themes-headings
-      '((1 . (rainbow overline background 1.4))
-        (2 . (rainbow background 1.3))
-        (3 . (rainbow bold 1.2))
+      '((1 . (rainbow overline background 1.3))
+        (2 . (rainbow background 1.2))
+        (3 . (rainbow bold 1.1))
         (t . (semilight 1.1))))
 ;; Important!
 (setq modus-themes-scale-headings t)

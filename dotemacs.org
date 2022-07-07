@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2022-06-17 Fri 15:14>
+#+DATE: <2022-07-01 Fri 16:56>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -35,12 +35,7 @@ Started: 9/29/2018.
 * Things still to do
 These are items I still need to create, or fix.
 - Figure out how to change foreground color in Spaceline "spaceline-highlight-face", as the buffer name is too light for orange.
-- Figure out how to "save sessions" like Vim.
-- Figure out if Emacs has an equivalent to Vim's "persistent undo" between sessions.
 - Find out if there is a "cursor locator" package/function to temporarily create cross-hair effect. Check out "crosshairs.el", crosshairs-mode.
-- Create Yasnippets for Oracle packages, procedures, functions, etc.
-- Create Yasnippets for HTML editing that I frequently do in Vim.
-- Explore the Git functionality in my setup.
 * Stuff to do *before* Evil
 ** Lexical binding, versioning
 First line of dotemacs.el should be comment for lexical binding.  Added File on 2021-03-26.
@@ -52,6 +47,17 @@ Tried this last: " :var ver='ver_nbr :exports results :results value raw"
   ;; Version: ver
 #+end_src
 ** Window system and more
+*** Set load-path for custom code
+I will have some subdirectories containing elisp code, so add these directories to the load-path variable.
+#+BEGIN_SRC emacs-lisp
+  ;; 2019-01-02: Check OS type first.
+  ;; 2019-02-10: Made simpler IF statement.
+
+  (if (string-equal system-type "windows-nt")
+      (add-to-list 'load-path "c:/Users/frst6889/.emacs.d/private/local")
+    (add-to-list 'load-path "~/.emacs.d/private/local"))
+#+END_SRC
+
 *** Set the size of the frame
 Reference: https://raw.githubusercontent.com/angrybacon/dotemacs/master/dotemacs.org
 
@@ -90,17 +96,18 @@ Garbage-collect on focus-out, Emacs should feel snappier.
 #+begin_src emacs-lisp
   ;; Set default font
   ;; 2019-08-11: need a slightly larger font on home Linux laptop with its greater resolution.
-  (if (string-equal system-type "windows-nt")
-      (set-face-attribute 'default nil
-                          :family "Lucida Sans Typewriter"
-                          :height 110
-                          :weight 'normal
-                          :width 'normal)
-    (set-face-attribute 'default nil
-                        :family "Source Code Pro"
-                        :height 120
-                        :weight 'normal
-                        :width 'normal))
+  ;; (if (string-equal system-type "windows-nt")
+  ;;     (set-face-attribute 'default nil
+  ;;                         :family "Lucida Sans Typewriter"
+  ;;                         :height 110
+  ;;                         :weight 'normal
+  ;;                         :width 'normal)
+  ;;   (set-face-attribute 'default nil
+  ;;                       :family "Source Code Pro"
+  ;;                       :height 120
+  ;;                       :weight 'normal
+  ;;                       :width 'normal))
+  (load "aeh-font")
 #+end_src
 *** Set regular package refreshes without killing restarts
 Have found out that the many, *many* times I have received a "package not found" even when I can absolutely find the package in Melpa is that I have an outdated package listing, easily fixed with the following:
@@ -131,17 +138,6 @@ Have found out that the many, *many* times I have received a "package not found"
                 (message "1: Found same date")
               (aeh/package-refresh-contents "2: Different date, refresh package contents on ")))
         (aeh/package-refresh-contents "3: No Date file, refresh package contents on ")))
-#+END_SRC
-
-*** Set load-path for custom code
-I will have some subdirectories containing elisp code, so add these directories to the load-path variable.
-#+BEGIN_SRC emacs-lisp
-  ;; 2019-01-02: Check OS type first.
-  ;; 2019-02-10: Made simpler IF statement.
-
-  (if (string-equal system-type "windows-nt")
-      (add-to-list 'load-path "c:/Users/frst6889/.emacs.d/private/local")
-    (add-to-list 'load-path "~/.emacs.d/private/local"))
 #+END_SRC
 
 *** Personalization: set user variables for Name and Email Address.
@@ -1666,9 +1662,10 @@ Note that Evil Mode is a minor mode, and like all minor modes, minor modes loade
 ** Evil-mode
 *Start at the beginning*
 #+BEGIN_SRC emacs-lisp
+  (setq evil-want-keybinding nil)
   (use-package evil
     :ensure t
-    :init (setq evil-want-keybinding nil)
+    ;; :init (setq evil-want-keybinding nil)
     :demand
     :config
     (evil-mode 1)
@@ -1967,9 +1964,12 @@ The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow,
 2021-02-23: AND, the answer is: it has nothing to do with config, but changes to "org-plus-contrib" package. I ALSO did a package upgrade across the board, and went from 'org-plus-contrib-20200713' to 'org-plus-contrib-2021022'. After the upgrade I ended up with both in "elpa" directory; moved 2/22 version to 'archive' and it worked, swapped the two so 2/22 was active and got the same results, back to 7/13 and it works again. Updates to config does nothing, it's the version.
 
 I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/configurations-for-beautifying-emacs-org-mode/][here]].
+
+2022-07-01: Update to use org-superstar, direct descendent of org-bullets, ref: https://github.com/integral-dw/org-superstar-mode
 #+BEGIN_SRC emacs-lisp
   ;; 2021-02-23: Key to org starting collapsed is org-startup-folded, never set before, doing it here.
   (setq org-startup-folded t)
+  (setq inhibit-compacting-font-caches t)
 
   (use-package org-bullets
     :defer 2
@@ -1978,6 +1978,7 @@ I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/c
     ;; make available "org-bullet-face" such that I can control the font size individually
     (setq org-bullets-face-name (quote org-bullet-face))
     (setq org-bullets-bullet-list '("✙" "♱" "♰" "☥" "✞" "✟" "✝" "†" "✠" "✚" "✜" "✛" "✢" "✣" "✤" "✥"))
+
     ;; (setq org-ellipsis "⚡⚡⚡")
     (setq org-ellipsis "▼▼▼")
     (custom-set-faces
@@ -1987,6 +1988,21 @@ I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/c
      '(org-level-4 ((t (:inherit outline-4 :height 1.0))))
      '(org-level-5 ((t (:inherit outline-5 :height 1.0)))))
     )
+
+  ;; (use-package org-superstar
+  ;;   :ensure
+  ;;   :after org
+  ;;   :hook (org-mode . org-superstar-mode)
+  ;;   :config
+  ;;   ;; (org-superstar-mode -1)
+  ;;   (setq org-superstar-remove-leading-stars t)
+  ;;   ;; (setq org-superstar-headline-bullets-list '(" ")) ;; '("??" "?" "?" "?")
+  ;;   ;; (setq org-superstar-item-bullet-alist
+  ;;   ;;       '((?+ . ?)
+  ;;   ;;         (?* . ??)
+  ;;   ;;         (?- . ?)))
+  ;;   )
+  ;; (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
 #+END_SRC
 
  These are from UncleDavesEmacs: 

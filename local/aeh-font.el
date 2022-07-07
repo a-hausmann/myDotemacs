@@ -3,7 +3,7 @@
 ;; Filename:      aeh-font.el
 ;; Author:        Arnold Hausmann
 ;; Created:       2020-07-19
-;; Last modified: Sun Jul 19, 2020 23:49:40
+;; Last modified: Fri Jul 01, 2022 13:13:27
 ;; Email:         arnoldh@comcast.net, aehjr1@gmail.com
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -106,8 +106,32 @@
 
 ;; End of comments!
 
-(eval-when-compile
-  (require 'config-constant))
+;; (eval-when-compile
+;;   (require 'config-constant))
 
+;; Set the font face based on platform
+(pcase system-type
+  ((or 'windows-nt 'cygwin)
+   (set-face-attribute 'default nil
+                       :font "JetBrains Mono"
+                       :weight 'light
+                       :height 120)
+   )
+  ('gnu/linux (set-face-attribute 'default nil :font "Fira Mono" :height 140)))
 
-"⁌", "◎", "⦿", "ʘ", "⦾",
+;; Set the fixed pitch face
+(set-face-attribute 'fixed-pitch nil
+                    :font "JetBrains Mono"
+                    :weight 'light
+                    :height 120)
+
+;; Set the variable pitch face
+(set-face-attribute 'variable-pitch nil
+                    ;; :font "Cantarell"
+                    :font "Iosevka Aile"
+                    :height 120
+                    :weight 'light)
+
+;; 2022-07-01: not sure where the below line came from.
+;; "⁌", "◎", "⦿", "ʘ", "⦾",
+
