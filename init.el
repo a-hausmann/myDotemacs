@@ -105,6 +105,9 @@
 ;;   (package-refresh-contents)
 ;;     (package-install 'use-package))
 
+;; 2022-01-05: add package-quickstart
+(setq package-quickstart t)
+
 ;; Install dependencies
 (unless (and (package-installed-p 'delight)
              (package-installed-p 'use-package))
