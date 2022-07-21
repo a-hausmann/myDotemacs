@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2022-07-19 Tue 15:10>
+#+DATE: <2022-07-20 Wed 20:37>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -184,6 +184,7 @@ See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for mor
    recentf-max-saved-items 100                      ; abo-abo sets to 600, but I'm cautious.
    )
   ;; (cd "~/")                                         ; Move to the user directory
+  (setq kill-ring-max 100)
   (delete-selection-mode 1)                         ; Replace region when inserting text
   (display-time-mode 1)                             ; Enable time in the mode-line
   (fringe-mode 0)                                   ; Disable fringes
@@ -1017,23 +1018,6 @@ Had plain hungry-delete which didn't appear to allow for "normal" deletion, so t
     :defer nil ;; dont defer so we can add our functions to hooks 
     :config (smart-hungry-delete-add-default-hooks))
 #+end_src
-*** Kill-ring setup
-Change the limit (max) from 60 (default) to 100.
-#+BEGIN_SRC emacs-lisp
-(setq kill-ring-max 100)
-#+END_SRC
-
-This is a package which is pretty simple, allowing you to browse the kill-ring like browsing autocompletion items; use C-n and C-p.
-#+BEGIN_SRC emacs-lisp
-  ;; 2021-05-25: Consult has a similar setup, likely better, and uses same binding.
-  (use-package popup-kill-ring
-    :ensure t
-    :defer 1
-    :disabled
-    :diminish
-    :bind ("M-y" . popup-kill-ring))
-#+END_SRC
-
 *** Lispy
 Lispy is [[https://github.com/abo-abo][Oleh Krehel]] (aka "abo-abo") version of Paredit, a parentheses-matching package for Lisp.  As Oleh is also an Evil user, he already had a number of key-mappings which are very vim-like.
 
