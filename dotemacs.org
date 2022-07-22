@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2022-07-20 Wed 20:37>
+#+DATE: <2022-07-22 Fri 16:34>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1270,12 +1270,12 @@ Ref: https://github.com/Malabarba/paradox
   ;; 2020-05-20: "spinner-1.7.3" not in MELPA, latest upgrade butchered code and
   ;; paradox fails with error without it. Works in Linux (somehow), but need to
   ;; remove from Windows config for the time being.
-  (if (not (string-equal system-type "windows-nt"))
-      (use-package paradox
-        :ensure t
-        :defer 2
-        :diminish
-        :config (paradox-enable)))
+  ;; 2022-07-22: Installed on new PC, works now with spinner-1.7.4 installed.
+  (use-package paradox
+    :ensure t
+    :defer 2
+    :diminish
+    :config (paradox-enable))
 
 #+end_src
 *** Projectile
@@ -1659,6 +1659,7 @@ Note that Evil Mode is a minor mode, and like all minor modes, minor modes loade
     ;; Do NOT have to use evil in every mode, so let's make a list where evil is not used.
     (dolist (mode '(ag-mode
                     flycheck-error-list-mode
+                    paradox-menu-mode
                     git-rebase-mode))
       (add-to-list 'evil-emacs-state-modes mode))
 
