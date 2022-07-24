@@ -86,15 +86,16 @@
   :demand)
 ;; Configure the mode-line
 (setq-default
- mode-line-format '("%e" (:eval (spaceline-ml-main)))
+ ;; mode-line-format '("%e" (:eval (spaceline-ml-main)))
  ;; powerline-default-separator 'utf-8
  powerline-default-separator 'arrow
  powerline-height 20
  spaceline-highlight-face-func 'spaceline-highlight-face-modified ;; OK, but I'd like to change foreground color.
  spaceline-flycheck-bullet "❖ %s"
  spaceline-window-numbers-unicode t
- spaceline-separator-dir-left '(left . left)
- spaceline-separator-dir-right '(right . right))
+ ; spaceline-separator-dir-left '(left . left)
+ ; spaceline-separator-dir-right '(right . right)
+ )
 ;; (spaceline-helm-mode 1)
 
 ;; Build the mode-lines

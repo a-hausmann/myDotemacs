@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2022-07-22 Fri 16:34>
+#+DATE: <2022-07-23 Sat 18:34>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -1154,6 +1154,14 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
     :hook (magit-mode . turn-on-magit-gitflow))
 #+END_SRC
 
+*** Minions
+Minions manages the minor modes "menu" which lists enabled minor modes.
+#+begin_src emacs-lisp
+  (use-package minions
+    :ensure t
+    :defer 1
+    :config (minions-mode 1))
+#+end_src
 *** Modus vivendi
 Prot's excellent themes.
 #+begin_src emacs-lisp
@@ -1389,35 +1397,12 @@ Will try out Smartparens for a while, from 2019-04-14.
 
  *Spaceline!*
  I again agree with Uncle Dave, Spacemacs is pretty bloated, particularly on Windows, but their themes and the spaceline utility is superb! This setup works well with the chosen theme.
+ 
+2022-07-23: Spaceline setup here became hard to manage. I had created a "aeh-myownmodeline" at some point (loading on Linux only), and cannot even find the file now. At some point, I had a new "aeh-spaceline" that worked well on both Linux and Windows. On 2022-07-22, I upgraded my Linux packages set and broke spaceline in Linux, so turned it off. Now will remove all the commented cruft which has been commented for a couple years now and execute "aeh-spaceline.el" on Windows, and create something new for Linux.
  #+BEGIN_SRC emacs-lisp
-   ;; (use-package spaceline
-   ;;   :ensure t
-   ;;   :init
-   ;;   (require 'spaceline-config)
-   ;;   (setq-default spaceline-buffer-encoding-abbrev-p nil)
-   ;;   (setq-default spaceline-line-column-p nil)
-   ;;   (setq-default spaceline-line-p nil)
-   ;;   (setq-default powerline-default-separator (quote arrow))
-   ;;   (spaceline-spacemacs-theme))
-   ;; ;; No separator
-   ;; (setq-default powerline-default-separator nil)
-   ;; ;; Cursor position
-   ;; (setq-default line-number-mode t)
-   ;; (setq-default column-number-mode t)
-   ;; ;; current line and column
-   ;; ;; (setq line-column t)
-   ;; ;; experiments
-   ;; (setq-default spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
-
-   ;; (load "aeh-myownmodeline")
-   ;;; experiment went OK, though had to exit Emacs first. I see line:column, <Evil mode>, and minor modes. Would be nice to have file type.
-   ;; (if (string-equal system-type "windows-nt")
-   ;;      (load "aeh-spaceline-windows")
-   ;;   (load "aeh-myownmodeline"))
-   ;; 2019-04-09: Yes, the NEW aeh-spaceline.el works FINE in Windows (work), so USE it.
-   ;; (load "aeh-spaceline-windows")
-
-   (load "aeh-spaceline")
+   (if (string-equal system-type "windows-nt")
+        (load "aeh-spaceline")
+     (load "aeh-myownmodeline"))
     #+END_SRC
 
 *** Switch-window
@@ -1758,21 +1743,11 @@ Native Magit: h=magit-dispatch, j=Prefix, k=magit-delete-thing, l=magit-log. Evi
 2021-03-04: As of 11/24/2020, evil-magit is NO LONGER MAINTAINED, use evil-collection instead. 
 Ref: https://github.com/emacs-evil/evil-magit
 #+BEGIN_SRC emacs-lisp
- (use-package evil-collection
-    :after evil
-    :demand
-    :config (evil-collection-init))
-
-
-  ;; 2018-12-16: Adding evil-magit
-  ;; 2021-03-04: Comment out evil-magit as it is defunct
-  ;; (use-package evil-magit
-  ;;   :after magit
-  ;;   :diminish
-  ;;   :hook (magit-mode . evil-magit-set-initial-states)
-  ;;   :config
-  ;;   (setq evil-magit-state 'normal)
-  ;;   (setq evil-magit-use-y-for-yank nil))
+  (use-package evil-collection
+     :after evil
+     :demand
+     :diminish
+     :config (evil-collection-init))
 #+END_SRC
 
 ** Evil-mc 
@@ -2345,6 +2320,7 @@ Diminish will remove or abbreviate minor mode names on the modeline. Although "u
     (diminish 'org-indent-mode)
     (diminish 'linum-relative-mode)
     (diminish 'page-break-lines-mode)
+    (diminish 'evil-collection-unimpaired-mode)
     (diminish 'visual-line-mode)
     (diminish 'projectile-mode)
     ;; (diminish 'ivy-mode)
