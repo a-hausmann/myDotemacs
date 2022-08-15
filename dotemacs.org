@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2022-07-23 Sat 18:34>
+#+DATE: <2022-08-15 Mon 12:46>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -588,159 +588,12 @@ Command-log-mode creates buffer "*command-log*" which displays commands executed
     :bind ("C-c o" . clm/toggle-command-log-buffer))
 #+END_SRC
 
-*** Company
-Company comes from "complete any" and is, naturally, a completion engine.  Unfortunately, one cannot use "j" and "k" as you can only really use Company when in *insert* mode, so will use the more "natural" "C-j" and "C-k".
-
-Company does seem to have a couple of goofy side-effects, such as somehow "turning off" the space key.  For example, if typing and word and Company pops up a listing, if as in the case of a short word ("short") I type through and hit SPC and the first letter of the next word, often the space "disappears" and I'm left with a run-on word. Of course, if I type any other character or Enter, either the drop-down changes or the default word selected, so this is literally only when I'm typing a word that is short but could be longer. An example would be, "short" which could be "shorter" or "shortcut", but if I want only "short" I would next type SPC, and nothing happens (no space is inserted).  This is goofy behavior.  I changed the minimum prefix length from 3 to 5, but this only helps a little; "the" is not a problem, but "space" is. LOL.
-
-2019-03-10: After loading Emacs on new laptop, and getting updated Company, the miscellaneous code for Company improvements from Oleh Krehel's blog started getting errors, void-variable on "company-active-map". Found no code bug, moving code location in dotemacs.el did nothing, and crazily, the same code generated no errors in *scratch* buffer. Figured out this was a *timing error*, fixable by setting ":demand" option in =use-package=.
-
-2019-04-16: getting error messages ("match data clobbered by buffer modification hooks") when attempting "C-p" Vim-style completion, then wondered why Company wasn't attempting to auto-complete anyway (in Rule package code.) The answer appears two-fold; all that MBD code is in upper-case and I naturally type in lower. Vim can auto-complete to prev buffer upper case, but Company is not doing that.
-
-Aha, found the keys to much of this: variables "company-dabbrev-code-ignore-case" and "company-dabbrev-ignore-case". Am not entirely sure both are required as I found the "code" one last and that fixed typing in lower case and finding upper-case text for completion. I set the latter globally and the former for SQL mode only.  Should probably play around with this some more to find out for sure.
-
-Ref.: https://www.emacswiki.org/emacs/CompanyMode for starters, then viewing the docs on the variables showed other variables possibly involved.
-
-2020-02-19: Change from idle-delay 0 (no delay) to use <M-f2> to complete on demand. Note; in Fundamental mode, company-mode is disabled.
-2021-02-16: change idle-delay to 2 seconds, use the toggle hydra to turn company off/on
-#+BEGIN_SRC emacs-lisp
-  (use-package company
-    :ensure t
-    :commands company-complete-common
-    :diminish
-    :hook ((emacs-lisp-mode . company-mode)
-           (shell-mode . company-mode))
-    :config
-    (setq company-idle-delay 2)
-    ;; (global-set-key (kbd "<M-f2>") 'company-complete-common)
-    ;; 2020-05-16: <M-f2> doesn't work in Linux, so remap to <C-f12>
-    ;; 2020-07-08: change this from <C-f12> to "C-M-."
-    (global-set-key (kbd "C-M-.") 'company-complete-common)
-    (setq company-minimum-prefix-length 5)
-    (setq company-dabbrev-ignore-case t)
-    (with-eval-after-load 'company
-      (define-key company-active-map (kbd "M-n") nil)
-      (define-key company-active-map (kbd "M-p") nil)
-      (define-key company-active-map (kbd "C-j") #'company-select-next)
-      (define-key company-active-map (kbd "C-k") #'company-select-previous))
-    ;; (define-key company-active-map (kbd "SPC") #'company-abort))
-    )
-  ;; 2021-02-21: Did this LONG ago, but setting the after-init-hook loads company mode after Emacs initialization.
-  ;; (add-hook 'after-init-hook 'global-company-mode)
-  (add-hook 'sql-mode-hook
-            #'(lambda ()
-                (setq-default company-minimum-prefix-length 4)
-                (setq-default company-dabbrev-code-ignore-case t)
-                (setq-default completion-ignore-case t)))
-
-
-  (defun shell-mode-company-init ()
-    (setq-local company-backends '((company-shell
-                                    company-shell-env
-                                    company-etags
-                                    company-dabbrev-code))))
-  (use-package company-shell
-    :ensure t
-    :after company
-    :diminish
-    :config (add-hook 'shell-mode-hook 'shell-mode-company-init))
-
-  ;; 2020-07-08, adding support for Elpy
-  ;; Ref: ref: https://medium.com/analytics-vidhya/managing-a-python-development-environment-in-emacs-43897fd48c6a
-  (use-package company-statistics
-    :ensure t
-    :after company
-    :config (company-statistics-mode))
-  (use-package company-web
-    :ensure t
-    :after company)
-  (use-package company-try-hard
-    :ensure t
-    :after company
-    :bind
-    ;; Change from C-<tab> to "C-." and "C-M-."
-    (("C-." . company-try-hard)
-     ("C-M-." . company-try-hard)
-     :map company-active-map
-     ("C-." . company-try-hard)
-     ("C-M-." . company-try-hard)))
-  (use-package company-quickhelp
-    :ensure t
-    :after company
-    :config
-    (company-quickhelp-mode))
-
-  ;; 2020-07-08, adding company-jedi, which uses jedi-core, but made for Company users
-  (defun aeh/python-mode-hook ()
-    (add-to-list 'company-backends 'company-jedi))
-  (use-package company-jedi
-    :ensure t
-    :disabled
-    :after company
-    :hook (python-mode-map . aeh/python-mode-hook))
-
-  (setq company-backends
-        '((company-files          ; files & directory
-           company-keywords       ; keywords
-           company-capf)          ; completion-at-point-functions
-          (company-abbrev company-dabbrev)))
-
-  ;; 2021-02-21: move all the slime stuff to end of block.
-  ;; 2021-06-02: Although disabled, still getting slime-mode engaged when entering emacs-lisp-mode. Comment all.
-  ;; (use-package slime
-  ;;   :ensure t
-  ;;   :disabled
-  ;;   :config
-  ;;   (setq inferior-lisp-program "/usr/bin/sbcl")
-  ;;   (setq slime-contribs '(slime-fancy)))
-
-  ;; (use-package slime-company
-  ;;   :ensure t
-  ;;   :disabled
-  ;;   :after company
-  ;;   :init
-  ;;   (slime-setup '(slime-fancy slime-company)))
-#+END_SRC
-
-*Company Improvements*
-I think that Company is acting a bit better now, and on 10/30/2018, I added some code from Oleh Krehel's [[https://oremacs.com/2017/12/27/company-numbers/][blog]] to: show numbers on the popup, and be able to use them to select text. This works like a charm. Oleh's blog article is from December 2017, and he states his git log shows he's been using this setup for three years without any issues.  Grand!
-
-2019-09-05: After setting Counsel to defer, needed to wrap this entire code with an "with-eval-after-load" function.
-
-#+BEGIN_SRC emacs-lisp
-  ;; Basic setting
-  (with-eval-after-load 'company
-
-    (setq company-show-numbers t)
-
-    ;; Oleh's function:
-    (defun ora-company-number ()
-      "Forward to `company-complete-number'.
-
-  Unless the number is potentially part of the candidate.
-  In that case, insert the number."
-      (interactive)
-      (let* ((k (this-command-keys))
-             (re (concat "^" company-prefix k)))
-        (if (cl-find-if (lambda (s) (string-match re s))
-                        company-candidates)
-            (self-insert-command 1)
-          (company-complete-number (string-to-number k)))))
-
-    ;; Add some bindings
-    (let ((map company-active-map))
-      (mapc
-       (lambda (x)
-         (define-key map (format "%d" x) 'ora-company-number))
-       (number-sequence 0 9))
-      (define-key map " " (lambda ()
-                            (interactive)
-                            (company-abort)
-                            (self-insert-command 1)))
-      ;; This line UNBINDS RET key from closing the popup
-      (define-key map (kbd "<return>") nil))
-    )
-#+END_SRC
+*** Auto Completion
+Used to have a HUGE section for Company mode, with tons of notes as I used to have a lot of problems with it.  I've gotten rid of all the text over the year and more that I tried to use
+#+begin_src emacs-lisp
+  (message "Loading aeh-auto-complete")
+  (load "aeh-auto-complete")
+#+end_src
 
 *** Completion framework
 Switching from Ivy/Counsel and Swiper to other alternatives which are lightweight and use native Emacs APIs.
@@ -1097,6 +950,17 @@ Flycheck does syntax checking for multiple languages.
     :diminish
     :after lsp)
 
+  ;;------------------------------------------------------------------------------
+  ;; 2022-08-05: Trying to fix errors after new PC and Python installed in weird
+  ;; directory "C:\Users\frst6889\AppData\Local\Programs\Python\Python310\".
+  ;; Ref: https://stackoverflow.com/questions/37720869/emacs-how-do-i-set-flycheck-to-python-3
+  ;; NOTE: I don't have executable python3.exe, just python.exe
+  ;; NOTE: ALSO created DOS environment variable "PYTHONPATH" to installed path.
+  (setq flycheck-python-flake8-executable "python"
+        flycheck-python-pycompile-executable "python"
+        flycheck-python-pylint-executable "python")
+  ;;------------------------------------------------------------------------------
+
   ;; Move elpy to this section.
   ;; Ref:  https://github.com/jorgenschaefer/elpy
   ;; 2020-07-08: setup elpy for using company; see company section for additions.
@@ -1142,6 +1006,7 @@ Obviously, no one using Emacs can live without having Magit, so here's where we 
       :diminish
       :commands (magit-status)
       :bind ("C-x g g" . magit-status)
+      ("C-x g b" . magit-blame)
       ("C-x g c" . magit-branch-checkout)
       ("C-x g l" . magit-log-buffer-file)
       )
@@ -1433,6 +1298,9 @@ Found Reddit page noting icons for treemacs, found new package to assist: https:
 2019-11-05: Change binding to "M-<f2>" to activate Treemacs so I can use "C-c t" for other things.  Also, I don't use Treemacs, so set to disabled.
 
 #+BEGIN_SRC emacs-lisp
+  (if (string-equal system-type "windows-nt")
+      (setq python-string "python")
+      (setq python-string "python3"))
   (use-package treemacs
     :ensure t
     ;; :disabled
@@ -1452,7 +1320,7 @@ Found Reddit page noting icons for treemacs, found new package to assist: https:
       (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
     :config
     (progn
-      (setq treemacs-collapse-dirs              (if (executable-find "python") 3 0)
+      (setq treemacs-collapse-dirs              (if (executable-find python-string) 3 0)
             treemacs-deferred-git-apply-delay   0.5
             treemacs-display-in-side-window     t
             treemacs-file-event-delay           5000
@@ -1485,7 +1353,7 @@ Found Reddit page noting icons for treemacs, found new package to assist: https:
       (treemacs-filewatch-mode t)
       (treemacs-fringe-indicator-mode t)
       (pcase (cons (not (null (executable-find "git")))
-                   (not (null (executable-find "python3"))))
+                   (not (null (executable-find python-string))))
         (`(t . t)
          (treemacs-git-mode 'extended))
         (`(t . _)

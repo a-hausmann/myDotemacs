@@ -1,6 +1,6 @@
 ;; File:          aeh-theme.el  --- -*- lexical-binding: t -*-
 ;; Created:       2022-06-14
-;; Last modified: Mon Jun 20, 2022 9:12:44
+;; Last modified: Mon Aug 15, 2022 11:07:17
 ;; Purpose:       This file configures the default theme I want to use. Currently
 ;;                this is the Modus themes. https://protesilaos.com/emacs/modus-themes
 ;;
@@ -13,10 +13,12 @@
 
 ;; For the themes that are built into Emacs you cannot require the package.
 ;; Use the following instead.
+;; 2022-08-15: after much experimenting, leave modus-themes-region as nil
+;; see documentation: C-h v modus-themes-region <ENT>
 
 (setq modus-themes-italic-constructs t
       modus-themes-bold-constructs t
-      modus-themes-region '(accented bg-only)
+      modus-themes-region nil
       modus-themes-syntax '(alt-syntax)
       modus-themes-fringes 'subtle
       modus-themes-mode-line '(accented borderless padded)

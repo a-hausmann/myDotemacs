@@ -30,9 +30,12 @@ folder, otherwise delete a word"
          ("C-p" . vertico-previous)
          ("C-g" . vertico-exit)
          :map minibuffer-local-map
-         ("<C-backspace>" . dw/minibuffer-backward-kill))
-)
-(setq projectile-completion-system 'vertico)
+         ("<C-backspace>" . dw/minibuffer-backward-kill)))
+
+;; 2022-08-04: Changes in vertico invalidated the below. Documentation for Projectile
+;; indicates it will automatically use the default completion system, in my case, Vertico.
+;; Testing showed that I don't need to set this variable at all.
+;; (setq projectile-completion-system 'vertico)
 
 ;; Use the `orderless' completion style.
 ;; Enable `partial-completion' for files to allow path expansion.
@@ -61,7 +64,10 @@ folder, otherwise delete a word"
 (use-package consult
   :ensure t
   :demand t
-  :bind (("C-s" . consult-isearch)
+  :bind (
+         ("C-s" . isearch-forward)                 ;; Still useful, consult has no better solution.
+         ("C-c C-r" . isearch-backward)            ;; Still useful, consult has no better solution.
+         ("C-c C-s" . consult-isearch-forward)     ;; works in mini-buffer ONLY!
          ("C-S-s" . consult-line)
          ("C-M-l" . consult-imenu)
          ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
@@ -78,8 +84,7 @@ folder, otherwise delete a word"
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
          ("M-s l" . consult-line)                  ;; required by consult-line to detect isearch
-         :map minibuffer-local-map
-         ("C-r" . consult-history))
+         :map minibuffer-local-map ("C-r" . consult-history))
 
   ;; The :init configuration is always executed (Not lazy)
   :init

@@ -1,13 +1,14 @@
 ;; aeh-useful.el  --- -*- lexical-binding: t -*-
 ;; File name:     aeh-useful.el
-;; Last modified: Mon Jun 14, 2021 11:19:16
+;; Last modified: Thu Aug 04, 2022 15:09:35
 ;; Author:        Arnold Hausmann
 ;; Why:           This is where I will keep useful code fragments/functions.
 
 (defun aeh-new-untitled-buffer ()
   "Create new buffer named \"untitled\""
   (interactive)
-  (switch-to-buffer (generate-new-buffer "untitled")))
+  (switch-to-buffer (generate-new-buffer "untitled"))
+  (text-mode))
 (global-set-key (kbd "C-c n") 'aeh-new-untitled-buffer)
 
 (defun aeh-ff ()
