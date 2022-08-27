@@ -1,8 +1,11 @@
 ;; File name:     aeh-myownmodeline.el   --- -*- lexical-binding: t -*-
 ;; Created:       Sat Jul 23, 2022 17:04:51
-;; Last modified: Sun Jul 24, 2022 18:46:22
+;; Last modified: Sat Jul 30, 2022 22:53:57
 ;; Purpose:       This is to create my own, personalized modeline.
 ;;
+
+;; 2022-07-30: New ref: https://gitlab.com/jessieh/mood-line/-/blob/master/mood-line.el
+;; This is single module simple modeline with left and right definitions. Should be able to use this.
 
 ;; Set active window & inactive window modelines to different colors with fringe
 ;; Ref: https://www.saltycrane.com/blog/2007/10/emacs-mode-line-color-custimization/
@@ -39,7 +42,14 @@
 
 ;; There are some good clues to how to get this generically without using a package
 ;; in "simple-modeline", ref: https://github.com/gexplorer/simple-modeline
-
+(defun aeh/mode-line--format (left right)
+  "Return a string of `window-width' length containing LEFT and RIGHT, aligned respectively."
+  (let ((reserve (length right)))
+    (concat left
+            " "
+            (propertize " "
+                        'display `((space :align-to (- right (- 0 right-margin) ,reserve))))
+            right)))
 
 
 ;; Thanks to Daniel Mendler for this!  It removes the square brackets
@@ -69,6 +79,58 @@
                 " | "
                 mode-line-misc-info
                 mode-line-end-spaces))
+
+;; Ref: https://gitlab.com/jessieh/mood-line/-/blob/master/mood-line.el
+;; This is where we can call aeh/mode-line--format to get left and right sides.
+;; Shoot, this doesn't work as is, must have missed something somewhere. "format-mode-line" perhaps?
+;; (setq-default mode-line-format
+;;               '((:eval
+;;                  (aeh/mode-line--format
+;;                   ;; Left
+;;                   (format-mode-line
+;;                    '(" "
+;;                      (:eval (mode-line-modified))
+;;                      (:eval (mode-line-remote))
+;;                      (:eval (mode-line-frame-identification))
+;;                      (:eval (mode-line-buffer-identification))
+;;                      ;; (:eval (mode-line-anzu))
+;;                      ;; (:eval (mode-line-multiple-cursors))
+;;                      (:eval (mode-line-position))))
+
+;;                   ;; Right
+;;                    '((:eval (mode-line-eol))
+;;                      (:eval (mode-line-encoding))
+;;                      (:eval (vc-mode vc-mode))
+;;                      (:eval (mode-line-modes))
+;;                      (:eval (mode-line-misc-info))
+;;                      ;; (:eval (mode-line-flycheck))
+;;                      ;; (:eval (mode-line-flymake))
+;;                      ;; (:eval (mode-line-process))
+;;                      " ")))))
+;; (setq-default mode-line-format
+;;               '((:eval
+;;                  (aeh/mode-line--format
+;;                   ;; Left
+;;                   (format-mode-line
+;;                    '(" "
+;;                      mode-line-modified
+;;                      mode-line-remote
+;;                      mode-line-frame-identification
+;;                      mode-line-buffer-identification
+;;                      ;; (:eval (mode-line-anzu))
+;;                      ;; (:eval (mode-line-multiple-cursors))
+;;                      mode-line-position))
+;;                   ;; Right
+;;                    (format-mode-line
+;;                     (mode-line-eol
+;;                      mode-line-encoding
+;;                      mode vc-mode
+;;                      mode-line-modes
+;;                      mode-line-misc-info
+;;                      ;; (:eval (mode-line-flycheck))
+;;                      ;; (:eval (mode-line-flymake))
+;;                      ;; (:eval (mode-line-process))
+;;                      " "))))))
 
 (setq minions-prominent-modes
       (list 'defining-kbd-macro
