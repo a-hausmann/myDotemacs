@@ -1,10 +1,6 @@
 ;; File:          aeh-theme.el  --- -*- lexical-binding: t -*-
 ;; Created:       2022-06-14
-<<<<<<< HEAD
-;; Last modified: Fri Aug 26, 2022 22:30:44
-=======
-;; Last modified: Sat Aug 13, 2022 16:43:34
->>>>>>> b729add (Home (2022-08-26) My modeline and theme changes.)
+;; Last modified: Fri Aug 26, 2022 23:45:18
 ;; Purpose:       This file configures the default theme I want to use. Currently
 ;;                this is the Modus themes. https://protesilaos.com/emacs/modus-themes
 ;;
