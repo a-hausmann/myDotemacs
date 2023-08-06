@@ -17,39 +17,6 @@ folder, otherwise delete a word"
         (delete-minibuffer-contents))
       (backward-kill-word arg)))
 
-;; Enable vertico
-(use-package vertico
-  :init
-  (vertico-mode)
-  :custom
-  (vertico-cycle t)
-  :custom-face
-  (vertico-current ((t (:background "#3a3f5a"))))
-  :bind (:map vertico-map
-         ("C-n" . vertico-next)
-         ("C-p" . vertico-previous)
-         ("C-g" . vertico-exit)
-         :map minibuffer-local-map
-         ("<C-backspace>" . dw/minibuffer-backward-kill)))
-
-;; 2022-08-04: Changes in vertico invalidated the below. Documentation for Projectile
-;; indicates it will automatically use the default completion system, in my case, Vertico.
-;; Testing showed that I don't need to set this variable at all.
-;; (setq projectile-completion-system 'vertico)
-
-;; Use the `orderless' completion style.
-;; Enable `partial-completion' for files to allow path expansion.
-;; You may prefer to use `initials' instead of `partial-completion'.
-(use-package orderless
-  :init
-  (setq completion-styles '(orderless)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles . (partial-completion))))))
-
-;; Persist history over Emacs restarts. Vertico sorts by history position.
-(use-package savehist
-  :init
-  (savehist-mode))
 
 ;; Additional packages for completions and enrichments
 ;; Consult provides functionality similary to Counsel.
@@ -115,11 +82,17 @@ folder, otherwise delete a word"
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; (kbd "C-+")
-  (consult-customize
-   consult-git-grep consult-grep
-   consult-bookmark consult-recent-file consult-xref
-   consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
-   :preview-key (kbd "M-."))
+  ;; 07/06/2023: after update to version consult-20230702.819, warning states
+  ;; "consult/:config: Not enough arguments for format string", and help for
+  ;; consult-customize said unused in consult.el. Commenting out got rid of warning.
+  ;; Then found I was really running older version consult-20210522.1135 and upgraded.
+  ;; The upgrade STILL doesn't like this customize for some reason, don't know why,
+  ;; get a huge dump that I don't want to deal with.
+  ;; (consult-customize
+  ;;  consult-git-grep consult-grep
+  ;;  consult-bookmark consult-recent-file consult-xref
+  ;;  consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
+  ;;  :preview-key (kbd "M-."))
 )
 
 ;; Ref: https://github.com/gagbo/consult-lsp
@@ -169,7 +142,46 @@ folder, otherwise delete a word"
 )
 
 
+;; Enable vertico
+;; 07/05/2023: update package to version 1.4, getting error, so scaled back to 
+;; recommended config, commenting out all but :init
+(use-package vertico
+  :init
+  (vertico-mode)
+  :custom
+  (vertico-cycle t)
+  :custom-face
+  (vertico-current ((t (:background "#3a3f5a"))))
+  :bind (:map vertico-map
+         ("C-n" . vertico-next)
+         ("C-p" . vertico-previous)
+         ("C-g" . vertico-exit)
+         :map minibuffer-local-map
+         ("<C-backspace>" . dw/minibuffer-backward-kill))
+)
+
+;; 2022-08-04: Changes in vertico invalidated the below. Documentation for Projectile
+;; indicates it will automatically use the default completion system, in my case, Vertico.
+;; Testing showed that I don't need to set this variable at all.
+;; (setq projectile-completion-system 'vertico)
+
+;; Use the `orderless' completion style.
+;; Enable `partial-completion' for files to allow path expansion.
+;; You may prefer to use `initials' instead of `partial-completion'.
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles . (partial-completion))))))
+
+;; Persist history over Emacs restarts. Vertico sorts by history position.
+(use-package savehist
+  :init
+  (savehist-mode))
+
+
+
 ;; Ref: https://github.com/minad/affe
 ;; Affe is an asynchronous fuzzy finder for emacs... Look into this.
 ;; As of today (2021-05-22) it is not yet available on ELPA or MELPA. However....
-;; NOTE: THIS PROGRAM DOES REQUIRED EITHER FIND OR RIPGREP, SO USELESS TO ME ON WINDOWS!!!!!!
+;; NOTE: THIS PROGRAM DOES REQUIRE EITHER FIND OR RIPGREP, SO USELESS TO ME ON WINDOWS!!!!!!

@@ -1,6 +1,6 @@
 ;; aeh-useful.el  --- -*- lexical-binding: t -*-
 ;; File name:     aeh-useful.el
-;; Last modified: Thu Aug 04, 2022 15:09:35
+;; Last modified: Mon May 29, 2023 15:03:15
 ;; Author:        Arnold Hausmann
 ;; Why:           This is where I will keep useful code fragments/functions.
 
@@ -75,5 +75,30 @@
             (setq remove-count (+ remove-count 1))
             (replace-match "" nil nil))
           (message (format "%d ^M removed from buffer." remove-count)))))))
+
+;; 05/29/2023: Added functions to assist converting spaces to underlines.
+(defun aeh-space-to-underline-dwim ()
+  "The dwim will replace space with underline in either region or full buffer."
+  (interactive)
+  (cond ((region-active-p)
+          (aeh-replace-space-with-underline (region-beginning) (region-end))
+          )
+    (t
+      (aeh-replace-space-with-underline (point-min) (point-max)))))
+
+(general-define-key
+ :keymaps 'text-mode-map
+ "C-c _" 'aeh-space-to-underline-dwim)
+
+(defun aeh-replace-space-with-underline (p-from p-thru)
+  "Replace spaces with underlines"
+  (interactive)
+  (save-match-data
+    (save-excursion
+      (save-restriction
+        (let ((remove-count 0))
+          (goto-char p-from)
+          (while (search-forward " " p-thru t)
+            (replace-match "_" nil nil)))))))
 
 (provide 'aeh-useful)

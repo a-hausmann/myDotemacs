@@ -1,6 +1,6 @@
 ;; File:          aeh-theme.el  --- -*- lexical-binding: t -*-
 ;; Created:       2022-06-14
-;; Last modified: Fri Aug 26, 2022 23:45:18
+;; Last modified: Thu Jul 06, 2023 17:28:28
 ;; Purpose:       This file configures the default theme I want to use. Currently
 ;;                this is the Modus themes. https://protesilaos.com/emacs/modus-themes
 ;;
@@ -40,5 +40,6 @@
 (setq modus-themes-org-blocks 'gray-background)
 ;; Load the theme of your choice:
 (load-theme 'modus-vivendi t nil) ;; OR (load-theme 'modus-vivendi)
+(define-key global-map (kbd "<f6>") #'modus-themes-select)
 (define-key global-map (kbd "<f7>") #'modus-themes-toggle)
 

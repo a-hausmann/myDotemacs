@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2022-08-27 Sat 16:32>
+#+DATE: <2023-08-05 Sat 12:23>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -169,8 +169,8 @@ See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for mor
    ;; ns-use-srgb-colorspace nil                       ; Don't use sRGB colors
    ;; recenter-positions '(5 top bottom)               ; Set re-centering positions
    scroll-conservatively most-positive-fixnum       ; Always scroll by one line
-   scroll-margin 2                                  ; Add a margin when scrolling vertically
-   select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
+   ;; scroll-margin 2                                  ; Add a margin when scrolling vertically, default 0
+   ;; select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
    sentence-end-double-space nil                    ; End a sentence after a dot and a space
    show-trailing-whitespace nil                     ; Display trailing whitespaces
    ;; split-height-threshold nil                       ; Disable vertical window splitting
@@ -202,6 +202,31 @@ See ref: https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org for mor
   (setq make-backup-files nil)                      ; Disable backup files
   (setq auto-save-default nil)                      ; Disable auto-save funtionality
   (global-set-key (kbd "C-M-y") 'clipboard-yank)    ; 2020-05-07: add mapping to yank from clipboard
+
+  ;; 06/29/2023: Ref: https://protesilaos.com/codelog/2023-06-28-emacs-mark-register-basics/
+  ;; Also reply to my comments on https://www.youtube.com/watch?v=TJrAkCyH6Dk&lc=UgwnC2dkrdFXPHprQ3V4AaABAg.9rXYiuexy0S9rXwlMPdw4G
+  ;; By default, the built-in `savehist-mode' only keeps a record of
+  ;; minibuffer histories.  This is helpful as it surfaces the most
+  ;; recently selected items to the top, allowing you to access them again
+  ;; very quickly.  With the variable `savehist-additional-variables' we
+  ;; can make `savehist-mode' keep a record of any variable we want, so
+  ;; that it persists between Emacs sessions.  I do this to store the
+  ;; `kill-ring' and the `register-alist'.
+  ;; [AH] Checking my native values first, I find (projectile-project-command-history evil-jumps-history)
+  (setq savehist-additional-variables '(register-alist 
+                                        kill-ring
+                                        mark-ring
+                                        global-mark-ring
+                                        search-ring
+                                        regexp-search-ring
+                                        projectile-project-command-history 
+                                        evil-jumps-history))
+  (savehist-mode 1)
+
+  ;; Make Emacs repeat the C-u C-SPC command (`set-mark-command') by
+  ;; following it up with another C-SPC.  It is faster to type
+  ;; C-u C-SPC, C-SPC, C-SPC, than C-u C-SPC, C-u C-SPC, C-u C-SPC...
+  (setq set-mark-command-repeat-pop t)
 #+end_src
 
 *** Hooks
@@ -348,12 +373,16 @@ According to the [[https://www.emacswiki.org/emacs/BrowseUrl][BrowseUrl wiki]], 
      (shell-command (concat "C:\\\\Users\\\\frst6889\\\\AppData\\\\Local\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe" url)))
 
    ;; Since cannot get Chrome working in Windows, use EWW instead
+   ;; 2023-08-05: Now using Brave instead of Opera.
+   (setq aeh-default-browser "brave-browser")
    (if (string-equal system-type "windows-nt")
        (setq browse-url-browser-function 'eww-browse-url)
      ;; (setq browse-url-browser-function 'browse-url-generic
      ;;       browse-url-generic-program 'aeh/browse-url-chrome)
      (setq browse-url-browser-function 'browse-url-generic
-           browse-url-generic-program "opera"))
+           browse-url-generic-program aeh-default-browser))
+
+
  #+END_SRC
  
 Use electric-pair-mode globally. 2018-12-27: turned off Autopair, turned on Electric-pair.
@@ -373,6 +402,7 @@ Thus far, this has worked well. The key here is that the function paired to the 
 #+BEGIN_SRC emacs-lisp
   ;; 2021-02-21: used to just ensure and end use-package; everything else outside block.
   ;; Now put all prefix into config, and demand in general.
+  ;; 2023-08-04: Change "which-key" to "wk" for brevity.
   (use-package general
     :ensure t
     :demand t
@@ -385,24 +415,25 @@ Thus far, this has worked well. The key here is that the function paired to the 
     ;; Global keybindings
     (aeh-leader-def
       :keymaps '(normal visual emacs)
-      ";" '(frog-jump-buffer :which-key "Frog jump buffer")
-      "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
-      "b" '(aeh/hydra-buffers/body :which-key "buffers")
-      "c" '(aeh/hydra-consult/body :which-key "consult")
-      "f" '(aeh/hydra-files/body :which-key "files")
-      "m" '(aeh/hydra-modes/body :which-key "modes")
-      "M" '(aeh/hydra-magit/body :which-key "Magit")
-      "r" '(aeh/hydra-rectangle/body :which-key "rectangle")
-      "t" '(aeh/hydra-toggles/body :which-key "toggles")
-      "y" '(aeh/hydra-yasnippet/body :which-key "snippets")
-      "w" '(aeh/hydra-windows/body :which-key "windows"))
+      ";" '(frog-jump-buffer :wk "Frog jump buffer")
+      "TAB" '(aeh/switch-to-previous-buffer :wk "prev-buffer")
+      "b" '(aeh/hydra-buffers/body :wk "buffers")
+      "c" '(aeh/hydra-consult/body :wk "consult")
+      "f" '(aeh/hydra-files/body :wk "files")
+      "m" '(aeh/hydra-modes/body :wk "modes")
+      "M" '(aeh/hydra-magit/body :wk "Magit")
+      "r" '(aeh/hydra-rectangle/body :wk "rectangle")
+      "s" '(aeh-set-politics-directory :wk "Politics")
+      "t" '(aeh/hydra-toggles/body :wk "toggles")
+      "y" '(aeh/hydra-yasnippet/body :wk "snippets")
+      "w" '(aeh/hydra-windows/body :wk "windows"))
     (aeh-local-leader-def
       :keymaps 'insert
-      ";" '(frog-jump-buffer :which-key "Frog jump buffer")
-      "TAB" '(aeh/switch-to-previous-buffer :which-key "prev-buffer")
-      ;; "c" '(aeh/hydra-counsel/body :which-key "counsel")
-      "d" '(aeh/hydra-insert-date-menu/body :which-key "dates")
-      "i" '(aeh/hydra-insert-stuff-menu/body :which-key "insert stuff"))
+      ";" '(frog-jump-buffer :wk "Frog jump buffer")
+      "TAB" '(aeh/switch-to-previous-buffer :wk "prev-buffer")
+      ;; "c" '(aeh/hydra-counsel/body :wk "counsel")
+      "d" '(aeh/hydra-insert-date-menu/body :wk "dates")
+      "i" '(aeh/hydra-insert-stuff-menu/body :wk "insert stuff"))
     )
 #+END_SRC
 
@@ -534,8 +565,16 @@ Found a trick; instead of binding to "avy-goto-char", use "avy-goto-char-timer".
     :commands avy-goto-char-timer
     :diminish
     :bind
+    ("C-x C-a l" . avy-copy-line)
+    ("C-x C-a r" . avy-copy-region)
+    ("C-x C-a m" . avy-move-line)
+    ("C-x C-a M-r" . avy-move-region)
+    ("C-x C-a w" . avy-goto-word-1)
+    ("C-x C-a ;" . avy-goto-char)
+    ("C-x C-a '" . avy-goto-char-2)
+    ("C-x C-a t" . avy-goto-char-timer)
     ("C-x C-t" . avy-goto-char-timer))
-  (setq avy-timeout-seconds 1.0)
+  (setq avy-timeout-seconds 0.5)
 #+END_SRC
 
 *** Aggressive-indent
@@ -625,10 +664,10 @@ This is the *NEW* startup screen, and together with Projectile, can provide with
                              ))
      ;; 2019-07-20: updated package, new info, ref: https://github.com/emacs-dashboard/emacs-dashboard
      (setq dashboard-set-init-info 1)
-     (setq dashboard-footer-icon (all-the-icons-octicon "zap"
-                                                        :height 1.1
-                                                        :v-adjust -0.05
-                                                        :face 'font-lock-keyword-face))
+     ;; (setq dashboard-footer-icon (all-the-icons-octicon "zap"
+     ;;                                                    :height 1.1
+     ;;                                                    :v-adjust -0.05
+     ;;                                                    :face 'font-lock-keyword-face))
      (setq dashboard-set-footer 1))
  #+END_SRC
 
@@ -748,19 +787,20 @@ With this [[https://github.com/magnars/expand-region.el][simple package]] from M
 *** Eyebrowse
 Look into [[https://github.com/wasamasa/eyebrowse][Eyebrowse]] mode; Mike Zamansky did a [[https://www.youtube.com/watch?v=s6IXj0bS7L8][demo]] of it, pretty good window manager, it tracks window/buffer splits well within one session, though there seems no way to save over sessions. Though on the blog page, Vadim notes that searching for "persist" in the README shows how to save using "built-in desktop.el" package.
 2021-02-21: Tried using =:commands= to trigger load, but doesn't work as no windows configured automatically; finally, just demand.
+2022-08-27: I REALLY don't use this, so commenting out.
 #+BEGIN_SRC emacs-lisp
-  (use-package eyebrowse
-    :ensure t
-    :diminish
-    :demand
-    :config (progn
-              (define-key eyebrowse-mode-map (kbd "M-1") 'eyebrowse-switch-to-window-config-1)
-              (define-key eyebrowse-mode-map (kbd "M-2") 'eyebrowse-switch-to-window-config-2)
-              (define-key eyebrowse-mode-map (kbd "M-3") 'eyebrowse-switch-to-window-config-3)
-              (define-key eyebrowse-mode-map (kbd "M-4") 'eyebrowse-switch-to-window-config-4)
-              (eyebrowse-mode t)
-              (setq eyebrowse-new-workspace t))
-    )
+  ;; (use-package eyebrowse
+  ;;   :ensure t
+  ;;   :diminish
+  ;;   :demand
+  ;;   :config (progn
+  ;;             (define-key eyebrowse-mode-map (kbd "M-1") 'eyebrowse-switch-to-window-config-1)
+  ;;             (define-key eyebrowse-mode-map (kbd "M-2") 'eyebrowse-switch-to-window-config-2)
+  ;;             (define-key eyebrowse-mode-map (kbd "M-3") 'eyebrowse-switch-to-window-config-3)
+  ;;             (define-key eyebrowse-mode-map (kbd "M-4") 'eyebrowse-switch-to-window-config-4)
+  ;;             (eyebrowse-mode t)
+  ;;             (setq eyebrowse-new-workspace t))
+  ;;   )
 #+END_SRC
 
 *** Frog-jump-buffer
@@ -857,7 +897,8 @@ Ref: David Wilson's Emacs From Scratch repo: https://github.com/daviwil/emacs-fr
 
   ;; 2020-09-07: adding custom package; 2020-09-08: make non-Windows (not work)
   (cond ((not (string-equal system-type "windows-nt"))
-         (load "aeh-html-stuff")
+         ;; (load "aeh-html-stuff")
+         (require 'aeh-html-stuff)
          (add-hook 'html-mode-hook 'aeh-html-stuff-mode)))
 #+END_SRC
 
@@ -875,18 +916,19 @@ Had plain hungry-delete which didn't appear to allow for "normal" deletion, so t
 Lispy is [[https://github.com/abo-abo][Oleh Krehel]] (aka "abo-abo") version of Paredit, a parentheses-matching package for Lisp.  As Oleh is also an Evil user, he already had a number of key-mappings which are very vim-like.
 
 This setup is translated from or taken from [[https://github.com/abo-abo/lispy#configuration-instructions][Lispy's Github page]].
+2022-08-27: Again, really don't use this so commenting out.
 #+BEGIN_SRC emacs-lisp
-  (use-package lispy
-    :ensure t
-    :disabled
-    :diminish
-    :config
-    ;; One can use "M-:" - eval-expression to use lispy in the mini-buffer during eval-expression
-    (defun conditionally-enable-lispy ()
-      (when (eq this-command 'eval-expression)
-        (lispy-mode 1)))
-    (add-hook 'minibuffer-setup-hook 'conditionally-enable-lispy)
-    (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1))))
+  ;; (use-package lispy
+  ;;   :ensure t
+  ;;   :disabled
+  ;;   :diminish
+  ;;   :config
+  ;;   ;; One can use "M-:" - eval-expression to use lispy in the mini-buffer during eval-expression
+  ;;   (defun conditionally-enable-lispy ()
+  ;;     (when (eq this-command 'eval-expression)
+  ;;       (lispy-mode 1)))
+  ;;   (add-hook 'minibuffer-setup-hook 'conditionally-enable-lispy)
+  ;;   (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1))))
 #+END_SRC
 
 *** LSP, Flycheck, jedi and all things Python
@@ -1035,28 +1077,6 @@ Prot's excellent themes.
     :pin gnu)
 #+end_src
 
-*** Multiple-cursors
-Magnar Sveen created package [[https://github.com/magnars/mark-multiple.el][mark-multiple]], which he himself superceded with [[https://github.com/magnars/multiple-cursors.el][multiple-cursors]]. This, to all appearances, is the better package (Magnar thinks so anyway). There should be more features, and the [[https://www.youtube.com/watch?time_continue=235&v=jNa3axo40qM][Youtube video on multiple-cursors]] is intriguing, and complex; take several times to watch that, and pay close attention to the keystrokes.
-
-So, the package allows you to mark a string, then additional instances (next or previous), and implement multiple cursors on all. Any text editing is performed at all cursors simultaneously. Known limitations of multiple-cursors are: isearch is not supported, =m-x= commands won't be repeated, any keybindings referring to lambdas are always run for all cursors, and redo might mess with the cursors, though undo works fine.
-
-The configuration below is an amalgamation of Uncle Dave's original mark-multiple and Magnar's documentation for multiple-cursors. Note that Magnar says that his functions don't work well as interactive commands but are best mapped--but several of his bindings conflict with others.
-#+BEGIN_SRC emacs-lisp
-  (use-package multiple-cursors
-    :ensure t
-    :disabled
-    :bind
-    ("C-c m c" . 'mc/edit-lines)
-    ("C->" . 'mc/mark-next-like-this)
-    ("C-<" . 'mc/mark-previous-like-this)
-    ("C-M-m" . 'mc/mark-more-like-this-extended)
-    ("C-*" . 'mc/mark-all-like-this)
-    ("C-c w n" . 'mc/mark-next-like-this-word)
-    ("C-c w p" . 'mc/mark-previous-like-this-word)
-    ("C-c s n" . 'mc/mark-next-symbol-like-this)
-    ("C-c s p" . 'mc/mark-previous-like-this-symbol)
-    ("C-S-<mouse-1>" . 'mc/add-cursor-on-click))
-#+END_SRC
 *** Neotree
 I have tried Neotree and found it fairly useful, so will try out an install.
 
@@ -1220,24 +1240,25 @@ Very useful if working web or game development--or theme development--when this 
 2020-08-04: yesterday saw a new Protesilaos Stavrou video which had a number of misc. functions, and this was part of it all.
 Ref: https://protesilaos.com/codelog/2020-08-03-emacs-custom-functions-galore/
 Copying all directly from this site (this site code will NOT change):
+2022-08-27: Really don't use this, so commenting.
 #+begin_src emacs-lisp
   ;; Package by Ian Eure (ieure on GitHub)
-  (use-package scratch
-    :ensure
-    :config
-    (defun prot/scratch-buffer-setup ()
-      "Add contents to `scratch' buffer and name it accordingly."
-      (let* ((mode (format "%s" major-mode))
-             (string (concat "Scratch buffer for: " mode "\n\n")))
-        (when scratch-buffer
-          (save-excursion
-            (insert string)
-            (goto-char (point-min))
-            (comment-region (point-at-bol) (point-at-eol)))
-          (forward-line 2))
-        (rename-buffer (concat "*Scratch for " mode "*") t)))
-    :hook (scratch-create-buffer-hook . prot/scratch-buffer-setup)
-    :bind ("C-c s" . scratch))
+  ;; (use-package scratch
+  ;;   :ensure
+  ;;   :config
+  ;;   (defun prot/scratch-buffer-setup ()
+  ;;     "Add contents to `scratch' buffer and name it accordingly."
+  ;;     (let* ((mode (format "%s" major-mode))
+  ;;            (string (concat "Scratch buffer for: " mode "\n\n")))
+  ;;       (when scratch-buffer
+  ;;         (save-excursion
+  ;;           (insert string)
+  ;;           (goto-char (point-min))
+  ;;           (comment-region (point-at-bol) (point-at-eol)))
+  ;;         (forward-line 2))
+  ;;       (rename-buffer (concat "*Scratch for " mode "*") t)))
+  ;;   :hook (scratch-create-buffer-hook . prot/scratch-buffer-setup)
+  ;;   :bind ("C-c s" . scratch))
 #+end_src
 
 *** Smartparens
@@ -1245,7 +1266,8 @@ Will try out Smartparens for a while, from 2019-04-14.
 #+begin_src emacs-lisp
   (use-package smartparens
     :ensure t
-    :defer 1
+    ;; :defer 1
+    :demand
     :diminish (smartparens-mode)
     :config
     ;; Stop pairing single quotes in elisp
@@ -1269,26 +1291,6 @@ Will try out Smartparens for a while, from 2019-04-14.
         (load "aeh-spaceline")
      (load "aeh-myownmodeline"))
     #+END_SRC
-
-*** Switch-window
-So often we split the frame into multiple windows, and using =c-c o= to cycle through them is a pain in the GM, and a lot of wasted keystrokes.  This package takes care of that issue, particularly good with more than 3+ windows open. Pressing =c-x o= will change the buffers a solid color, and each buffer is assigned a letter (configurable), and pressing the letter assigned to the window takes you to the window. (Note, when only two windows are open, =c-x o= automatically switches to the other window.)
-
-An alternative package is =ace-window=, but by default that package changes the behavior of =c-x o=, even if only two windows are open.
-OTOH, I have gotten used to Ace-window, so disabling this package.
-#+BEGIN_SRC emacs-lisp
-  (use-package switch-window
-    :ensure t
-    :disabled
-    :init
-    (setq switch-window-input-style 'minibuffer)
-    (setq switch-window-increase 4)
-    (setq switch-window-threshold 2)
-    (setq switch-window-shortcut-style 'qwerty)
-    (setq switch-window-qwerty-shortcuts
-          '("a" "s" "d" "f" "j" "k" "l" "i" "o"))
-    :bind
-    ([remap other-window] . switch-window))
-#+END_SRC
 
 *** Treemacs file manager
 Uncle Dave has switched from Treemacs to Sunrise-Commander; I'm not sure why, as using his default configuration, I could not get it to work.  Not sure where he's going there. [9/2/2018] As of today, MELPA does not have sunrise-commander, so back to Treemacs. Note that must also include treemacs-evil, and treemacs-projectile to get full functionality. Will initially use configuration from [[https://github.com/Alexander-Miller/treemacs][Github site]].
@@ -1440,7 +1442,18 @@ This is one of the best packages in Emacs, and takes advantage of the self-docum
     :init (which-key-mode)
     :diminish (which-key-mode)
     :config
-    (setq which-key-idle-delay 1))
+    (setq which-key-side-window-location 'bottom
+          which-key-sort-order #'which-key-key-order-alpha
+          which-key-sort-uppercase-first nil
+          which-key-add-column-padding 1
+          which-key-max-display-columns nil
+          which-key-min-display-lines 6
+          which-key-side-window-slot -10
+          which-key-side-window-max-height 0.25
+          which-key-idle-delay 0.8
+          which-key-max-description-length 25
+          which-key-allow-imprecise-window-fit nil
+          which-key-separator " → "))
 #+END_SRC
 
 *** WS-Butler 
@@ -1758,17 +1771,21 @@ The "bookmark-jump" function will present a list of bookmarks for Ivy to narrow,
 *** Iedit
 2019-11-01: Somehow lost keybindings to iedit, so put the main one back.
 #+begin_src emacs-lisp 
-  (global-set-key (kbd "C-;") 'iedit-mode)
+  ;; (global-set-key (kbd "C-;") 'iedit-mode)
+  (general-def prog-mode-map
+    "C-;" 'iedit-mode)
 #+end_src
 
 *** Dwimming case
 2019-11-05: Some dwim chords for region-based case.
 2020-07-06: Move "capitalize-region" binding to here.
 #+begin_src emacs-lisp
-  (global-set-key (kbd "C-c u") 'upcase-dwim)
-  (global-set-key (kbd "C-c l") 'downcase-dwim)
-  (global-set-key (kbd "C-c t") 'capitalize-dwim)
-  (global-set-key (kbd "C-x M-c") 'capitalize-region)
+  (general-def
+    :keymaps '(org-mode-map prog-mode-map)
+  "C-c u" 'upcase-dwim
+  "C-c l" 'downcase-dwim
+  "C-c t" 'capitalize-dwim
+  "C-x M-c" 'capitalize-region)
 #+end_src
 
 *** Isearch symbol-at-point
@@ -1846,7 +1863,9 @@ I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/c
               '(lambda ()
                  (visual-line-mode 1)
                  (org-indent-mode 1)))
-  (global-set-key (kbd "C-c '") 'org-edit-src-code)
+  ;; (global-set-key (kbd "C-c '") 'org-edit-src-code)
+  (general-def org-mode-map
+    "C-c '" 'org-edit-src-code)
   ;; 2021-02-24: Adding SECOND org-ellipsis set after requiring org-tempo to see if this has effect.
   (setq org-ellipsis "▼▼▼")
 #+END_SRC
@@ -1854,10 +1873,13 @@ I got the code to beautify org mode [[https://zhangda.wordpress.com/2016/02/15/c
 Some global key bindings for Org mode, as shown in the [[https://orgmode.org/orgguide.pdf][compact Org Guide]].
 #+begin_src emacs-lisp
   ;; The following lines are always needed. Choose your own keys.
-  (global-set-key "\C-cl" 'org-store-link)
-  (global-set-key "\C-ca" 'org-agenda)
-  (global-set-key "\C-cc" 'org-capture)
-  (global-set-key "\C-cb" 'org-switchb)
+  ;; 2022-10-16: I don't necessarily agree now commenting all, and if I ever need
+  ;; them again, should use 'general-def' to define them and stick with specific
+  ;; mode maps.
+  ;; (global-set-key "\C-cl" 'org-store-link)
+  ;; (global-set-key "\C-ca" 'org-agenda)
+  ;; (global-set-key "\C-cc" 'org-capture)
+  ;; (global-set-key "\C-cb" 'org-switchb)
 #+end_src
 
 For TODO tasks and states, reference: [[http://doc.norang.ca/org-mode.html#TasksAndStates][Org Mode - Oraganize Your Life In Plain Text]]
@@ -1968,6 +1990,29 @@ To *reload* a newly edited ~/.emacs.d/dotemacs.org:
   ;; (global-set-key (kbd "C-c r") 'aeh/config-reload)
 #+END_SRC
 
+**** Automated bookmark save.
+This tip from Prot is to automatically save any new bookmark to the bookmark file, rather than waiting until Emacs shuts down. He does this because he has frequent power outages, but I think it is a great prophylactic measure.
+Ref: https://protesilaos.com/codelog/2023-06-28-emacs-mark-register-basics/
+#+begin_src emacs-lisp
+  ;; I want Emacs to write the list of bookmarks to the `bookmark-file'
+  ;; as soon as I set a new bookmark.  The default behaviour of Emacs is
+  ;; to write to the disk as a final step before closing Emacs.  Though
+  ;; this can lead to data loss, such as in the case of a power failure.
+  ;; Storing the data outright mitigates this problem.
+  (defun prot/bookmark-save-no-prompt (&rest _)
+    "Run `bookmark-save' without prompts.
+
+  The intent of this function is to be added as an :after advice to
+  `bookmark-set-internal'.  Concretely, this means that when
+  `bookmark-set-internal' is called, this function is called right
+  afterwards.  We set this up because there is no hook after
+  setting a bookmark and we want to automatically save bookmarks at
+  that point."
+    (funcall 'bookmark-save))
+
+  (advice-add 'bookmark-set-internal :after 'prot/bookmark-save-no-prompt)
+#+end_src
+
 *** Miscellaneous functions
 **** Set Last modified timestamp
 This is a rather well-known trick to switch to the previous buffer, well-suited to keep switching back and forth between two buffers.
@@ -2033,7 +2078,6 @@ This is a rather well-known trick to switch to the previous buffer, well-suited 
   Repeated invocations toggle between the two most recently open buffers."
     (interactive)
     (switch-to-buffer (other-buffer (current-buffer) 1)))
-  (global-set-key (kbd "C-x p") 'aeh/switch-to-previous-buffer)
 #+END_SRC
 **** Delete current buffer file
 This is one of Bailey Ling's functions from "config-util.el".
@@ -2213,6 +2257,11 @@ Readings on articles about "persistent undo" in Emacs, I see that variable "undo
     (setq default-directory "~/"))
   (message "Default Dir: %S" default-directory)
 #+end_src
+
+*** Load abbreviations
+#+begin_src emacs-lisp
+(load "we-abbrevs")
+#+end_src
 ** Finally
 This is the place to put "final" steps, like visiting common files, etc.
 #+begin_src emacs-lisp
@@ -2232,6 +2281,13 @@ This is the place to put "final" steps, like visiting common files, etc.
           (add-to-list 'auto-mode-alist '("\\.x12\\'" . x12-mode)))))
   ;; 2019-12-10: Created ~/.emacs.d/private/local/aeh-useful.el, so load it
   (load "aeh-useful")
+  ;; 2023-05-28: Add auto-loading of zoom file.
+  ;; 2023-06-04: cannot get timing right with loading of origami, so stopping this for now.
+  ;; 07/02/2023: Trying with-eval-after-load. Great! That worked.
+  (with-eval-after-load 'origami
+    (find-file "/home/arnold/Documents/AA/zoom-meetings-info.txt")
+    (find-file "~/Documents/Health/BP-tracking.txt")
+  )
 #+end_src
 
 This last piece sets local variables for this file,

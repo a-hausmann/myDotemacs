@@ -1,6 +1,6 @@
 ;; File name:     aeh-hydras.el
 ;; Created:       2018-11-06
-;; Last modified: Mon Jun 14, 2021 11:17:38
+;; Last modified: Sun Jul 30, 2023 22:27:47
 ;; Purpose:       This will contain my personal hydra definitions.  Much of this is 
 ;;                based on Bailey Ling's hydras, so some changing of names, and deleting
 ;;                stuff he has that I do not (I favor ivy over helm, he uses both.
@@ -21,6 +21,18 @@
 (defconst aeh/full-day-date-format "%A, %Y-%m-%d" "English date as: Day, YYYY-MM-DD")
 (defconst aeh/full-day-time-format "%A, %B %d, %Y %-H:%M:%S %p" "English Date Time as: Day, Month Date, Year HH:MI:SS PM")
 
+(defhydra aeh/hydra-insert-some-day (:color blue)
+"
+_1_ Sun _2_ Mon _3_ Tue _4_ Wed _5_ Thu _6_ Fri _7_ Sat
+"
+("1" (insert "Sunday, "))
+("2" (insert "Monday, "))
+("3" (insert "Tuesday, "))
+("4" (insert "Wednesday, "))
+("5" (insert "Thursday, "))
+("6" (insert "Friday, "))
+("7" (insert "Saturday, ")))
+
 ;; 2019-06-06: NEW! This is the place to add Inserts of whatever I dream up.
 (defhydra aeh/hydra-insert-stuff-menu (:color blue)
   "This hydra inserts so-called random stuff."
@@ -32,6 +44,7 @@
 (defhydra aeh/hydra-insert-date-menu (:color blue)
   "
 _q_: quit
+_S_: Some Day menu
 _s_: MM/DD/YYYY
 _d_: YYYY-MM-DD
 _f_: YYYYMMDD
@@ -43,6 +56,7 @@ _e_: Day, Month Day, Year
 _E_: Day, Month Day, Year HH:MI:SS PM
  "
   ("q" nil)
+  ("S" aeh/hydra-insert-some-day/body)
   ("s" (insert (format-time-string aeh/date-simple)))
   ("d" (insert (format-time-string aeh/date-format)))
   ("f" (insert (format-time-string aeh/date-file)))
@@ -272,6 +286,8 @@ Consult^
 _q_ uit
 _a_ apropos
 _b_ bookmarks
+_c_ mode command
+_C_ minor mode menu
 _i_ imenu
 _I_ project imenu
 _m_ mark ring
@@ -280,12 +296,13 @@ _r_ recent files
 _o_ outline headings
 _O_ multi occur
 _T_ load theme
-_c_ mode command
-_C_ minor mode menu
+_y_ yank from kill ring
 "
   ("q" nil :exit t)
   ("a" consult-apropos)
   ("b" consult-bookmark)
+  ("c" consult-mode-command)
+  ("C" consult-minor-mode-menu)
   ("i" consult-imenu)
   ("I" consult-project-imenu)
   ("m" consult-mark)
@@ -294,10 +311,8 @@ _C_ minor mode menu
   ("o" consult-outline)
   ("O" consult-multi-occur)
   ("T" consult-theme)
-  ("c" consult-mode-command)
-  ("C" consult-minor-mode-menu)
+  ("y" consult-yank-from-kill-ring)
   )
-
 
 
 ;; 2018-12-31: Add hydra for Counsel commands
@@ -381,6 +396,7 @@ _q_ quit            _b_ blame
 ;; 2019-06-20: Add mode menu
 (defhydra aeh/hydra-modes (:exit t)
   "Modes"
+  ("q" nil "quit")
   ("o" #'orgtbl-mode "Org Table mode")
   ("p" #'prog-mode "Prog mode")
   ("s" #'sql-mode "SQL mode")
