@@ -7,7 +7,7 @@
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 26.1 (Org mode 9.1.9)
 #+STARTUP: overview
-#+DATE: <2023-08-05 Sat 12:23>
+#+DATE: <2023-09-01 Fri 10:43>
 #+TITLE: Dotemacs
 #+AUTHOR: Arnold Hausmann
 #+LANGUAGE: en
@@ -808,7 +808,9 @@ This actually beats iBuffer and counsel-ibuffer with Swiper; use General for bin
 #+begin_src emacs-lisp
   (use-package frog-jump-buffer
     :ensure t
-    :diminish)
+    :diminish
+    :config
+    (setq frog-jump-buffer-include-current-buffer nil))
 #+end_src
 
 *** Garbage Collector Magic Hack
@@ -1266,7 +1268,7 @@ Will try out Smartparens for a while, from 2019-04-14.
 #+begin_src emacs-lisp
   (use-package smartparens
     :ensure t
-    ;; :defer 1
+    :init 'smartparens-config
     :demand
     :diminish (smartparens-mode)
     :config
@@ -2262,6 +2264,22 @@ Readings on articles about "persistent undo" in Emacs, I see that variable "undo
 #+begin_src emacs-lisp
 (load "we-abbrevs")
 #+end_src
+
+*** Set world-clock
+#+begin_src emacs-lisp
+  (use-package time
+    :ensure nil
+    :hook (after-init . display-time-mode)
+    :bind ("C-x w c" . world-clock)
+    :custom
+    (world-clock-time-format "%A %d %B %r %Z")
+    (display-time-default-load-average nil)
+    (zoneinfo-style-world-list
+    '(("America/New_York" "New York")
+      ("America/Chicago" "Gore")
+      ("Europe/London" "London")
+      ("Europe/Athens" "Athens"))))
+#+end_src
 ** Finally
 This is the place to put "final" steps, like visiting common files, etc.
 #+begin_src emacs-lisp
@@ -2285,7 +2303,7 @@ This is the place to put "final" steps, like visiting common files, etc.
   ;; 2023-06-04: cannot get timing right with loading of origami, so stopping this for now.
   ;; 07/02/2023: Trying with-eval-after-load. Great! That worked.
   (with-eval-after-load 'origami
-    (find-file "/home/arnold/Documents/AA/zoom-meetings-info.txt")
+    (find-file "~/Documents/AA/zoom-meetings-info.txt")
     (find-file "~/Documents/Health/BP-tracking.txt")
   )
 #+end_src

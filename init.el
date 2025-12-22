@@ -119,6 +119,7 @@
 ;; 2021-02-21: Missed actually requiring use-package, looking at System Crafters videos.
 ;; Ref: https://github.com/daviwil/dotfiles/blob/master/Emacs.org
 (require 'use-package)
+(add-to-list 'load-path "~/.emacs.d/elpa")
 ;; Uncomment this to get a reading on packages that get loaded at startup
 (setq use-package-verbose t)
 

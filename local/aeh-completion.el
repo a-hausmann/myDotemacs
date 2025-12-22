@@ -47,6 +47,7 @@ folder, otherwise delete a word"
          ("C-c r" . consult-recent-file)
          ("C-c g" . consult-goto-line)             ;; goto specified line
          ("C-c m" . consult-mark)                  ;; jump to marker in the mark-ring
+         ("C-c y" . consult-yank-from-kill-ring)   ;; 08/10/2023: newly added
          ("M-s f" . consult-find)
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)

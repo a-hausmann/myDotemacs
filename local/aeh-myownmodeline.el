@@ -1,6 +1,6 @@
 ;; File name:     aeh-myownmodeline.el   --- -*- lexical-binding: t -*-
 ;; Created:       Sat Jul 23, 2022 17:04:51
-;; Last modified: Sat Jul 30, 2022 22:53:57
+;; Last modified: Mon Dec 22, 2025 11:11:20
 ;; Purpose:       This is to create my own, personalized modeline.
 ;;
 
@@ -74,6 +74,8 @@
                 mode-line-buffer-identification
                 " | "
                 mode-line-position
+                ;; 12/22/2025: added right-align, new in Emacs 30.1+
+                mode-line-format-right-align
                 mode-line-modes
                 (vc-mode vc-mode)
                 " | "
