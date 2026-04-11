@@ -2,7 +2,7 @@
 ;;
 ;; File name:     aeh-html-stuff.el
 ;; Created:       Sun Jun 30, 2019 23:52:30
-;; Last modified: Sat Apr 11, 2026 15:00:41
+;; Last modified: Sat Apr 11, 2026 16:25:35
 ;; Purpose:       Define all functions needed to replace my custom Vim HTML key mappings.
 ;; Version:       0.1
 
@@ -812,14 +812,14 @@ argument is used, will produce a smart right-double quote."
     (save-excursion
       (zap-up-to-char -1 char))))
 
-;; FIXME: need to change to work ONLY on region, message if not region.
+
 (defun aeh-delete-emphasis-tags-interactively ()
   "Will tag HTML emphasis tags for deletion, requesting action for each match.
 ALWAYS USE IN REGION, else it will act from current point to point-max."
   (interactive)
   (save-excursion
     (if (region-active-p)
-        (query-replace-regexp "</*em>" "")
+        (query-replace-regexp "</*em>" "" nil (region-beginning) (region-end))
         (message "No region specified!"))))
 
 
