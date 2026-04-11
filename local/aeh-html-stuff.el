@@ -2,7 +2,7 @@
 ;;
 ;; File name:     aeh-html-stuff.el
 ;; Created:       Sun Jun 30, 2019 23:52:30
-;; Last modified: Sun Dec 07, 2025 15:18:46
+;; Last modified: Sat Apr 11, 2026 15:00:41
 ;; Purpose:       Define all functions needed to replace my custom Vim HTML key mappings.
 ;; Version:       0.1
 
@@ -14,10 +14,24 @@
 
 ;; NOTE: with upgrade to version 30.1, need to use "mhtml-mode-hook" instead of "html-mode-hook"
 
+;; Versions
+;; 0.1: The base version as of 02/20/2026, lots of functions and Hydra menu.
+;; 0.2: changed the menu to Transient, added version constant and function.
+
+(require 'transient)
+
+(defconst aeh-html-stuff-version "0.2")
+
+(defun aeh-html-stuff-version ()
+  "Show current version of `aeh-html-stuff'."
+  (interactive)
+  (message "Personal HTML version: %s" aeh-html-stuff-version))
+
+
 (defvar aeh-html-stuff-mode-map nil "Keymap for `aeh-html-stuff-mode'")
 (setq aeh-html-stuff-mode-map (make-sparse-keymap))
 (define-minor-mode aeh-html-stuff-mode
-  "Toggle HTML Stuff mode
+    "Toggle HTML Stuff mode
 Interactive without argument, this command toggles the mode.
 A positive prefix enables the mode, any other prefix disables it.
 "
@@ -26,10 +40,19 @@ A positive prefix enables the mode, any other prefix disables it.
   :group 'html
   :keymap
   '(
-    ((kbd "C-c h") . aeh-hydra-html-stuff-menu/body)
-))
+    ((kbd "C-c h") . my-html-stuff-tmenu)
+    ))
+
 
 (add-hook 'mhtml-mode-hook #'aeh-set-politics-directory)
+
+;; 01/15/2026: recorded macro to kill span tags; will give a key chord
+;; in my defined map.
+(defalias 'kill-span-tags
+   (kmacro "C-s < s p a n <return> C-c C-d"))
+
+;; 01/14/2026: Add binding for this mode map for consult-recent-file as I use it so much.
+(keymap-set aeh-html-stuff-mode-map "C-c r" 'consult-recent-file)
 
 ;; 05/31/2025
 (defun aeh-disable-smartparens-stuff ()
@@ -44,13 +67,13 @@ A positive prefix enables the mode, any other prefix disables it.
 (add-hook 'mhtml-mode-hook #'aeh-disable-column-enforce)
 
 (general-def aeh-html-stuff-mode-map
-  "C-c h" 'aeh-hydra-html-stuff-menu/body
+  "C-c h" 'my-html-stuff-tmenu
   "C-c _" 'aeh-insert-target-clause
   "C-c ." 'aeh-replace-period-ellipsis-dwim
   "C-c '" 'aeh-insert-single-quote-dwim
   "C-c \"" 'aeh-insert-double-quote-dwim
-  "C-c M-'" 'aeh-replace-single-quote-dwim
-  "C-c M-\"" 'aeh-replace-double-quote-dwim
+  "C-c M-'" 'aeh-sub-single-quote-to-html-quote-dwim
+  "C-c M-\"" 'aeh-sub-double-quote-to-html-quote-dwim
   "C-c C-'" 'aeh-insert-single-smart-quote-dwim
   "C-c C-\"" 'aeh-insert-double-smart-quote-dwim
   "C-c C-=" 'aeh-delete-class-s
@@ -66,6 +89,8 @@ A positive prefix enables the mode, any other prefix disables it.
   "C-c f" 'aeh-position-final-para-tag
   "C-c F" 'aeh-zap-to-char-backwards
   "C-c l" 'aeh-insert-townhall-logo-gif
+  "C-c i" 'aeh-add-th-icon
+  "C-c I" 'aeh-split-list-item-tags-dwim
   "C-c m" 'aeh-delete-carriage-return-dwim
   "C-c M" 'aeh-delete-multiple-empty-lines
   "C-c n" 'aeh-strip-nbsp-dwim
@@ -73,18 +98,18 @@ A positive prefix enables the mode, any other prefix disables it.
   "C-c p" 'aeh-insert-paragraph-tags
   "C-c P" 'aeh-delete-is-pasted-id
   "C-c q" 'aeh-replace-smart-quotes-dwim
-  "C-c r" 'aeh-insert-triangle-bullet
+  "C-c R" 'aeh-insert-triangle-bullet
   "C-c s" 'aeh-add-date-span
   "C-c S" 'aeh-split-paragraph-tags-dwim
   "C-c t" 'aeh-add-title-anchor-tags
   "C-c T" 'aeh-zap-up-to-char-backwards
-  ;; "C-c u" 'aeh-delete-data-saferedirecturl
   "C-c u" 'aeh-delete-redirect-urls-dwim
   "C-c x" 'aeh-delete-data-pasted-class
   "C-c 0" 'aeh-delete-directionality-attr
   "C-c 9" 'aeh-delete-links-relationship
   "C-c M-f" 'aeh-flush-empty-lines-dwim
   "C-c M-n" 'aeh-new-untitled-buffer
+  "C-c C-x s" 'kill-span-tags
   "C-x d" 'dired-jump
 )
 
@@ -277,13 +302,15 @@ line in the HEAD section only."
   (message "Added class for `byline' to existing author anchor."))
 
 (defun aeh-add-date-span ()
-"Wrap current (dated) line with classed <span> tag."
-(interactive)
+  "Wrap current (dated) line with classed <span> tag.
+If evil-mode, change to normal state as movement is expected."
+  (interactive)
   (move-beginning-of-line nil)
   (insert "<span class=\"dated\">")
   (move-end-of-line nil)
   (insert "</span>")
-  (evil-normal-state)
+  (if evil-mode
+      (evil-normal-state))
   (message "Added `span' tag for date line."))
 
 (defun aeh-head-start ()
@@ -342,51 +369,48 @@ line in the HEAD section only."
 (defun aeh-replace-smart-quotes (p-from p-thru)
   "Replace smart quotes with plain quotes in text"
   (interactive)
-  (save-match-data
-    (save-excursion
-      (save-restriction
-        (let ((mod-count 0))
-          (goto-char p-from)
-          ;; smart left double-quote
-          (while (re-search-forward "[“]" p-thru t)
-            (setq mod-count (+ mod-count 1))
-            (replace-match "\&#8220;" nil t))
-          (goto-char p-from)
-          ;; smart right double-quote
-          (while (re-search-forward "[”]" p-thru t)
-            (setq mod-count (+ mod-count 1))
-            (replace-match "\&#8221;" nil t))
-          (goto-char p-from)
-          ;; smart left single-quote
-          (while (re-search-forward "[‘]" p-thru t)
-            (setq mod-count (+ mod-count 1))
-            (replace-match "\&#8216;" nil t))
-          (goto-char p-from)
-          ;; smart right single-quote
-          (while (re-search-forward "[’]" p-thru t)
-            (setq mod-count (+ mod-count 1))
-            (replace-match "\&#8217;" nil t))
-          (message (format "%d smart quotes replaced in buffer." mod-count)))))))
+  (save-excursion
+    (let ((mod-count 0))
+      (goto-char p-from)
+      ;; smart left double-quote
+      (while (re-search-forward "[“]" p-thru t)
+        (setq mod-count (+ mod-count 1))
+        (replace-match "\&#8220;" nil t))
+      (goto-char p-from)
+      ;; smart right double-quote
+      (while (re-search-forward "[”]" p-thru t)
+        (setq mod-count (+ mod-count 1))
+        (replace-match "\&#8221;" nil t))
+      (goto-char p-from)
+      ;; smart left single-quote
+      (while (re-search-forward "[‘]" p-thru t)
+        (setq mod-count (+ mod-count 1))
+        (replace-match "\&#8216;" nil t))
+      (goto-char p-from)
+      ;; smart right single-quote
+      (while (re-search-forward "[’]" p-thru t)
+        (setq mod-count (+ mod-count 1))
+        (replace-match "\&#8217;" nil t))
+      (message (format "%d smart quotes replaced in buffer." mod-count)))))
 
 (defun aeh-strip-nbsp-dwim ()
   "The dwim will strip &NBSP by either region or full buffer."
   (interactive)
+  (save-excursion
   (cond ((region-active-p)
           (aeh-strip-nbsp (region-beginning) (region-end)))
-    (t (aeh-strip-nbsp (point-min) (point-max)))))
+    (t (aeh-strip-nbsp (point-min) (point-max))))))
 
 (defun aeh-strip-nbsp (p-from p-thru)
   "Replace &nbsp with space."
   (interactive)
-  (save-match-data
-    (save-excursion
-      (save-restriction
-        (let ((mod-count 0))
-          (goto-char p-from)
-          (while (re-search-forward "&nbsp;" p-thru t)
-            (setq mod-count (+ mod-count 1))
-            (replace-match " " nil t))
-          (message (format "%d &nbsp removed from buffer." mod-count)))))))
+  (save-excursion
+    (let ((mod-count 0))
+      (goto-char p-from)
+      (while (re-search-forward "&nbsp;" p-thru t)
+        (setq mod-count (+ mod-count 1))
+        (replace-match " " nil t))
+      (message (format "%d &nbsp removed from buffer." mod-count)))))
 
 (defun aeh-split-paragraph-tags-dwim ()
   "The dwim will split paragraph tags by either region or full buffer."
@@ -414,6 +438,28 @@ line in the HEAD section only."
           (search-backward "</p")
           (insert " ")
           (message (format "%d paragraphs split." mod-count)))))))
+
+;; 04/02/2026:adding list-item splitter.
+(defun aeh-split-list-item-tags-dwim ()
+  "Replace `</li><li>' with ` </li>\n<li>"
+  (interactive)
+  (save-excursion
+    (let ((mod-count 0)
+          (p-from (if (region-active-p)
+                      (region-beginning)
+                      (point)))
+          (p-thru (if (region-active-p)
+                      (region-end)
+                      (point-max)))
+          (p-str (if (region-active-p)
+                     "region"
+                     "document")))
+      (goto-char p-from)
+      (while (re-search-forward "</li><li>" p-thru t)
+        (replace-match " </li>\n<li>" t t)
+        (setq mod-count (+ mod-count 1)))
+      (message (format "%s list-item tags split in %s" mod-count p-str)))))
+
 
 (defun aeh-replace-double-dash-dwim ()
   "The dwim will replace double-dashes by either region or full buffer."
@@ -537,7 +583,7 @@ region in question.
 (defun aeh-delete-meta-tags ()
   "Delete the meta-data tags lines found in the HEAD section."
   (interactive)
-  (save-match-data
+  ;; (save-match-data
     (save-excursion
       (goto-char (aeh-head-start))
       (let ((mod-count 0))
@@ -548,7 +594,8 @@ region in question.
           ;; (replace-match "" nil t)
           (beginning-of-line)
           (kill-whole-line))
-        (message (format "%d meta tags deleted in buffer." mod-count))))))
+        (message (format "%d meta tags deleted in buffer." mod-count)))))
+                                        ;)
 
 (defun aeh-delete-stylesheets ()
   "Delete any stylesheet tags found in the HEAD section. Note that if the link
@@ -665,22 +712,6 @@ argument is used, will produce a smart right-double quote."
     (insert "&#8220"))))
 
 
-(defun aeh-replace-single-quote-dwim ()
-  "Replace a single-quote with an HTML single-quote"
-  (interactive)
-  (save-excursion
-    (delete-forward-char 1)
-    (insert "&#39;")))
-
-
-(defun aeh-replace-double-quote-dwim ()
-  "Replace a double-quote with an HTML entity number"
-  (interactive)
-  (save-excursion
-    (delete-forward-char 1)
-    (insert "&#34;")))
-
-
 (defun aeh-position-final-para-tag ()
   "Insert a space before the final end-paragraph tag in the document."
   (interactive)
@@ -701,15 +732,31 @@ argument is used, will produce a smart right-double quote."
         (replace-match "" nil t))
       (message (format "%d paragraph class attributes deleted in buffer." mod-count)))))
 
+;; 04/09/2026: Fixed to be single function for dwim.
 (defun aeh-replace-set-ital-dwim ()
   "The dwim will replace `(SET/END ITAL)' markers by either region or full buffer."
   (interactive)
-  (cond ((region-active-p)
-          (message "replace-set-ital dwim in region")
-          (aeh-replace-set-ital (region-beginning) (region-end)))
-    (t
-      (message "replace-set-ital dwim in buffer")
-      (aeh-replace-set-ital (point-min) (point-max)))))
+  (save-excursion
+    (let ((mod-count 0)
+          (p-from (if (region-active-p)
+                      (region-beginning)
+                      (point)))
+          (p-thru (if (region-active-p)
+                      (region-end)
+                      (point-max))) 
+          (p-str (if (region-active-p)
+                     "region"
+                     "document")))
+      (goto-char p-from)
+      (while (re-search-forward "(SET ITAL)" p-thru t)
+        (setq mod-count (+ mod-count 1))
+        (replace-match "<em>" t t))
+      (goto-char p-from)
+      (while (re-search-forward "(END ITAL)" p-thru t)
+        (replace-match "</em>" t t))
+    (message (format "%d (SET/END ITAL) markers replaced in buffer." mod-count)))))
+
+
 
 (defun aeh-replace-set-ital (p-from p-thru)
   "Replace the `(SET/END ITAL)' markers with <em> and </e> tags."
@@ -727,11 +774,28 @@ argument is used, will produce a smart right-double quote."
             (replace-match "</em>" t t))
           (message (format "%d (SET/END ITAL) markers replaced in buffer." mod-count)))))))
 
+
 (defun aeh-insert-triangle-bullet ()
   "Inserts a `triangle bullet' HTML code character at point."
   (interactive)
-  (insert "\&#8227;")
+  (insert "\&#9656;")
  )
+
+;; (defun aeh-insert-triangle-bullet (&optional arg)
+;;   "Inserts a `triangle bullet' HTML code character at point.
+;; With prefix argument ARG, substitute dash or double-dash with
+;; triangle bullet ARG times. Negative argument will substitute
+;; backward."
+;;   (interactive "P")
+;;   (if (listp arg)
+;;       (progn
+;;         (setq arg (car arg))
+;;         (if (eq arg '-) (setq arg (* -1 arg)))
+;;         )
+;;       (insert "\&#9656;")
+;;       )
+;;   )
+
 
 (defun aeh-zap-to-char-backwards (char)
   "Implements standard `zap-to-char' with negative argment, zapping backwards."
@@ -740,6 +804,7 @@ argument is used, will produce a smart right-double quote."
     (save-excursion
       (zap-to-char -1 char))))
 
+
 (defun aeh-zap-up-to-char-backwards (char)
   "Implements standard `zap-up-to-char' with negative argment, zapping backwards."
   (interactive "cZap backwards up to char: ")
@@ -747,42 +812,34 @@ argument is used, will produce a smart right-double quote."
     (save-excursion
       (zap-up-to-char -1 char))))
 
+;; FIXME: need to change to work ONLY on region, message if not region.
 (defun aeh-delete-emphasis-tags-interactively ()
   "Will tag HTML emphasis tags for deletion, requesting action for each match.
 ALWAYS USE IN REGION, else it will act from current point to point-max."
   (interactive)
-  (save-excursion)
-  (let ((p-from (if (region-active-p)
-                    (region-beginning)
-                    (point)))
-        (p-thru (if (region-active-p)
-                    (region-end)
-                    (point-max)))
-             (p-str (if (region-active-p)
-                       "region"
-                       "document")))
-             (goto-char p-from)
-             (query-replace-regexp "<\/*em>" "")))
+  (save-excursion
+    (if (region-active-p)
+        (query-replace-regexp "</*em>" "")
+        (message "No region specified!"))))
 
-(defun aeh-convert-double-dash-to-html-bullet ()
-  "Some authors use a double-dash as a bullet, and this will convert these
-within a region."
+
+(defun aeh-convert-dashs-to-triangle-bullet ()
+  "Some authors use a single-, double-, or even a triple-dash as a bullet;
+this will convert these to a triangle bullet within a region."
   (interactive)
   (save-excursion)
   (if (region-active-p)
-      (let ((mod-count 0)
-            (p-from (region-beginning))
-            (p-thru (region-end))
-            )
-          (goto-char p-from)
-          (while (re-search-forward "--" p-thru t)
-            (replace-match "&#8226; " t t)
-            (setq mod-count (+ mod-count 1))
-            )
+      (let ((mod-count 0))
+          (goto-char (region-beginning))
+          (while (re-search-forward "-\\{1,3\\}" (region-end) t)
+            (replace-match "&#9656; " t t)
+            (setq mod-count (+ mod-count 1)))
           (message (format "%d double-dashes replaced in region" mod-count)))
-      (message "No region specified")))
-(general-def aeh-html-stuff-mode-map
-    "C-c C-c b" 'aeh-convert-double-dash-to-html-bullet)
+      (message "No region specified!")))
+
+(keymap-set aeh-html-stuff-mode-map
+    "C-c C-c b" '("Convert dashs to bullets" . aeh-convert-dashs-to-triangle-bullet))
+
 
 (defun aeh-flush-empty-lines-dwim ()
   "Flush empty lines in either region or point to end of buffer."
@@ -792,58 +849,122 @@ within a region."
         (t (flush-lines "^ *$" (point) (point-max) t))))
 
 
-;; Option "a" has to be offset to the right one character due to the required
-;; backslash in "^M" to force the carat to display on the menu.
-(defhydra aeh-hydra-html-stuff-menu (:color red)
-  "
-Custom HTML functions.
-_q_ -> Quit
-_1_ -> Delete \^M                   _a_ -> Insert para tags
-_2_ -> Strip &nbsp                 _c_ -> Add body class
-_3_ -> Delete meta tags            _d_ -> Insert div tags 
-_4_ -> Delete stylesheets          _e_ -> Replace ITAL tags
-_5_ -> Delete script tags          _i_ -> Add TH icon
-_6_ -> Insert base href            _l_ -> Insert TH logo
-_7_ -> Replace smart quotes        _n_ -> New buffer
-_8_ -> Replace smart chars         _P_ -> Delete is-pasted arg
-_9_ -> Delete relationship links   _S_ -> Split paragraphs
-_0_ -> Delete dir attribute        _s_ -> Add span tags
-_C_ -> Insert CSS file             _t_ -> Insert anchor tags
-_B_ -> Replace <br>                _._ -> Replace ...
-_D_ -> Replace --                  _u_ -> Delete saferedirecturl
-_m_ -> Delete multi-blank lines    _x_ -> Delete data-pasted
-"
-  ("q" nil)
-  ("<esc>" nil)
-  ("1" #'aeh/delete-carriage-return-dwim)
-  ("2" #'aeh-strip-nbsp-dwim)
-  ("3" #'aeh-delete-meta-tags)
-  ("4" #'aeh-delete-stylesheets)
-  ("5" #'aeh-delete-script-tags)
-  ("6" #'aeh-insert-base-href)
-  ("7" #'aeh-replace-smart-quotes-dwim)
-  ("8" #'aeh-replace-smart-chars-dwim)
-  ("9" #'aeh-delete-links-relationship)
-  ("0" #'aeh-delete-directionality-attr)
-  ("a" #'aeh-insert-paragraph-tags)
-  ("B" #'aeh-replace-line-break-dwim)
-  ("C" #'aeh-insert-css-file)
-  ("c" #'aeh-add-class-to-body-tag)
-  ("D" #'aeh-replace-double-dash-dwim)
-  ("d" #'aeh-insert-div-tags)
-  ("e" #'aeh-replace-set-ital-dwim)
-  ("i" #'aeh-add-th-icon)
-  ("l" #'aeh-insert-townhall-logo-gif)
-  ("m" #'aeh-delete-multiple-empty-lines)
-  ("n" #'aeh-new-untitled-buffer)
-  ("P" #'aeh-delete-is-pasted-id)
-  ("S" #'aeh-split-paragraph-tags-dwim)
-  ("s" #'aeh-add-date-span)
-  ("t" #'aeh-add-title-anchor-tags)
-  ("u" #'aeh-delete-data-saferedirecturl)
-  ("x" #'aeh-delete-data-pasted-class)
-  ("." #'aeh-replace-period-ellipsis-dwim)
-)
+(defun aeh-sub-single-quote-to-html-quote-dwim ()
+  "Substitute straight single-quote with an HTML character in region or buffer."
+  (interactive)
+  (save-excursion
+  (let ((mod-count 0)
+        (p-from (if (region-active-p)
+                    (region-beginning)
+                    (point)))
+        (p-thru (if (region-active-p)
+                    (region-end)
+                    (point-max))) 
+        (p-str (if (region-active-p)
+                   "region"
+                   "document")))
+          (goto-char p-from)
+          (while (re-search-forward "'" p-thru t)
+            (replace-match "&#39;" t t)
+            (setq mod-count (+ mod-count 1)))
+          (message (format "%d single-quotes replaced in %s" mod-count p-str)))))
+
+
+(defun aeh-sub-double-quote-to-html-quote-dwim ()
+  "Substitute straight double-quote with an HTML character in region or buffer."
+  (interactive)
+  (save-excursion)
+  (let ((mod-count 0)
+        (p-from (if (region-active-p)
+                    (region-beginning)
+                    (point)))
+        (p-thru (if (region-active-p)
+                    (region-end)
+                    (point-max))) 
+        (p-str (if (region-active-p)
+                   "region"
+                   "document")))
+          (goto-char p-from)
+          (while (re-search-forward "'" p-thru t)
+            (replace-match "&#34; " t t)
+            (setq mod-count (+ mod-count 1)))
+          (message (format "%d double-quotes replaced in %s" mod-count p-str))))
+
+  
+;; Transient Menu.
+(transient-define-prefix my-html-stuff-tmenu ()
+  "Transient menu for my Townhall HTML editing"
+  ["Townhall HTML Editing.\n"
+   ["Always Do"
+    ("q" "Quit" keyboard-quit :transient nil)
+    ("1" "DEL ^M"
+         aeh/delete-carriage-return-dwim :transient t)
+    ("2" "DEL &nbsp;"
+         aeh-strip-nbsp-dwim :transient t)
+    ("3" "DEL Meta Tags"
+         aeh-delete-meta-tags :transient t)
+    ("4" "DEL Stylesheets"
+         aeh-delete-stylesheets :transient t)
+    ("5" "DEL Script tags"
+         aeh-delete-script-tags :transient t)
+    ("6" "INS HREF"
+         aeh-insert-base-href :transient t)
+    ("7" "REP Smart Quotes"
+         aeh-replace-smart-quotes-dwim :transient t)
+    ("8" "REP Smart Chars"
+         aeh-replace-smart-chars-dwim :transient t)
+    ("9" "DEL Link rels"
+         aeh-delete-links-relationship :transient t)
+    ("i" "INS TH icon"
+         aeh-add-th-icon :transient t)
+    ("l" "INS TH logo"
+         aeh-insert-townhall-logo-gif :transient t)
+    ("c" "INS Body=class"
+         aeh-add-class-to-body-tag :transient t)]
+
+   ["Sometimes Do (and exit)"
+    ("0" "DEL Dir= attr"
+         aeh-delete-directionality-attr :transient nil)
+    ("a" "DEL <P align="
+         aeh-delete-align-justify :transient nil)
+    ("d" "INS <DIV>"
+         aeh-insert-div-tags :transient nil)
+    ("e" "Replace ITAL (dwim)"
+         aeh-replace-set-ital-dwim :transient nil)
+    ("p" "INS <P>"
+         aeh-insert-paragraph-tags :transient nil)
+    ("s" "Add <SPAN> (date)"
+         aeh-add-date-span :transient nil)
+    ("t" "Add <A> (title)"
+         aeh-add-title-anchor-tags :transient nil)
+    ("u" "DEL safe URL (dwim)"
+         aeh-delete-redirect-urls-dwim :transient nil)
+    ("x" "DEL pasted class"
+         aeh-delete-data-pasted-class :transient nil)
+    ("B" "REP <BR> (dwim)"
+         aeh-replace-line-break-dwim :transient nil)
+    ("C" "INS CSS file"
+         aeh-insert-css-file :transient nil)
+    ("D" "REP -- (dwim)"
+         aeh-replace-double-dash-dwim :transient nil)
+    ("P" "DEL pasted ID"
+         aeh-delete-is-pasted-id :transient nil)
+    ("." "REP ellipsis (dwim)"
+         aeh-replace-period-ellipsis-dwim :transient nil)]
+
+   ["Rarely Do (and exit)"
+    ("F" "Flush empty lines (dwim)"
+         aeh-flush-empty-lines-dwim :transient nil)
+    ("I" "Split list-item tags (dwim)"
+         aeh-split-list-item-tags-dwim :transient nil)
+    ("'" "Sub single-quote to HTML"
+         aeh-sub-single-quote-to-html-quote-dwim :transient nil)
+    ("\"" "Sub double-quote to HTML"
+          aeh-sub-double-quote-to-html-quote-dwim :transient nil)]
+  ])
+
+
+
 
 ;; Ref: http://ergoemacs.org/emacs/emacs_html_insert_tags.html
 ;; Ref: https://www.gnu.org/software/emacs/manual/html_mono/autotype.html
