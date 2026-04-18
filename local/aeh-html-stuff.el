@@ -2,7 +2,7 @@
 ;;
 ;; File name:     aeh-html-stuff.el
 ;; Created:       Sun Jun 30, 2019 23:52:30
-;; Last modified: Sat Apr 18, 2026 15:37:49
+;; Last modified: Sat Apr 18, 2026 15:42:48
 ;; Purpose:       Define all functions needed to replace my custom Vim HTML key mappings.
 ;; Version:       0.1
 
@@ -44,6 +44,7 @@ A positive prefix enables the mode, any other prefix disables it.
     ))
 
 (add-hook 'mhtml-mode-hook #'aeh-set-politics-directory)
+(add-hook 'mhtml-mode-hook #'aeh-html-stuff-version)
 
 
 (defun aeh-kill-span-tags ()
