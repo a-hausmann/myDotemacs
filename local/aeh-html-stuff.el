@@ -2,7 +2,7 @@
 ;;
 ;; File name:     aeh-html-stuff.el
 ;; Created:       Sun Jun 30, 2019 23:52:30
-;; Last modified: Sat Apr 11, 2026 18:25:34
+;; Last modified: Sat Apr 18, 2026 15:37:49
 ;; Purpose:       Define all functions needed to replace my custom Vim HTML key mappings.
 ;; Version:       0.1
 
@@ -20,7 +20,7 @@
 
 (require 'transient)
 
-(defconst aeh-html-stuff-version "0.2")
+(defconst aeh-html-stuff-version "0.3")
 
 (defun aeh-html-stuff-version ()
   "Show current version of `aeh-html-stuff'."
@@ -43,16 +43,25 @@ A positive prefix enables the mode, any other prefix disables it.
     ((kbd "C-c h") . my-html-stuff-tmenu)
     ))
 
-
 (add-hook 'mhtml-mode-hook #'aeh-set-politics-directory)
 
-;; 01/15/2026: recorded macro to kill span tags; will give a key chord
-;; in my defined map.
-(defalias 'kill-span-tags
-   (kmacro "C-s < s p a n <return> C-c C-d"))
 
-;; 01/14/2026: Add binding for this mode map for consult-recent-file as I use it so much.
-(keymap-set aeh-html-stuff-mode-map "C-c r" 'consult-recent-file)
+(defun aeh-kill-span-tags ()
+  "Use function `sgml-delete-tag' to kill any `<span>' tags within a region.
+As this command should ONLY be used in a region, will check to see if a region
+has been specified and exit if this command could affect the entire buffer."
+  (interactive)
+  (save-excursion
+    (if (region-active-p)
+        (progn
+          (let ((mod-count 0))
+            (goto-char (region-beginning))
+            (while (re-search-forward "<span" nil t)
+              (setq mod-count (1+ mod-count))
+              (sgml-delete-tag 1))
+            (message "Deleted %s <span> tags" mod-count)))
+        (message "No region specified!"))))
+
 
 ;; 05/31/2025
 (defun aeh-disable-smartparens-stuff ()
@@ -109,13 +118,13 @@ A positive prefix enables the mode, any other prefix disables it.
   "C-c 0" 'aeh-delete-directionality-attr
   "C-c 9" 'aeh-delete-links-relationship
   "C-c M-f" 'aeh-flush-empty-lines-dwim
-  "C-c M-n" 'aeh-new-untitled-buffer
-  "C-c C-x s" 'kill-span-tags
+  "C-c C-x s" 'aeh-kill-span-tags
   "C-x d" 'dired-jump
 )
 
+(keymap-set aeh-html-stuff-mode-map "C-c r" 'consult-recent-file)
 (keymap-set aeh-html-stuff-mode-map
-    "C-c C-c B" '("Convert dashs to bullets" . aeh-convert-dashs-to-triangle-bullet))
+    "C-c -" '("Convert dash(s) to bullets" . aeh-convert-dashs-to-triangle-bullet))
 (keymap-set aeh-html-stuff-mode-map
     "C-c C-SPC" '("Compress spaces" . aeh-compress-extra-spaces))
 
@@ -183,8 +192,8 @@ A positive prefix enables the mode, any other prefix disables it.
     (let ((mod-count 0))
       (while (re-search-forward " dir=\"ltr\"" (point-max) t)
         (setq mod-count (+ mod-count 1))
-        (replace-match "" nil t)
-        (message (format "%d directionality attributes removed" mod-count))))))
+        (replace-match "" nil t))
+      (message (format "%d directionality attributes removed" mod-count)))))
 
 
 (defun aeh-delete-is-pasted-id ()
@@ -195,8 +204,8 @@ A positive prefix enables the mode, any other prefix disables it.
     (let ((mod-count 0))
       (while (re-search-forward " id=\"isPasted\"" (point-max) t)
         (setq mod-count (+ mod-count 1))
-        (replace-match "" nil t)
-        (message (format "%d isPasted paragraph ids removed" mod-count))))))
+        (replace-match "" nil t))
+      (message (format "%d isPasted paragraph ids removed" mod-count)))))
 
 
 (defun aeh-delete-data-pasted-class ()
@@ -229,9 +238,9 @@ region. Returns message of count of texts deleted in either document or region."
     (goto-char (point-min))
     (let ((mod-count 0))
       (while (re-search-forward " align=\"justify\"" (point-max) t)
-      (setq mod-count (+ mod-count 1))
-      (replace-match "" nil t)
-      (message (format "%d align justify attributes removed" mod-count))))))
+        (setq mod-count (+ mod-count 1))
+        (replace-match "" nil t))
+      (message (format "%d align justify attributes removed" mod-count)))))
 
 
 (defun aeh-delete-links-relationship ()
@@ -245,8 +254,7 @@ all be on one line, so delete the entire line."
         (setq mod-count (+ mod-count 1))
         ;; (replace-match "" nil t)
         (beginning-of-line)
-        (kill-whole-line)
-        )
+        (kill-whole-line))
       (message (format "%d relational links removed" mod-count)))))
 
 
@@ -1011,7 +1019,9 @@ selected, abort function with appropriate message."
     ("\"" "Sub double-quote to HTML"
           aeh-sub-double-quote-to-html-quote-dwim :transient nil)
     ("SPC" "Compress spaces to single space"
-          aeh-compress-extra-spaces :transient nil)]
+           aeh-compress-extra-spaces :transient nil)
+    ("-" "Sub dash(s) to triangle bullet"
+         aeh-convert-dashs-to-triangle-bullet :transient nil)]
   ])
 
 
