@@ -2,7 +2,7 @@
 ;;
 ;; File name:     aeh-html-stuff.el
 ;; Created:       Sun Jun 30, 2019 23:52:30
-;; Last modified: Sat Apr 18, 2026 15:42:48
+;; Last modified: Sat Jul 18, 2026 19:51:31
 ;; Purpose:       Define all functions needed to replace my custom Vim HTML key mappings.
 ;; Version:       0.1
 
@@ -46,6 +46,112 @@ A positive prefix enables the mode, any other prefix disables it.
 (add-hook 'mhtml-mode-hook #'aeh-set-politics-directory)
 (add-hook 'mhtml-mode-hook #'aeh-html-stuff-version)
 
+;; 05/31/2025
+(defun aeh-disable-smartparens-stuff ()
+  "Disable smartparens-global-mode and smartparens-global-strict-mode"
+  (smartparens-global-mode -1)
+  (smartparens-global-strict-mode -1))
+(add-hook 'aeh-html-stuff-mode #'aeh-disable-smartparens-stuff)
+
+(defun aeh-disable-column-enforce ()
+  "Disable column-enforce-mode, specifically created for html-mode-hook."
+  (column-enforce-mode -1))
+(add-hook 'mhtml-mode-hook #'aeh-disable-column-enforce)
+
+
+(keymap-set aeh-html-stuff-mode-map
+            "C-c h" '("HTML transient menu" . my-html-stuff-tmenu))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c _" '("INS target clause" . aeh-insert-target-clause))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c ." '("REP ..." . aeh-replace-period-ellipsis-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c '" '("INS '" . aeh-insert-single-quote-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c \"" '("INS \"" . aeh-insert-double-quote-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c M-'" '("SUB ' to HTML" . aeh-sub-single-quote-to-html-quote-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c M-\"" '("SUB \" to HTML" . aeh-sub-double-quote-to-html-quote-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c C-'" '("INS smart '" . aeh-insert-single-smart-quote-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c C-\"" '("INS smart \"" . aeh-insert-double-smart-quote-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c C-=" '("DEL class `s' tags" . aeh-delete-class-s))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c a" '("DEL align justify" . aeh-delete-align-justify))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c b" '("ADD byline" . aeh-add-byline-class-title))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c B" '("REP <br>" . aeh-replace-line-break-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c c" '("ADD body class" . aeh-add-class-to-body-tag))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c C" '("INS CSS file" . aeh-insert-css-file))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c d" '("INS div tags" . aeh-insert-div-tags))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c D" '("REP --" . aeh-replace-double-dash-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c e" '("REP set ital" . aeh-replace-set-ital-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c E" '("DEL em tags" . aeh-delete-emphasis-tags-interactively))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c f" '("Last para tag" . aeh-position-final-para-tag))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c F" '("ZAP as vim F" . aeh-zap-to-char-backwards))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c M-f" '("Flush lines" . aeh-flush-empty-lines-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c i" '("INS TH icon" . aeh-add-th-icon))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c I" '("Split LI tags" . aeh-split-list-item-tags-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c k" '("DEL span tags" . aeh-kill-span-tags))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c l" '("INS TH logo" . aeh-insert-townhall-logo-gif))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c m" '("DEL ^M" . aeh-delete-carriage-return-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c M" '("DEL empty lines" . aeh-delete-multiple-empty-lines))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c n" '("DEL NBSP" . aeh-strip-nbsp-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c o" '("REP smart chars" . aeh-replace-smart-chars-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c p" '("INS paragraph" . aeh-insert-paragraph-tags))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c P" '("DEL is-pasted" . aeh-delete-is-pasted-id))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c q" '("REP smart quotes" . aeh-replace-smart-quotes-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c R" '("INS triangle bullet" . aeh-insert-triangle-bullet))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c s" '("ADD Dated span" . aeh-add-date-span))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c S" '("Split paragraphs" . aeh-split-paragraph-tags-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c t" '("ADD title tag" . aeh-add-title-anchor-tags))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c T" '("ZAP as vim T" . aeh-zap-up-to-char-backwards))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c u" '("DEL redirects" . aeh-delete-redirect-urls-dwim))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c x" '("DEL pasted class" . aeh-delete-data-pasted-class))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c 0" '("DEL direction attr" . aeh-delete-directionality-attr))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c 9" '("DEL rel links" . aeh-delete-links-relationship))
+(keymap-set aeh-html-stuff-mode-map
+            "C-x d" '("Dired Jump" . dired-jump))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c r" '("Recent Files" . consult-recent-file))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c -" '("Convert dash(s) to bullets" . aeh-convert-dashs-to-triangle-bullet))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c C-SPC" '("Compress spaces" . aeh-compress-extra-spaces))
+
 
 (defun aeh-kill-span-tags ()
   "Use function `sgml-delete-tag' to kill any `<span>' tags within a region.
@@ -64,73 +170,6 @@ has been specified and exit if this command could affect the entire buffer."
         (message "No region specified!"))))
 
 
-;; 05/31/2025
-(defun aeh-disable-smartparens-stuff ()
-  "Disable smartparens-global-mode and smartparens-global-strict-mode"
-  (smartparens-global-mode -1)
-  (smartparens-global-strict-mode -1))
-(add-hook 'aeh-html-stuff-mode #'aeh-disable-smartparens-stuff)
-
-(defun aeh-disable-column-enforce ()
-  "Disable column-enforce-mode, specifically created for html-mode-hook."
-  (column-enforce-mode -1))
-(add-hook 'mhtml-mode-hook #'aeh-disable-column-enforce)
-
-;; FIXME: Recode this to NOT REQUIRE General!
-(general-def aeh-html-stuff-mode-map
-  "C-c h" 'my-html-stuff-tmenu
-  "C-c _" 'aeh-insert-target-clause
-  "C-c ." 'aeh-replace-period-ellipsis-dwim
-  "C-c '" 'aeh-insert-single-quote-dwim
-  "C-c \"" 'aeh-insert-double-quote-dwim
-  "C-c M-'" 'aeh-sub-single-quote-to-html-quote-dwim
-  "C-c M-\"" 'aeh-sub-double-quote-to-html-quote-dwim
-  "C-c C-'" 'aeh-insert-single-smart-quote-dwim
-  "C-c C-\"" 'aeh-insert-double-smart-quote-dwim
-  "C-c C-=" 'aeh-delete-class-s
-  "C-c a" 'aeh-delete-align-justify
-  "C-c b" 'aeh-add-byline-class-title
-  "C-c B" 'aeh-replace-line-break-dwim
-  "C-c c" 'aeh-add-class-to-body-tag
-  "C-c C" 'aeh-insert-css-file
-  "C-c d" 'aeh-insert-div-tags
-  "C-c D" 'aeh-replace-double-dash-dwim
-  "C-c e" 'aeh-replace-set-ital-dwim
-  "C-c E" 'aeh-delete-emphasis-tags-interactively
-  "C-c f" 'aeh-position-final-para-tag
-  "C-c F" 'aeh-zap-to-char-backwards
-  "C-c l" 'aeh-insert-townhall-logo-gif
-  "C-c i" 'aeh-add-th-icon
-  "C-c I" 'aeh-split-list-item-tags-dwim
-  "C-c m" 'aeh-delete-carriage-return-dwim
-  "C-c M" 'aeh-delete-multiple-empty-lines
-  "C-c n" 'aeh-strip-nbsp-dwim
-  "C-c o" 'aeh-replace-smart-chars-dwim
-  "C-c p" 'aeh-insert-paragraph-tags
-  "C-c P" 'aeh-delete-is-pasted-id
-  "C-c q" 'aeh-replace-smart-quotes-dwim
-  "C-c R" 'aeh-insert-triangle-bullet
-  "C-c s" 'aeh-add-date-span
-  "C-c S" 'aeh-split-paragraph-tags-dwim
-  "C-c t" 'aeh-add-title-anchor-tags
-  "C-c T" 'aeh-zap-up-to-char-backwards
-  "C-c u" 'aeh-delete-redirect-urls-dwim
-  "C-c x" 'aeh-delete-data-pasted-class
-  "C-c 0" 'aeh-delete-directionality-attr
-  "C-c 9" 'aeh-delete-links-relationship
-  "C-c M-f" 'aeh-flush-empty-lines-dwim
-  "C-c C-x s" 'aeh-kill-span-tags
-  "C-x d" 'dired-jump
-)
-
-(keymap-set aeh-html-stuff-mode-map "C-c r" 'consult-recent-file)
-(keymap-set aeh-html-stuff-mode-map
-    "C-c -" '("Convert dash(s) to bullets" . aeh-convert-dashs-to-triangle-bullet))
-(keymap-set aeh-html-stuff-mode-map
-    "C-c C-SPC" '("Compress spaces" . aeh-compress-extra-spaces))
-
-
-;; 08/30/2025: added anchor tags around the logo icon to link to https://townhall.com/
 (defun aeh-insert-townhall-logo-gif ()
   "Insert the Townhall logo gif image."
   (interactive)
@@ -148,11 +187,12 @@ has been specified and exit if this command could affect the entire buffer."
     (newline))
   (message "Inserted Townhall logo image tag."))
 
+
 (defun aeh-set-politics-directory ()
-  "Set default directory for HTML work to `~/data/arnold/Politics'"
+  "Set default directory for HTML work to `~/data-arnold/Politics'"
   (interactive)
-  (setq default-directory "~/data/arnold/Politics/")
-  (message "Set default directory to `~/data/arnold/Politics/'"))
+  (setq default-directory "~/data-arnold/Politics/")
+  (message "Set default directory to `~/data-arnold/Politics/'"))
 
 
 (defun aeh-insert-css-file()
@@ -501,7 +541,7 @@ If evil-mode, change to normal state as movement is expected."
           (aeh-replace-double-dash (region-beginning) (region-end)))
     (t (aeh-replace-double-dash (point-min) (point-max)))))
 
-
+;; FIXME: while this DOES the replace, it ALWAYS generates an error about searching about point
 (defun aeh-replace-double-dash (p-from p-thru)
   "Replace double-dash with HTML character"
   (interactive)
@@ -516,6 +556,8 @@ If evil-mode, change to normal state as movement is expected."
           (message (format "%d double-dashes replaced in buffer." mod-count)))))))
 
 
+;; FIXME: change to single function. Also, getting error about invalid argument
+;; ERROR: wrong-type-argument commandp (aeh-replace-period-ellipsis-dwim)
 (defun aeh-replace-period-ellipsis-dwim ()
   "The dwim will replace period ellipsis by either region or full buffer."
   (interactive)
@@ -527,17 +569,16 @@ If evil-mode, change to normal state as movement is expected."
 (defun aeh-replace-period-ellipsis (p-from p-thru)
   "Replace period ellipsis with HTML character"
   (interactive)
-  (save-match-data
-    (save-excursion
-      (save-restriction
-        (let ((mod-count 0))
-          (goto-char p-from)
-          (while (re-search-forward "\\. *\\. *\\." p-thru t)
-            (setq mod-count (+ mod-count 1))
-            (replace-match "\&#8230;" nil t))
-          (message (format "%d period ellipses replaced in buffer." mod-count)))))))
+  (save-excursion
+    (let ((mod-count 0))
+      (goto-char p-from)
+      (while (re-search-forward "\\. *\\. *\\." p-thru t)
+        (setq mod-count (+ mod-count 1))
+        (replace-match "\&#8230;" nil t))
+      (message (format "%d period ellipses replaced in buffer." mod-count)))))
 
 
+;; FIXME: change to single function.
 (defun aeh-replace-line-break-dwim ()
   "The dwim will replace double line breaks with paragraph tags by either region or full buffer."
   (interactive)
@@ -740,9 +781,8 @@ Need to start at beginning of a line and move forward."
 
 
 (defun aeh-insert-single-smart-quote-dwim(&optional arg)
-  "Insert a single-quote to an HTML smart single-quote.
-The function will produce a left smart single-quote, but when the universal
-argument is used, will produce a smart right-single quote."
+  "Insert an HTML smart (left) single-quote. When the universal
+argument is used, will insert a smart right-single quote."
   (interactive "P")
   (save-excursion
     (if arg
@@ -751,9 +791,8 @@ argument is used, will produce a smart right-single quote."
 
 
 (defun aeh-insert-double-smart-quote-dwim(&optional arg)
-  "Insert a double-quote to an HTML smart double-quote.
-The function will produce a left smart double-quote, but when the universal
-argument is used, will produce a smart right-double quote."
+  "Insert an HTML smart (left) double-quote. When the universal
+argument is used, will insert a smart right-double quote."
   (interactive "P")
   (save-excursion
     (if arg
@@ -776,7 +815,7 @@ argument is used, will produce a smart right-double quote."
   (save-excursion
     (goto-char (point-min))
     (let ((mod-count 0))
-      (while (re-search-forward " class=\"s[1-9]\"" (point-max) t)
+      (while (re-search-forward " class=\"s[0-9]+\"" (point-max) t)
         (setq mod-count (+ mod-count 1))
         (replace-match "" nil t))
       (message (format "%d paragraph class attributes deleted in buffer." mod-count)))))
@@ -878,13 +917,16 @@ this will convert these to a triangle bullet within a region."
   (interactive)
   (save-excursion)
   (if (region-active-p)
-      (let ((mod-count 0))
-          (goto-char (region-beginning))
-          (while (re-search-forward "-\\{1,3\\}" (region-end) t)
-            (replace-match "&#9656; " t t)
+      (progn
+        (goto-char (region-beginning))
+        (let ((mod-count 0))
+          (while (re-search-forward ">-+ " (region-end) t)
+            (replace-match ">&#9656; " nil t)
             (setq mod-count (+ mod-count 1)))
-          (message (format "%d double-dashes replaced in region" mod-count)))
+          (message (format "%d dash(s) replaced in region" mod-count)))
+        )
       (message "No region specified!")))
+
 
 
 
@@ -947,6 +989,34 @@ selected, abort function with appropriate message."
     (if (region-active-p)
         (replace-regexp-in-region "[ ]\\{2,\\}" " " (region-beginning) (region-end))
         (message "No region selected; MUST select region first."))))
+
+
+;; TODO Fix this fucking thing. Cannot get the regexp to work correctly when trying
+;; to splice in the input letter, which MUST use string function to convert.
+(defun aeh-delete-paragraph-class-attributes (arg)
+  "Use a regular expression to delete a `class' attribute from a paragraph tag.
+Requires an input expression, generally a letter like `p' or `s'; we use the
+input argument as a base followed by one or more digits. The entire class name
+is enclosed in double-quotes.
+This function MUST apply to a REGION! If no REGION is specified, quit function."
+  (interactive "cClass letter: ")
+  (save-excursion
+    (if (region-active-p)
+        (progn
+          (let ((p1 (concat " class=\"" (string arg) "[0-9]+\""))
+                (mod-count 0))
+            (goto-char (region-beginning))
+            ;; (message "debug, p1: >%s<" p1)
+            ;; (while (re-search-forward p1 (region-end) t)
+            ;; Double backslash doesn't work here, nor triple either.
+            (while (re-search-forward
+                    (concat " class=\"" (string arg) "[0-9]+\"")
+                    (region-end) t)
+              (setq mod-count (+ mod-count 1))
+              (replace-match "" nil t))
+            (message "Deleted %d %s paragraph tags." mod-count p1)))
+    (message "No region selected; MUST select region first."))))
+
 
   
 ;; Transient Menu.
