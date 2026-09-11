@@ -2,7 +2,7 @@
 ;;
 ;; File name:     aeh-html-stuff.el
 ;; Created:       Sun Jun 30, 2019 23:52:30
-;; Last modified: Sat Jul 18, 2026 19:51:31
+;; Last modified: Thu Sep 10, 2026 19:47:21
 ;; Purpose:       Define all functions needed to replace my custom Vim HTML key mappings.
 ;; Version:       0.1
 
@@ -151,6 +151,8 @@ A positive prefix enables the mode, any other prefix disables it.
             "C-c -" '("Convert dash(s) to bullets" . aeh-convert-dashs-to-triangle-bullet))
 (keymap-set aeh-html-stuff-mode-map
             "C-c C-SPC" '("Compress spaces" . aeh-compress-extra-spaces))
+(keymap-set aeh-html-stuff-mode-map
+            "C-c C-M-n" '("Create *Untitled* buffer" . aeh/new-untitled-buffer))
 
 
 (defun aeh-kill-span-tags ()
@@ -291,9 +293,8 @@ all be on one line, so delete the entire line."
   (save-excursion
     (goto-char (point-min))
     (let ((mod-count 0))
-      (while (re-search-forward "<link rel=.*>\n" (point-max) t)
+      (while (re-search-forward "<link rel=.*?>\n" (point-max) t)
         (setq mod-count (+ mod-count 1))
-        ;; (replace-match "" nil t)
         (beginning-of-line)
         (kill-whole-line))
       (message (format "%d relational links removed" mod-count)))))
@@ -407,22 +408,6 @@ If evil-mode, change to normal state as movement is expected."
   (interactive)
   (goto-char (point-min))
   (search-forward "</body>")
-  (search-backward "<"))
-
-
-(defun aeh-script-start ()
-  "Return point for beginning of <script> tag."
-  (interactive)
-  (goto-char (point-min))
-  (re-search-forward "<script.*?>" (point-max))
-  (search-backward "<"))
-
-
-(defun aeh-script-end ()
-  "Return point for beginning of </script> tag."
-  (interactive)
-  (goto-char (point-min))
-  (search-forward "</script>")
   (search-backward "<"))
 
 
@@ -741,6 +726,21 @@ Added the <style> tag to this on 2023-01-09."
     (message "Inserted base href tag.")))
 
 
+(defun aeh-script-start ()
+  "Return point for beginning of <script> tag."
+  (interactive)
+  (goto-char (point-min))
+  ;; (re-search-forward "<script" (point-max))
+  (search-forward "<script")
+  (search-backward "<"))
+
+
+(defun aeh-script-end ()
+  "Return point for beginning of </script> tag."
+  (interactive)
+  (search-forward "</script>"))
+
+
 (defun aeh-delete-script-tags ()
   "Delete the script tags found in the HEAD section. Note that if the meta
 tag does NOT end with a newline, the remainder of the line will be left intact."
@@ -750,9 +750,10 @@ tag does NOT end with a newline, the remainder of the line will be left intact."
       (goto-char (point-min))
       (let ((mod-count 0))
         ;; (while (re-search-forward "<script.*</script>?\n*" (point-max) t)
-        (while (re-search-forward "<script.*?>" (point-max) t)
+        (while (re-search-forward "<script" (point-max) t)
           (setq mod-count (+ mod-count 1))
-          (delete-region (aeh-script-start) (progn (aeh-script-end) (search-forward ">"))))
+          ;; (delete-region (aeh-script-start) (progn (aeh-script-end) (search-forward ">"))))
+          (delete-region (aeh-script-start) (aeh-script-end)))
         (message (format "%d script tags deleted in buffer." mod-count))))))
 
 
